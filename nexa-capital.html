@@ -1341,9 +1341,9 @@ Responda APENAS em JSON válido, sem texto antes ou depois, no formato:
       {type:'text',text:prompt}
     ]}];
 
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    const resp=await fetch('/.netlify/functions/claude',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:msgs})
     });
     const data=await resp.json();
