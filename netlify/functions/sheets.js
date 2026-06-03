@@ -13,6 +13,7 @@ exports.handler = async (event) => {
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIlXNBRpIs3BBtuRw81iMnEvCpBmUXmlKaXj9IQ4tkd0f4SrR3erXLk-YcZFGadjRaxQ/exec';
     
     if (event.httpMethod === 'POST') {
+      // Save client
       const client = JSON.parse(event.body);
       const params = new URLSearchParams({
         action: 'save',
@@ -28,12 +29,14 @@ exports.handler = async (event) => {
         valorImovel: client.valorImovel || 0,
         valorFinanciamento: client.valorFinanciamento || 0
       });
+      
       const resp = await fetch(SCRIPT_URL + '?' + params.toString());
       const data = await resp.json();
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
     
     if (event.httpMethod === 'GET') {
+      // Get all clients
       const resp = await fetch(SCRIPT_URL);
       const data = await resp.json();
       return { statusCode: 200, headers, body: JSON.stringify(data) };
