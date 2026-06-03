@@ -300,14 +300,23 @@ async function submitForm(){
     clients.unshift(client);
     localStorage.setItem('nexa_clients_int', JSON.stringify(clients));
 
-    // Envia para Netlify Function que salva no Google Sheets
+    // Envia para Google Forms (banco de dados na nuvem)
     try {
-      fetch('/.netlify/functions/sheets', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(client)
-      }).then(r=>r.json()).then(d=>console.log('Sheets:', d)).catch(e=>console.log('Sheets error:',e));
-    } catch(e) { console.log('Sheets error:', e); }
+      const fd = new FormData();
+      fd.append('entry.574153584', client.nome||'');
+      fd.append('entry.1983594429', client.cpf||'');
+      fd.append('entry.1217907965', client.nascimento||'');
+      fd.append('entry.1861103562', client.estadoCivil||'');
+      fd.append('entry.981889107', client.telefone||'');
+      fd.append('entry.1348655058', String(client.valorImovel||0));
+      fd.append('entry.1139812876', String(client.valorFinanciamento||0));
+      fd.append('entry.853125713', client.conjuge?client.conjuge.nome:'');
+      fd.append('entry.74460870', client.conjuge?client.conjuge.cpf:'');
+      fd.append('entry.1602257707', client.conjuge?client.conjuge.nascimento:'');
+      fetch('https://docs.google.com/forms/d/e/1FAIpQLSdBIN1lhKxxbXgAre8uTxYFO8cdct0fJyBqbrW_Zq83uASemA/formResponse', {method:'POST',mode:'no-cors',body:fd})
+        .then(()=>console.log('Enviado para Google Forms!'))
+        .catch(e=>console.log('Forms error:',e));
+    } catch(e) { console.log('Forms error:', e); }
   } catch(e) {
     console.log('Storage not available, continuing anyway:', e);
   }
