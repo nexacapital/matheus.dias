@@ -140,6 +140,13 @@ footer strong{color:#c9a84c;}
 }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://qbgeletotmujqkckaoko.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2VsZXRvdG11anFrY2thb2tvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NDA5NDAsImV4cCI6MjA5OTIxNjk0MH0.TB-Ejz1C-pEIXnCHnJqk6M930yqs_YtEOa7VnRCcsC0';
+let supaLP=null;
+try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
+</script>
 </head>
 <body>
 
@@ -367,6 +374,21 @@ function sF(e){
   fd.append('entry.981889107',document.getElementById('lft').value.trim());
   fd.append('entry.1348655058',String(pL(document.getElementById('lfi').value)));
   fd.append('entry.1139812876',String(pL(document.getElementById('lff').value)));
+  // Salva no Supabase (tempo real)
+  if(supaLP){
+    supaLP.from('clientes').insert({
+      id:'lp_'+Date.now(),
+      nome:document.getElementById('lfn').value.trim(),
+      cpf:document.getElementById('lfc').value.trim()||null,
+      nascimento:document.getElementById('lfd').value||null,
+      estado_civil:document.getElementById('lfe').value||null,
+      telefone:document.getElementById('lft').value.trim()||null,
+      valor_imovel:pL(document.getElementById('lfi').value),
+      valor_financiamento:pL(document.getElementById('lff').value),
+      status:'novo',bancos:[],banco_escolhido:'',
+      origem:'landing_page',data_cadastro:new Date().toISOString()
+    }).then(({error})=>{if(error)console.warn(error);});
+  }
   fetch(FA,{method:'POST',mode:'no-cors',body:fd}).catch(()=>{});
   document.getElementById('fc').style.display='none';
   document.getElementById('fs').style.display='block';

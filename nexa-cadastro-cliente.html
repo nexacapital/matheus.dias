@@ -89,6 +89,13 @@
   @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
   @media(max-width:480px){ .form-card{padding:24px 20px} .form-row{grid-template-columns:1fr} .hero h1{font-size:26px} .steps{gap:12px} .step-line{width:28px} }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://qbgeletotmujqkckaoko.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2VsZXRvdG11anFrY2thb2tvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NDA5NDAsImV4cCI6MjA5OTIxNjk0MH0.TB-Ejz1C-pEIXnCHnJqk6M930yqs_YtEOa7VnRCcsC0';
+let supa=null;
+try{ supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){ console.warn('Supabase init',e); }
+</script>
 </head>
 <body style="background:#0d1b2a!important;color:#ffffff!important">
 <header class="header" style="padding:0;margin:0;background:#152236;border-bottom:1px solid rgba(201,168,76,0.22);text-align:center;">
@@ -292,6 +299,30 @@ async function submitForm(){
       refCorretor: new URLSearchParams(window.location.search).get('ref') || '',
       dataCadastro: new Date().toISOString()
     };
+
+    // === SALVA NO SUPABASE (tempo real) ===
+    if(supa){
+      supa.from('clientes').insert({
+        id: client.id,
+        nome: client.nome,
+        cpf: client.cpf || null,
+        nascimento: client.nascimento || null,
+        estado_civil: client.estadoCivil || null,
+        telefone: client.telefone || null,
+        valor_imovel: Number(client.valorImovel)||0,
+        valor_financiamento: Number(client.valorFinanciamento)||0,
+        conjuge: client.conjuge || null,
+        status: 'novo',
+        bancos: [],
+        banco_escolhido: '',
+        origem: 'formulario_publico',
+        ref_corretor: client.refCorretor || null,
+        data_cadastro: client.dataCadastro
+      }).then(({error})=>{
+        if(error)console.warn('Supabase insert:',error);
+        else console.log('Cliente salvo no Supabase!');
+      });
+    }
 
     // Load existing clients
     let clients = [];

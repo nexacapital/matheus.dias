@@ -6,6 +6,16 @@
 <title>NEXA Capital — Sistema</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL='https://qbgeletotmujqkckaoko.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2VsZXRvdG11anFrY2thb2tvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NDA5NDAsImV4cCI6MjA5OTIxNjk0MH0.TB-Ejz1C-pEIXnCHnJqk6M930yqs_YtEOa7VnRCcsC0';
+let supa=null;
+try{ supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){ console.warn('Supabase init falhou',e); }
+let SUPA_ONLINE=false;
+</script>
+
 <style>
 :root{--nv:#0d1b2a;--nvm:#152236;--nvl:#1e3350;--gd:#c9a84c;--gdl:#e2c77a;--gdm:rgba(201,168,76,.12);--wh:#fff;--mu:rgba(255,255,255,.45);--bd:rgba(201,168,76,.22);--rd:#f87171;--gr:#4ade80;--bl:#60a5fa;}
   html { background:#0d1b2a !important; }
@@ -753,70 +763,149 @@ function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 
 // ===== LOAD / SAVE =====
 async function loadAll(){
-  try{const r=localStorage.getItem('nexa_banks');if(r)banks=JSON.parse(r);else banks=DEMO_BANKS;}catch(e){banks=DEMO_BANKS;}
-  let internal=[];
-  try{
-    // Busca clientes do Google Sheets via Netlify Function
-    let fromSheets=[];
+  // Bancos, agenda, corretores: tenta Supabase, senão localStorage
+  const supaBancos=await supaLoadBancos();
+  if(supaBancos&&supaBancos.length){banks=supaBancos;}
+  else{try{const r=localStorage.getItem('nexa_banks');if(r)banks=JSON.parse(r);else banks=DEMO_BANKS;}catch(e){banks=DEMO_BANKS;}}
+
+  const supaAgenda=await supaLoadAgenda();
+  if(supaAgenda){agenda=supaAgenda;}
+  else{try{const r=localStorage.getItem('nexa_agenda');if(r)agenda=JSON.parse(r);else agenda=DEMO_AGENDA;}catch(e){agenda=DEMO_AGENDA;}}
+
+  const supaCor=await supaLoadCorretores();
+  if(supaCor){corretores=supaCor;}
+  else{try{const r=localStorage.getItem('nexa_corretores');if(r)corretores=JSON.parse(r);}catch(e){}}
+
+  // CLIENTES: Supabase é a fonte principal
+  const prevNovos=clients?clients.filter(c=>c.status==='novo').length:0;
+  const supaClientes=await supaLoadClientes();
+  if(supaClientes!==null){
+    SUPA_ONLINE=true;
+    clients=supaClientes;
+    // Backup local
+    try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  } else {
+    // Fallback: Google Sheets + localStorage (modo antigo)
+    SUPA_ONLINE=false;
+    let internal=[];
     try{
-      const resp=await fetch('https://script.google.com/macros/s/AKfycbwgBtSzr0gt2duMQP8hTNjG7os8fNvnsR8mF9kZCz9bF6FIllk7bn5XiP9znTkXzlFRlA/exec');
-      if(resp.ok){
-        const data=await resp.json();
-        if(Array.isArray(data))fromSheets=data;
-      }
-    }catch(e){console.log('Sheets read error:',e);}
-
-    // Clientes salvos localmente (cadastros internos + movimentações)
-    const local=localStorage.getItem('nexa_clients_int');
-    const localClients=local?JSON.parse(local):DEMO_CLIENTS;
-
-    // Lista de IDs excluídos permanentemente (não voltam do Sheets)
-    let deletedIds=[];
-    try{const d=localStorage.getItem('nexa_deleted_ids');if(d)deletedIds=JSON.parse(d);}catch(e){}
-    const deletedSet=new Set(deletedIds);
-    // Também bloqueia por chave nome|telefone (caso o id do sheets mude)
-    let deletedKeys=[];
-    try{const dk=localStorage.getItem('nexa_deleted_keys');if(dk)deletedKeys=JSON.parse(dk);}catch(e){}
-    const deletedKeySet=new Set(deletedKeys);
-
-    // Merge: locais têm prioridade (status atualizado), sheets adiciona novos
-    const localIds=new Set(localClients.map(c=>c.id));
-    const newFromSheets=fromSheets.filter(c=>{
-      if(localIds.has(c.id))return false;
-      if(deletedSet.has(c.id))return false;
-      const k=(c.nome||'')+'|'+(c.telefone||'');
-      if(deletedKeySet.has(k))return false;
-      return true;
-    });
-    internal=[...localClients,...newFromSheets];
-
-    // Salva merge no localStorage
-    if(newFromSheets.length>0){
-      localStorage.setItem('nexa_clients_int',JSON.stringify(internal));
-      // Dispara boas-vindas ao cliente + aviso ao Matheus (só para clientes realmente novos)
-      newFromSheets.forEach(novoCliente=>{
-        enviarBoasVindas(novoCliente);
-        notificarMatheusNovoCliente(novoCliente);
+      let fromSheets=[];
+      try{
+        const resp=await fetch('https://script.google.com/macros/s/AKfycbwgBtSzr0gt2duMQP8hTNjG7os8fNvnsR8mF9kZCz9bF6FIllk7bn5XiP9znTkXzlFRlA/exec');
+        if(resp.ok){const j=await resp.json();if(Array.isArray(j))fromSheets=j;}
+      }catch(e){}
+      let localClients=[];
+      try{const r=localStorage.getItem('nexa_clients_int');if(r)localClients=JSON.parse(r);}catch(e){}
+      let deletedIds=[];try{const d=localStorage.getItem('nexa_deleted_ids');if(d)deletedIds=JSON.parse(d);}catch(e){}
+      const deletedSet=new Set(deletedIds);
+      let deletedKeys=[];try{const dk=localStorage.getItem('nexa_deleted_keys');if(dk)deletedKeys=JSON.parse(dk);}catch(e){}
+      const deletedKeySet=new Set(deletedKeys);
+      const localIds=new Set(localClients.map(c=>c.id));
+      const newFromSheets=fromSheets.filter(c=>{
+        if(localIds.has(c.id))return false;
+        if(deletedSet.has(c.id))return false;
+        const k=(c.nome||'')+'|'+(c.telefone||'');
+        if(deletedKeySet.has(k))return false;
+        return true;
       });
-    }
-  }catch(e){internal=DEMO_CLIENTS;}
-  // Deduplicate by id - keep local version (has updated status)
-  const seenIds=new Set();
-  const seenKeys=new Set();
-  clients=internal.filter(cl=>{
-    if(seenIds.has(cl.id))return false;
-    const key=(cl.nome||'')+'|'+(cl.telefone||'')+'|'+(cl.cpf||'');
-    if(key!='||' && seenKeys.has(key))return false;
-    seenIds.add(cl.id);
-    seenKeys.add(key);
-    return true;
-  });
-  try{const r=localStorage.getItem('nexa_agenda');if(r)agenda=JSON.parse(r);else agenda=DEMO_AGENDA;}catch(e){agenda=DEMO_AGENDA;}
+      internal=[...localClients,...newFromSheets];
+      if(newFromSheets.length>0){localStorage.setItem('nexa_clients_int',JSON.stringify(internal));}
+    }catch(e){internal=DEMO_CLIENTS;}
+    const seenIds=new Set();const seenKeys=new Set();
+    clients=internal.filter(cl=>{
+      if(seenIds.has(cl.id))return false;
+      const key=(cl.nome||'')+'|'+(cl.telefone||'')+'|'+(cl.cpf||'');
+      if(key!='||' && seenKeys.has(key))return false;
+      seenIds.add(cl.id);seenKeys.add(key);return true;
+    });
+  }
+  // Detecta novos clientes para notificação sonora
+  const newNovos=clients.filter(c=>c.status==='novo').length;
+  if(newNovos>prevNovos && prevNovos>0) notifyNovoCliente(newNovos-prevNovos);
+
   renderAll();
 }
-async function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}}
-async function saveBanks(){try{localStorage.setItem('nexa_banks',JSON.stringify(banks));}catch(e){}}
-async function saveAgenda2(){try{localStorage.setItem('nexa_agenda',JSON.stringify(agenda));}catch(e){}}
+async function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  // Sincroniza todos com Supabase
+  if(supa&&clients){clients.forEach(cl=>supaSaveCliente(cl));}
+}
+async function saveBanks(){try{localStorage.setItem('nexa_banks',JSON.stringify(banks));}catch(e){}
+  if(supa&&banks){banks.forEach(b=>supaSaveBanco(b));}}
+async function saveAgenda2(){try{localStorage.setItem('nexa_agenda',JSON.stringify(agenda));}catch(e){}
+  if(supa&&agenda){agenda.forEach(a=>supaSaveAgenda(a));}}
+
+// ============================================
+// CAMADA DE DADOS SUPABASE (com fallback local)
+// ============================================
+function cliToRow(cl){
+  return {
+    id:cl.id, nome:cl.nome||'', cpf:cl.cpf||null, nascimento:cl.nascimento||null,
+    estado_civil:cl.estadoCivil||null, telefone:cl.telefone||null,
+    valor_imovel:Number(cl.valorImovel)||0, valor_financiamento:Number(cl.valorFinanciamento)||0,
+    conjuge:cl.conjuge||null, obs:cl.obs||null, status:cl.status||'novo',
+    bancos:cl.bancos||[], banco_escolhido:cl.bancoEscolhido||'',
+    origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
+    data_cadastro:cl.dataCadastro||new Date().toISOString(),
+    data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null
+  };
+}
+function rowToCli(r){
+  return {
+    id:r.id, nome:r.nome, cpf:r.cpf, nascimento:r.nascimento, estadoCivil:r.estado_civil,
+    telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento,
+    conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
+    bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
+    dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao
+  };
+}
+
+// Salva um cliente no Supabase (upsert)
+async function supaSaveCliente(cl){
+  if(!supa)return false;
+  try{ const {error}=await supa.from('clientes').upsert(cliToRow(cl)); if(error)throw error; return true; }
+  catch(e){ console.warn('supaSaveCliente',e); return false; }
+}
+async function supaDeleteCliente(id){
+  if(!supa)return false;
+  try{ const {error}=await supa.from('clientes').delete().eq('id',id); if(error)throw error; return true; }
+  catch(e){ console.warn('supaDeleteCliente',e); return false; }
+}
+async function supaLoadClientes(){
+  if(!supa)return null;
+  try{ const {data,error}=await supa.from('clientes').select('*').order('data_cadastro',{ascending:false}); if(error)throw error; return data.map(rowToCli); }
+  catch(e){ console.warn('supaLoadClientes',e); return null; }
+}
+// Bancos
+async function supaSaveBanco(b){ if(!supa)return; try{await supa.from('bancos').upsert({id:b.id,nome:b.nome,taxa:b.taxa||null,comissao:b.comissao||null,prazo_dias:b.prazoDias||null,obs:b.obs||null});}catch(e){console.warn(e);} }
+async function supaDeleteBanco(id){ if(!supa)return; try{await supa.from('bancos').delete().eq('id',id);}catch(e){console.warn(e);} }
+async function supaLoadBancos(){ if(!supa)return null; try{const {data,error}=await supa.from('bancos').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,taxa:r.taxa,comissao:r.comissao,prazoDias:r.prazo_dias,obs:r.obs}));}catch(e){return null;} }
+// Agenda
+async function supaSaveAgenda(a){ if(!supa)return; try{await supa.from('agenda').upsert({id:a.id,titulo:a.titulo,data:a.data,hora:a.hora||null,tipo:a.tipo||null,cliente_id:a.clienteId||null,local:a.local||null});}catch(e){console.warn(e);} }
+async function supaDeleteAgenda(id){ if(!supa)return; try{await supa.from('agenda').delete().eq('id',id);}catch(e){console.warn(e);} }
+async function supaLoadAgenda(){ if(!supa)return null; try{const {data,error}=await supa.from('agenda').select('*');if(error)throw error;return data.map(r=>({id:r.id,titulo:r.titulo,data:r.data,hora:r.hora,tipo:r.tipo,clienteId:r.cliente_id,local:r.local}));}catch(e){return null;} }
+// Corretores
+async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corretores').upsert({id:co.id,nome:co.nome,telefone:co.telefone||null,slug:co.slug});}catch(e){console.warn(e);} }
+async function supaDeleteCorretor(id){ if(!supa)return; try{await supa.from('corretores').delete().eq('id',id);}catch(e){console.warn(e);} }
+async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug}));}catch(e){return null;} }
+
+// Migração: envia dados locais atuais para o Supabase (uma vez)
+async function migrarParaSupabase(){
+  if(!supa)return;
+  const migrado=localStorage.getItem('nexa_migrado_supabase');
+  if(migrado==='ok')return;
+  try{
+    // Migra clientes locais que não têm status excluído
+    if(clients&&clients.length){
+      const rows=clients.map(cliToRow);
+      await supa.from('clientes').upsert(rows);
+    }
+    if(banks&&banks.length){ for(const b of banks)await supaSaveBanco(b); }
+    if(agenda&&agenda.length){ for(const a of agenda)await supaSaveAgenda(a); }
+    if(corretores&&corretores.length){ for(const co of corretores)await supaSaveCorretor(co); }
+    localStorage.setItem('nexa_migrado_supabase','ok');
+    console.log('Migração para Supabase concluída');
+  }catch(e){ console.warn('Migração falhou',e); }
+}
 
 // ===== RENDER ALL =====
 
@@ -861,16 +950,20 @@ function registerDeleted(idsToDelete){
 function delOne(id){
   if(!confirm('Excluir este cliente?'))return;
   registerDeleted([id]);
+  supaDeleteCliente(id);
   clients=clients.filter(cl=>cl.id!==id);
-  saveClients();renderAll();
+  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  renderAll();
 }
 function delSelected(){
   const ids=Array.from(document.querySelectorAll('.sel-cli:checked')).map(el=>el.dataset.id);
   if(!ids.length)return;
   if(!confirm('Excluir '+ids.length+' cliente(s) selecionado(s)?'))return;
   registerDeleted(ids);
+  ids.forEach(id=>supaDeleteCliente(id));
   clients=clients.filter(cl=>!ids.includes(cl.id));
-  saveClients();renderAll();
+  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  renderAll();
   const btn=document.getElementById('btn-del-sel');
   if(btn)btn.style.display='none';
 }
@@ -1091,7 +1184,7 @@ function saveBank(){
   else banks.push({...data,id:'b_'+Date.now()});
   closeModal('mo-bk');saveBanks();renderAll();
 }
-function delBank(id){if(!confirm('Excluir banco?'))return;banks=banks.filter(b=>b.id!==id);saveBanks();renderAll();}
+function delBank(id){if(!confirm('Excluir banco?'))return;supaDeleteBanco(id);banks=banks.filter(b=>b.id!==id);saveBanks();renderAll();}
 
 // ===== AGENDA =====
 function renderAgendaPage(){
@@ -1192,7 +1285,7 @@ function enviarLembreteAgenda(item){
   const msg=`📅 *Novo Compromisso Agendado*\n\n*${item.titulo}*\n🗓️ ${dt}\n🕐 ${item.hora}\n📌 ${tipo}${item.local?'\n📍 '+item.local:''}${cliNome}\n\n_NEXA Capital — Agenda_`;
   sendZAPIMessage(cfg, msg, cfg.phone);
 }
-function delAgenda(id){agenda=agenda.filter(a=>a.id!==id);saveAgenda2();renderAll();}
+function delAgenda(id){supaDeleteAgenda(id);agenda=agenda.filter(a=>a.id!==id);saveAgenda2();renderAll();}
 
 // ===== SIMULATOR =====
 function renderSimBanks(){
@@ -1949,6 +2042,7 @@ function loadCorretores(){
 
 function saveCorretores(){
   localStorage.setItem('nexa_corretores', JSON.stringify(corretores));
+  if(supa&&corretores){corretores.forEach(co=>supaSaveCorretor(co));}
 }
 
 function openAddCorretor(){
@@ -1983,6 +2077,7 @@ function saveCorretor(){
 function addCorretor(){openAddCorretor();}
 
 function delCorretor(id){
+  supaDeleteCorretor(id);
   corretores=corretores.filter(c=>c.id!==id);
   saveCorretores();
   renderCorretores();
@@ -2119,7 +2214,30 @@ document.querySelectorAll('.ni').forEach(item=>{
 // INIT
 document.getElementById('tdate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.value=_now.getMonth();
-loadAll();
+// Inicialização com Supabase
+(async function initSupa(){
+  await loadAll();
+  // Migração dos dados locais para o Supabase (só na 1ª vez)
+  await migrarParaSupabase();
+  // Realtime: escuta mudanças na tabela clientes
+  if(supa){
+    try{
+      supa.channel('clientes-realtime')
+        .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},payload=>{
+          console.log('Realtime clientes:',payload.eventType);
+          // Recarrega clientes quando houver mudança de outro dispositivo
+          const hasChecked=document.querySelectorAll('.sel-cli:checked').length>0;
+          if(!hasChecked)loadAll();
+        })
+        .subscribe();
+      supa.channel('agenda-realtime')
+        .on('postgres_changes',{event:'*',schema:'public',table:'agenda'},()=>{
+          supaLoadAgenda().then(a=>{if(a){agenda=a;renderAll();}});
+        })
+        .subscribe();
+    }catch(e){console.warn('Realtime falhou',e);}
+  }
+})();
 loadFin();
 loadZAPISettings();
 loadCorretores();
