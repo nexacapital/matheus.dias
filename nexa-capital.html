@@ -888,6 +888,29 @@ async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corre
 async function supaDeleteCorretor(id){ if(!supa)return; try{await supa.from('corretores').delete().eq('id',id);}catch(e){console.warn(e);} }
 async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug}));}catch(e){return null;} }
 
+
+async function forcarSincronizacao(){
+  if(!supa){alert('Supabase não conectado.');return;}
+  if(!confirm('Isso vai enviar todos os dados deste computador (clientes, corretores, bancos, agenda) para a nuvem. Continuar?'))return;
+  let total=0;
+  try{
+    // Corretores do localStorage
+    let localCor=[];try{const r=localStorage.getItem('nexa_corretores');if(r)localCor=JSON.parse(r);}catch(e){}
+    for(const co of localCor){await supaSaveCorretor(co);total++;}
+    // Clientes do localStorage
+    let localCli=[];try{const r=localStorage.getItem('nexa_clients_int');if(r)localCli=JSON.parse(r);}catch(e){}
+    if(localCli.length){await supa.from('clientes').upsert(localCli.map(cliToRow));total+=localCli.length;}
+    // Bancos
+    let localBk=[];try{const r=localStorage.getItem('nexa_banks');if(r)localBk=JSON.parse(r);}catch(e){}
+    for(const b of localBk){await supaSaveBanco(b);total++;}
+    // Agenda
+    let localAg=[];try{const r=localStorage.getItem('nexa_agenda');if(r)localAg=JSON.parse(r);}catch(e){}
+    for(const a of localAg){await supaSaveAgenda(a);total++;}
+    alert('✅ Sincronização concluída! '+total+' registros enviados para a nuvem.');
+    loadAll();loadCorretores();
+  }catch(e){alert('Erro na sincronização: '+e.message);}
+}
+
 // Migração: envia dados locais atuais para o Supabase (uma vez)
 async function migrarParaSupabase(){
   if(!supa)return;
