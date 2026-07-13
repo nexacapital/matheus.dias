@@ -129,6 +129,7 @@ footer strong{color:#c9a84c;}
   /* Sim 1 col */
   .sim-grid{grid-template-columns:1fr;}
   /* Deps: carrossel sem pulo de tela */
+  .ops-grid{grid-template-columns:1fr;}
   .deps{display:block;position:relative;min-height:200px;}
   .dep{display:none;}
   .dep.active{display:block;}
@@ -138,6 +139,22 @@ footer strong{color:#c9a84c;}
   .form-box{padding:24px 16px;}
   .sim-box{padding:20px 14px;}
 }
+
+
+.ops-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;}
+.op-card{background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.2);border-radius:14px;padding:26px 22px;display:flex;flex-direction:column;transition:all .3s;}
+.op-card:hover{border-color:#c9a84c;background:rgba(201,168,76,0.05);}
+.op-icon{font-size:32px;margin-bottom:12px;}
+.op-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#c9a84c;margin-bottom:10px;line-height:1.2;}
+.op-lead{font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;line-height:1.5;}
+.op-desc{font-size:11px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:16px;flex-grow:0;}
+.op-ideal{margin-bottom:18px;}
+.op-ideal-t{font-size:10px;letter-spacing:1px;color:#c9a84c;font-weight:700;margin-bottom:8px;text-transform:uppercase;}
+.op-ideal ul{list-style:none;padding:0;margin:0;}
+.op-ideal li{font-size:11px;color:rgba(255,255,255,0.7);padding:3px 0 3px 16px;position:relative;}
+.op-ideal li::before{content:'✓';position:absolute;left:0;color:#c9a84c;font-weight:700;}
+.op-btn{margin-top:auto;display:block;text-align:center;background:linear-gradient(135deg,#c9a84c,#e2c77a);color:#0d1b2a;padding:12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:1px;text-decoration:none;transition:all .3s;}
+.op-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,0.3);}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -155,7 +172,7 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
   <div class="nav-links">
     <a href="#sobre">Sobre</a>
     <a href="#como-funciona">Como Funciona</a>
-    <a href="#simulador">Simulador</a>
+    
     <a href="#contato">Contato</a>
   </div>
   <a href="#contato" class="nav-cta">PREENCHER FORMULÁRIO</a>
@@ -178,6 +195,73 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
       <div class="stat"><div class="n">500+</div><div class="l">CLIENTES</div></div>
       <div class="stat"><div class="n">R$80M+</div><div class="l">FINANCIADOS</div></div>
       <div class="stat"><div class="n">98%</div><div class="l">APROVAÇÕES</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- TIPOS DE OPERAÇÕES -->
+<section id="operacoes">
+  <div class="cnt">
+    <div class="tagc">O QUE FAZEMOS</div>
+    <h2 style="text-align:center">Tipos de <em>operações</em></h2>
+    <p class="sub" style="text-align:center;max-width:520px;margin:0 auto 8px">Soluções de crédito sob medida para cada objetivo</p>
+    <div class="ops-grid">
+
+      <div class="op-card">
+        <div class="op-icon">🏠</div>
+        <h3>Financiamento Imobiliário</h3>
+        <p class="op-lead">O imóvel ideal está mais perto do que você imagina.</p>
+        <p class="op-desc">Encontramos a melhor estratégia para que você conquiste seu imóvel com segurança, analisando diferentes bancos e condições para buscar a solução mais adequada ao seu perfil. Mais do que aprovar um financiamento, nosso objetivo é fazer você comprar bem.</p>
+        <div class="op-ideal">
+          <div class="op-ideal-t">Ideal para:</div>
+          <ul>
+            <li>Compra do primeiro imóvel</li>
+            <li>Troca por um imóvel maior</li>
+            <li>Compra de imóvel comercial</li>
+            <li>Investimento em patrimônio</li>
+          </ul>
+        </div>
+        <a href="#contato" class="op-btn">Solicitar uma simulação</a>
+      </div>
+
+      <div class="op-card">
+        <div class="op-icon">🔑</div>
+        <h3>Crédito com Garantia de Imóvel</h3>
+        <p class="op-lead">Seu patrimônio pode abrir novas oportunidades.</p>
+        <p class="op-desc">Se você possui um imóvel, ele pode se transformar em uma poderosa ferramenta para conquistar crédito com taxas mais atrativas e prazos mais longos. Uma solução inteligente para quem busca recursos sem abrir mão do patrimônio.</p>
+        <div class="op-ideal">
+          <div class="op-ideal-t">Ideal para:</div>
+          <ul>
+            <li>Capital de giro</li>
+            <li>Expansão da empresa</li>
+            <li>Compra de outro imóvel</li>
+            <li>Reforma</li>
+            <li>Quitação de dívidas</li>
+            <li>Investimentos</li>
+          </ul>
+        </div>
+        <a href="https://wa.me/5519991022882?text=Ol%C3%A1%20Matheus!%20Quero%20falar%20sobre%20Cr%C3%A9dito%20com%20Garantia%20de%20Im%C3%B3vel." target="_blank" class="op-btn">Falar com um especialista</a>
+      </div>
+
+      <div class="op-card">
+        <div class="op-icon">🏗️</div>
+        <h3>Crédito para Construção</h3>
+        <p class="op-lead">Obra parada é patrimônio parado. Transforme seu projeto em realidade.</p>
+        <p class="op-desc">Se você possui um terreno ou uma construção inacabada, o crédito para construção pode ser a solução para concluir sua obra com planejamento e segurança. Na NEXA CAPITAL, encontramos a melhor estratégia de crédito para que você tire seu projeto do papel ou finalize uma obra que ficou pelo caminho.</p>
+        <div class="op-ideal">
+          <div class="op-ideal-t">Ideal para:</div>
+          <ul>
+            <li>Construção do zero em terreno próprio</li>
+            <li>Conclusão de obras inacabadas</li>
+            <li>Construção de imóveis residenciais</li>
+            <li>Construção de imóveis comerciais</li>
+            <li>Projetos para investimento</li>
+          </ul>
+        </div>
+        <a href="#contato" class="op-btn">Solicitar uma simulação</a>
+      </div>
+
     </div>
   </div>
 </section>
@@ -226,32 +310,14 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
       <div class="banco">ITAÚ</div>
       <div class="banco">BRADESCO</div>
       <div class="banco">SANTANDER</div>
-      <div class="banco" style="font-size:11px;color:rgba(255,255,255,0.4)">+ OUTROS</div>
+      <div class="banco">INTER</div>
+      <div class="banco" style="font-size:12px">FINTECHS</div>
+      <div class="banco" style="font-size:11px">FUNDOS DE INVESTIMENTO IMOBILIÁRIO</div>
     </div>
   </div>
 </section>
 
-<section id="simulador" style="background:rgba(21,34,54,0.3)">
-  <div class="cnt">
-    <div class="tagc">FERRAMENTA</div>
-    <h2 style="text-align:center">Simule seu <em>financiamento</em></h2>
-    <p class="sub" style="text-align:center;margin-bottom:22px">Descubra quanto ficaria a parcela do seu imóvel dos sonhos</p>
-    <div class="sim-box">
-      <div class="sim-grid">
-        <div>
-          <div class="fg"><label>VALOR DO IMÓVEL</label><input type="text" id="siv" placeholder="R$ 500.000,00" oninput="fL(this);cS()"></div>
-          <div class="fg"><label>VALOR DE ENTRADA (mín. 20%)</label><input type="text" id="sen" placeholder="R$ 100.000,00" oninput="fL(this);cS()"></div>
-          <div class="fg"><label>PRAZO</label><select id="spr" onchange="cS()"><option value="120">10 anos</option><option value="180">15 anos</option><option value="240">20 anos</option><option value="300">25 anos</option><option value="360" selected>30 anos</option></select></div>
-          <div class="fg"><label>BANCO</label><select id="sbk" onchange="cS()"><option value="0.89">Itaú — 0,89% a.m.</option><option value="0.95">Bradesco — 0,95% a.m.</option><option value="0.99">Santander — 0,99% a.m.</option></select></div>
-          <a href="#contato" class="btn-g" style="width:100%;justify-content:center;display:flex">QUERO CONDIÇÕES REAIS</a>
-        </div>
-        <div class="sim-res" id="sr">
-          <div class="sim-ph"><div style="font-size:32px;margin-bottom:8px">🏠</div><p>Preencha os dados ao lado para ver a simulação</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <section>
   <div class="cnt">
@@ -285,13 +351,14 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
             <form onsubmit="sF(event)">
               <div class="fg"><label>NOME COMPLETO *</label><input type="text" id="lfn" required placeholder="Seu nome completo"></div>
               <div class="fg"><label>CPF</label><input type="text" id="lfc" placeholder="000.000.000-00" oninput="fC(this)"></div>
-              <div class="fg"><label>DATA DE NASCIMENTO</label><input type="date" id="lfd"></div>
+              <div class="fg"><label>DATA DE NASCIMENTO *</label><input type="date" id="lfd" required></div>
               <div class="fg"><label>ESTADO CIVIL</label><select id="lfe"><option value="">Selecione</option><option value="solteiro">Solteiro(a)</option><option value="casado">Casado(a)</option><option value="divorciado">Divorciado(a)</option><option value="uniao">União Estável</option></select></div>
               <div class="fg"><label>WHATSAPP *</label><input type="text" id="lft" required placeholder="(19) 99999-9999"></div>
               <div class="frow">
                 <div class="fg"><label>VALOR DO IMÓVEL *</label><input type="text" id="lfi" required placeholder="R$ 500.000,00" oninput="fL(this);calcLimite()" onblur="fLblur(this);calcLimite()"></div>
                 <div class="fg"><label>VALOR DO FINANCIAMENTO *</label><input type="text" id="lff" required placeholder="R$ 400.000,00" oninput="fL(this);calcLimite()" onblur="fLblur(this);calcLimite()"></div>
               </div>
+              <div class="fg"><label>RENDA FAMILIAR *</label><input type="text" id="lfr" required placeholder="R$ 8.000,00" oninput="fL(this)" onblur="fLblur(this)"></div>
               <div id="limite-box" style="display:none;font-size:11px;color:rgba(255,255,255,0.6);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:10px 12px;margin-bottom:8px">Limite máximo de financiamento: <span id="limite-val" style="color:#c9a84c;font-weight:700"></span></div>
               <div id="limite-warn" style="display:none;font-size:11px;color:#f87171;margin-bottom:8px">⚠️ O valor do financiamento ultrapassa o limite de 80% do imóvel.</div>
               <button type="submit" class="btn-sub">QUERO CONQUISTAR MEU IMÓVEL →</button>
@@ -366,6 +433,15 @@ function cS(){
 }
 function sF(e){
   e.preventDefault();
+  // Valida idade mínima 18 anos
+  const nasc=document.getElementById('lfd').value;
+  if(nasc){
+    const hoje=new Date();const dn=new Date(nasc);
+    let idade=hoje.getFullYear()-dn.getFullYear();
+    const m=hoje.getMonth()-dn.getMonth();
+    if(m<0||(m===0&&hoje.getDate()<dn.getDate()))idade--;
+    if(idade<18){alert('É necessário ter no mínimo 18 anos para solicitar.');return;}
+  }
   const fd=new FormData();
   fd.append('entry.574153584',document.getElementById('lfn').value.trim());
   fd.append('entry.1983594429',document.getElementById('lfc').value.trim());
@@ -385,6 +461,7 @@ function sF(e){
       telefone:document.getElementById('lft').value.trim()||null,
       valor_imovel:pL(document.getElementById('lfi').value),
       valor_financiamento:pL(document.getElementById('lff').value),
+      renda_familiar:pL(document.getElementById('lfr').value),
       status:'novo',bancos:[],banco_escolhido:'',
       origem:'landing_page',data_cadastro:new Date().toISOString()
     }).then(({error})=>{if(error)console.warn(error);});

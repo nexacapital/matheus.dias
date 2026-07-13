@@ -259,15 +259,18 @@ checkAuth();
     <div class="ni" data-page="bancos"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Meus Bancos</div>
   </nav>
   <div style="padding:10px 10px 0;border-top:1px solid var(--bd)">
-    <div class="ni" onclick="exportData()" style="color:var(--mu)">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Exportar Dados
+    <div class="ni" onclick="exportResumoMes()" style="color:var(--mu)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Exportar Resumo do Mês
     </div>
-    <div class="ni" onclick="document.getElementById('import-file').click()" style="color:var(--mu)">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Importar Dados
+    <div class="ni" onclick="recuperarDadosLocais()" style="color:var(--mu)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+      Recuperar Dados do Navegador
     </div>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+    <div class="ni" onclick="arquivarFinalizados()" style="color:var(--mu)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Arquivar Finalizados
+    </div>
     <div class="ni" onclick="copyFormLink()" style="color:var(--gd);border-color:var(--bd);background:var(--gdm)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
       Link Formulário
@@ -305,6 +308,21 @@ checkAuth();
         <div class="ct">Pipeline de Processos</div>
         <div class="pw"><div class="pg2" id="pipeline"></div></div>
       </div>
+
+      <!-- ANÁLISE: onde está perdendo venda -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span> Análise do Funil — Onde os clientes estão parando</div>
+        <p style="font-size:11px;color:var(--mu);margin-bottom:16px">Quantidade de clientes parados em cada fase do pipeline. Fases com muitos clientes podem indicar gargalos.</p>
+        <div id="funil-chart"></div>
+      </div>
+
+      <!-- SUGESTÕES POR FASE -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">💡</span> Sugestões de Ação por Fase</div>
+        <p style="font-size:11px;color:var(--mu);margin-bottom:16px">O que fazer para destravar os clientes parados em cada etapa.</p>
+        <div id="sugestoes-list"></div>
+      </div>
+
       <div class="dg">
         <div class="card">
           <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
@@ -631,6 +649,7 @@ checkAuth();
         <div class="fg"><label>Valor do Imóvel <span class="rq">*</span></label><input type="text" id="nc-iv" placeholder="R$ 0,00" oninput="fmtCur(this);chkLim()"><div class="fe" id="e-nc-iv">Obrigatório</div></div>
         <div class="fg"><label>Valor Financiamento <span class="rq">*</span></label><input type="text" id="nc-fv" placeholder="R$ 0,00" oninput="fmtCur(this);chkLim()"><div class="fe" id="e-nc-fv">Obrigatório</div></div>
       </div>
+      <div class="fg" style="margin-top:10px"><label>Renda Familiar <span class="rq">*</span></label><input type="text" id="nc-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"><div class="fe" id="e-nc-renda">Obrigatório</div></div>
       <div id="nc-lwarn" style="font-size:10px;color:var(--rd);display:none;margin-bottom:8px">⚠️ Financiamento máximo é 80% do imóvel.</div>
       <div class="ct" style="margin-top:14px">Bancos para Simulação</div>
       <div class="bchips" id="nc-bchips"></div>
@@ -841,7 +860,7 @@ function cliToRow(cl){
   return {
     id:cl.id, nome:cl.nome||'', cpf:cl.cpf||null, nascimento:cl.nascimento||null,
     estado_civil:cl.estadoCivil||null, telefone:cl.telefone||null,
-    valor_imovel:Number(cl.valorImovel)||0, valor_financiamento:Number(cl.valorFinanciamento)||0,
+    valor_imovel:Number(cl.valorImovel)||0, valor_financiamento:Number(cl.valorFinanciamento)||0, renda_familiar:Number(cl.rendaFamiliar)||0,
     conjuge:cl.conjuge||null, obs:cl.obs||null, status:cl.status||'novo',
     bancos:cl.bancos||[], banco_escolhido:cl.bancoEscolhido||'',
     origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
@@ -852,7 +871,7 @@ function cliToRow(cl){
 function rowToCli(r){
   return {
     id:r.id, nome:r.nome, cpf:r.cpf, nascimento:r.nascimento, estadoCivil:r.estado_civil,
-    telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento,
+    telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento, rendaFamiliar:r.renda_familiar,
     conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
     bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
     dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao
@@ -909,6 +928,135 @@ async function forcarSincronizacao(){
     alert('✅ Sincronização concluída! '+total+' registros enviados para a nuvem.');
     loadAll();loadCorretores();
   }catch(e){alert('Erro na sincronização: '+e.message);}
+}
+
+
+// ===== RECUPERAR DADOS DO NAVEGADOR (localStorage -> Supabase) =====
+async function recuperarDadosLocais(){
+  if(!supa){alert('Supabase não conectado.');return;}
+  if(!confirm('Isso vai enviar para a nuvem todos os dados salvos NESTE navegador (clientes, corretores, bancos, agenda) que ainda não estão lá. Deseja continuar?'))return;
+  let total=0;
+  try{
+    let lCli=[];try{const r=localStorage.getItem('nexa_clients_int');if(r)lCli=JSON.parse(r);}catch(e){}
+    if(lCli.length){await supa.from('clientes').upsert(lCli.map(cliToRow));total+=lCli.length;}
+    let lCor=[];try{const r=localStorage.getItem('nexa_corretores');if(r)lCor=JSON.parse(r);}catch(e){}
+    for(const co of lCor){await supaSaveCorretor(co);total++;}
+    let lBk=[];try{const r=localStorage.getItem('nexa_banks');if(r)lBk=JSON.parse(r);}catch(e){}
+    for(const b of lBk){await supaSaveBanco(b);total++;}
+    let lAg=[];try{const r=localStorage.getItem('nexa_agenda');if(r)lAg=JSON.parse(r);}catch(e){}
+    for(const a of lAg){await supaSaveAgenda(a);total++;}
+    alert('✅ Recuperação concluída! '+total+' registros enviados para a nuvem.');
+    await loadAll();await loadCorretores();
+  }catch(e){alert('Erro: '+e.message);}
+}
+
+// ===== ARQUIVAR FINALIZADOS (tira do pipeline, guarda no banco) =====
+async function arquivarFinalizados(){
+  const finalizados=clients.filter(c=>c.status==='finalizados');
+  if(!finalizados.length){alert('Nenhum cliente na etapa Finalizados para arquivar.');return;}
+  if(!confirm('Arquivar '+finalizados.length+' cliente(s) finalizado(s)? Eles saem do pipeline mas os dados ficam guardados (para uso com o bot).'))return;
+  try{
+    if(supa){
+      // Copia para clientes_arquivados
+      const rows=finalizados.map(cl=>{const r=cliToRow(cl);r.data_arquivamento=new Date().toISOString();return r;});
+      const {error:e1}=await supa.from('clientes_arquivados').upsert(rows);
+      if(e1)throw e1;
+      // Remove da tabela ativa
+      for(const cl of finalizados){await supa.from('clientes').delete().eq('id',cl.id);}
+    }
+    // Remove localmente
+    const ids=finalizados.map(c=>c.id);
+    clients=clients.filter(c=>!ids.includes(c.id));
+    try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+    renderAll();
+    alert('✅ '+finalizados.length+' cliente(s) arquivado(s) com sucesso! Os dados estão guardados na nuvem.');
+  }catch(e){alert('Erro ao arquivar: '+e.message);}
+}
+
+// ===== EXPORTAR RESUMO DO MÊS =====
+function exportResumoMes(){
+  const agora=new Date();
+  const mesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mes=agora.getMonth(), ano=agora.getFullYear();
+  const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
+
+  // Clientes cadastrados no mês
+  const novosMes=clients.filter(c=>noMes(c.dataCadastro));
+  // Fechamentos (pagamento) no mês
+  const fechados=clients.filter(c=>c.status==='pagamento'||c.status==='finalizados');
+  const fechadosMes=fechados.filter(c=>noMes(c.dataPagamento)||noMes(c.dataMovimentacao));
+  // Perdidos
+  const perdidos=clients.filter(c=>c.status==='perdidos');
+  // Vistorias (agenda tipo vistoria no mês)
+  const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes);
+
+  // Financeiro do mês
+  const valorFechado=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
+
+  // Por corretor
+  const porCorretor={};
+  novosMes.forEach(c=>{
+    const nome=c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (sem corretor)';
+    porCorretor[nome]=(porCorretor[nome]||0)+1;
+  });
+
+  // Por banco (fechados)
+  const porBanco={};
+  fechadosMes.forEach(c=>{
+    const b=banks.find(bk=>bk.id===c.bancoEscolhido)||banks.find(bk=>(c.bancos||[]).includes(bk.id));
+    const nome=b?b.nome:'Sem banco';
+    porBanco[nome]=(porBanco[nome]||0)+1;
+  });
+
+  const fmt=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  let txt='═══════════════════════════════════\n';
+  txt+='   RESUMO MENSAL — NEXA CAPITAL\n';
+  txt+='   '+mesNomes[mes]+' de '+ano+'\n';
+  txt+='═══════════════════════════════════\n\n';
+
+  txt+='📊 VISÃO GERAL\n';
+  txt+='───────────────────────────────────\n';
+  txt+='Novos clientes no mês: '+novosMes.length+'\n';
+  txt+='Fechamentos no mês: '+fechadosMes.length+'\n';
+  txt+='Clientes perdidos: '+perdidos.length+'\n';
+  txt+='Vistorias agendadas: '+vistorias.length+'\n';
+  txt+='Clientes ativos no pipeline: '+clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length+'\n\n';
+
+  txt+='💰 FINANCEIRO\n';
+  txt+='───────────────────────────────────\n';
+  txt+='Volume financiado (fechados): '+fmt(valorFechado)+'\n';
+  txt+='Ticket médio: '+fmt(fechadosMes.length?valorFechado/fechadosMes.length:0)+'\n\n';
+
+  txt+='👥 CLIENTES POR ORIGEM\n';
+  txt+='───────────────────────────────────\n';
+  Object.entries(porCorretor).sort((a,b)=>b[1]-a[1]).forEach(([n,q])=>{txt+=n+': '+q+' cliente(s)\n';});
+  txt+='\n';
+
+  txt+='🏦 FECHAMENTOS POR BANCO\n';
+  txt+='───────────────────────────────────\n';
+  if(Object.keys(porBanco).length){Object.entries(porBanco).sort((a,b)=>b[1]-a[1]).forEach(([n,q])=>{txt+=n+': '+q+' fechamento(s)\n';});}
+  else{txt+='Nenhum fechamento neste mês.\n';}
+  txt+='\n';
+
+  // Análise geral
+  txt+='📈 ANÁLISE GERAL\n';
+  txt+='───────────────────────────────────\n';
+  const taxaConv=novosMes.length?((fechadosMes.length/novosMes.length)*100).toFixed(1):0;
+  txt+='Taxa de conversão do mês: '+taxaConv+'%\n';
+  if(perdidos.length>fechadosMes.length){txt+='⚠️ Atenção: mais clientes perdidos do que fechados. Revisar abordagem.\n';}
+  if(fechadosMes.length>0){txt+='✅ '+fechadosMes.length+' fechamento(s) — bom trabalho!\n';}
+  const melhorCorretor=Object.entries(porCorretor).sort((a,b)=>b[1]-a[1])[0];
+  if(melhorCorretor&&melhorCorretor[0]!=='Direto (sem corretor)'){txt+='🏆 Corretor destaque: '+melhorCorretor[0]+' ('+melhorCorretor[1]+' indicações)\n';}
+  txt+='\n═══════════════════════════════════\n';
+  txt+='Gerado em '+agora.toLocaleString('pt-BR')+'\n';
+
+  // Download
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='Resumo_NEXA_'+mesNomes[mes]+'_'+ano+'.txt';
+  a.click();URL.revokeObjectURL(url);
 }
 
 // Migração: envia dados locais atuais para o Supabase (uma vez)
@@ -993,7 +1141,7 @@ function delSelected(){
 
 function renderAll(){
   const prevCount = clients.filter(c=>c.status==='novo').length;
-  renderStats();renderPipeline();renderTbl();renderBanks();renderAgendaPage();renderDashAgenda();renderDashNovos();renderSimBanks();renderCompBancos();renderDashAgenda2();renderDashUltimos();
+  renderStats();renderPipeline();renderFunilAnalise();renderSugestoes();renderTbl();renderBanks();renderAgendaPage();renderDashAgenda();renderDashNovos();renderSimBanks();renderCompBancos();renderDashAgenda2();renderDashUltimos();
   const newCount = clients.filter(c=>c.status==='novo').length;
   if(newCount > prevCount) notifyNovoCliente(newCount - prevCount);
 }
@@ -1022,6 +1170,70 @@ function renderStats(){
 
 // ===== PIPELINE =====
 const COLS=[{k:'novo',l:'Novo Contato',nw:true},{k:'contato',l:'Em Contato'},{k:'simulacao',l:'Simulação'},{k:'analise',l:'Análise'},{k:'aprovado',l:'Aprovado'},{k:'checklist',l:'Checklist Inicial'},{k:'engenharia',l:'Engenharia'},{k:'juridico',l:'Análise Jurídica'},{k:'interveniente',l:'Interveniente Quitante'},{k:'fgts',l:'FGTS'},{k:'contrato',l:'Emissão de Contrato'},{k:'cartorio',l:'Cartório'},{k:'pagamento',l:'Pagamento Vendedor'},{k:'finalizados',l:'Finalizados'},{k:'perdidos',l:'Perdidos'}];
+
+// ===== ANÁLISE DO FUNIL + SUGESTÕES =====
+const SUGESTOES_FASE={
+  novo:'Entre em contato o quanto antes! Clientes novos esfriam rápido. Envie a primeira mensagem e agende uma conversa.',
+  contato:'Cliente já foi contatado. Faça o follow-up: tire dúvidas e colete os dados para iniciar a simulação.',
+  simulacao:'Rode a simulação nos bancos e apresente as opções. Mostre o valor da parcela e as condições.',
+  analise:'Solicite e confira a documentação (RG, CPF, comprovante de renda e residência). Documentação completa acelera a aprovação.',
+  aprovado:'Financiamento aprovado! Avance para o checklist inicial e comunique o cliente sobre os próximos passos.',
+  checklist:'Verifique a lista de documentos e pendências iniciais. Garanta que nada falta antes da engenharia.',
+  engenharia:'Acompanhe a avaliação de engenharia do imóvel. Cobre o banco se estiver demorando.',
+  juridico:'Análise jurídica em andamento. Verifique se há pendências na documentação do imóvel ou do vendedor.',
+  interveniente:'Trate da quitação do interveniente. Alinhe valores e prazos com as partes.',
+  fgts:'Cliente usando FGTS? Acompanhe a liberação junto à Caixa e ao banco.',
+  contrato:'Contrato em emissão. Revise os dados antes da assinatura para evitar retrabalho.',
+  cartorio:'Documentação no cartório. Acompanhe o registro e cobre agilidade.',
+  pagamento:'Reta final! Confirme o pagamento ao vendedor e finalize o processo.',
+  finalizados:'Processo concluído! Peça indicações e mantenha relacionamento para futuras oportunidades.',
+  perdidos:'Cliente perdido. Vale entender o motivo e, se possível, reativar mais para frente.'
+};
+
+function renderFunilAnalise(){
+  const el=document.getElementById('funil-chart');
+  if(!el)return;
+  // Conta clientes por fase (só ativos, exclui finalizados/perdidos do gráfico principal)
+  const fases=COLS.map(col=>({k:col.k,l:col.l,n:clients.filter(c=>c.status===col.k).length}));
+  const max=Math.max(...fases.map(f=>f.n),1);
+  el.innerHTML=fases.map(f=>{
+    const pct=Math.round(f.n/max*100);
+    const cor=f.k==='perdidos'?'#f87171':(f.k==='finalizados'||f.k==='pagamento'?'#4ade80':'linear-gradient(90deg,#c9a84c,#e2c77a)');
+    return `<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:600">${f.l}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--gd)">${f.n}</span>
+      </div>
+      <div style="height:7px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${cor};border-radius:4px;transition:width .4s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSugestoes(){
+  const el=document.getElementById('sugestoes-list');
+  if(!el)return;
+  // Mostra sugestões só para as fases que têm clientes parados (exclui finalizados)
+  const fasesComClientes=COLS.filter(col=>col.k!=='finalizados'&&clients.filter(c=>c.status===col.k).length>0);
+  if(!fasesComClientes.length){
+    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhum cliente ativo no pipeline no momento.</div>';
+    return;
+  }
+  el.innerHTML=fasesComClientes.map(col=>{
+    const qtd=clients.filter(c=>c.status===col.k).length;
+    const sug=SUGESTOES_FASE[col.k]||'Acompanhe o andamento deste cliente.';
+    const alerta=qtd>=3?'⚠️ ':'';
+    return `<div style="background:rgba(255,255,255,0.02);border-left:3px solid var(--gd);border-radius:6px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;font-weight:700;color:var(--gd)">${col.l}</span>
+        <span style="font-size:10px;color:var(--mu)">${alerta}${qtd} cliente(s) parado(s)</span>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.6">${sug}</div>
+    </div>`;
+  }).join('');
+}
+
 function renderPipeline(){
   const g=document.getElementById('pipeline');if(!g)return;g.innerHTML='';
   COLS.forEach(col=>{
@@ -1080,6 +1292,7 @@ function openClientDetail(id){
       ['Nascimento', c.nascimento?new Date(c.nascimento+'T12:00:00').toLocaleDateString('pt-BR'):'—'],
       ['Estado Civil', ecMap[c.estadoCivil]||c.estadoCivil||'—'],
       ['WhatsApp', c.telefone||'—'],
+      ['Renda Familiar', c.rendaFamiliar?fmtV(c.rendaFamiliar):'—'],
       ['Origem', c.origem==='formulario_publico'?'✦ Formulário público':'Cadastro interno'],
       ['Corretor', c.refCorretor||'—'],
       ['Data Cadastro', c.dataCadastro?new Date(c.dataCadastro).toLocaleDateString('pt-BR'):'—'],
@@ -1129,10 +1342,12 @@ function saveNewClient(){
   let ok=true;
   if(!nm){showFe('nc-nm',true);ok=false;}else showFe('nc-nm',false);
   if(!tl){showFe('nc-tel',true);ok=false;}else showFe('nc-tel',false);
+  const renda=parseCur(document.getElementById('nc-renda').value);
+  if(!renda){showFe('nc-renda',true);ok=false;}else showFe('nc-renda',false);
   if(iv>0&&fv>iv*.8){chkLim();ok=false;}
   if(!ok)return;
   const selBanks=[...document.querySelectorAll('#nc-bchips .bchip.sel')].map(el=>el.dataset.bid);
-  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,obs:document.getElementById('nc-obs').value,status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
+  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),obs:document.getElementById('nc-obs').value,status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
   clients.unshift(c);closeModal('mo-nc');saveClients();renderAll();
 }
 
