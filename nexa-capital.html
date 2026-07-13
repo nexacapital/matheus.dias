@@ -1188,13 +1188,18 @@ async function delOne(id){
   _deletando=true;
   _idsExcluidos.add(id);
   registerDeleted([id]);
-  // Remove da tela imediatamente
   clients=clients.filter(cl=>cl.id!==id);
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
-  // Aguarda exclusão no Supabase antes de liberar
-  await supaDeleteCliente(id);
-  setTimeout(()=>{_deletando=false;},1500);
+  // Exclui do Supabase e CONFIRMA
+  if(supa){
+    try{
+      const {error}=await supa.from('clientes').delete().eq('id',id);
+      if(error){console.error('Erro Supabase delete:',error);alert('⚠️ Não consegui excluir da nuvem: '+error.message+'\nO cliente pode voltar. Tente novamente.');}
+      else{console.log('Cliente excluído do Supabase:',id);}
+    }catch(e){console.error(e);alert('⚠️ Erro de conexão ao excluir. Verifique a internet.');}
+  }
+  setTimeout(()=>{_deletando=false;},2000);
 }
 async function delSelected(){
   const ids=Array.from(document.querySelectorAll('.sel-cli:checked')).map(el=>el.dataset.id);
@@ -1208,16 +1213,22 @@ async function delSelected(){
   renderAll();
   const btn=document.getElementById('btn-del-sel');
   if(btn)btn.style.display='none';
-  // Aguarda todas as exclusões no Supabase
-  for(const id of ids){await supaDeleteCliente(id);}
-  setTimeout(()=>{_deletando=false;},1500);
+  if(supa){
+    let falhas=0;
+    for(const id of ids){
+      try{const {error}=await supa.from('clientes').delete().eq('id',id);if(error){falhas++;console.error('Erro delete',id,error);}}
+      catch(e){falhas++;console.error(e);}
+    }
+    if(falhas>0)alert('⚠️ '+falhas+' cliente(s) não foram excluídos da nuvem. Podem voltar. Verifique a conexão e tente novamente.');
+    else console.log('Todos excluídos do Supabase');
+  }
+  setTimeout(()=>{_deletando=false;},2000);
 }
 
 function renderAll(){
   const prevCount = clients.filter(c=>c.status==='novo').length;
   renderStats();renderPipeline();renderFunilAnalise();renderSugestoes();renderTbl();renderBanks();renderAgendaPage();renderDashAgenda();renderDashNovos();renderSimBanks();renderCompBancos();renderDashAgenda2();renderDashUltimos();
-  const newCount = clients.filter(c=>c.status==='novo').length;
-  if(newCount > prevCount) notifyNovoCliente(newCount - prevCount);
+  // Notificação movida para loadAll (evita falso alarme em re-render)
 }
 function renderDashUltimos(){
   const el=document.getElementById('dash-ultimos');if(!el)return;
