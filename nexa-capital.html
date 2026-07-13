@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL='https://qbgeletotmujqkckaoko.supabase.co';
@@ -199,6 +200,10 @@ table.mt tr:hover td{background:var(--gdm);cursor:pointer;}
 .cal-ev-mais{font-size:7px;color:var(--gd);text-align:center;}
 
 
+
+.analise-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:900px){.analise-grid{grid-template-columns:1fr;}}
+
 </style>
 </head>
 <body style="background:#0d1b2a!important;color:#ffffff!important">
@@ -271,6 +276,10 @@ checkAuth();
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
       Arquivar Finalizados
     </div>
+    <div class="ni" onclick="verArquivados()" style="color:var(--mu)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M12 13v8"/><path d="M8 17l4 4 4-4"/></svg>
+      Ver Clientes Arquivados
+    </div>
     <div class="ni" onclick="copyFormLink()" style="color:var(--gd);border-color:var(--bd);background:var(--gdm)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
       Link Formulário
@@ -309,18 +318,19 @@ checkAuth();
         <div class="pw"><div class="pg2" id="pipeline"></div></div>
       </div>
 
-      <!-- ANÁLISE: onde está perdendo venda -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span> Análise do Funil — Onde os clientes estão parando</div>
-        <p style="font-size:11px;color:var(--mu);margin-bottom:16px">Quantidade de clientes parados em cada fase do pipeline. Fases com muitos clientes podem indicar gargalos.</p>
-        <div id="funil-chart"></div>
-      </div>
-
-      <!-- SUGESTÕES POR FASE -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">💡</span> Sugestões de Ação por Fase</div>
-        <p style="font-size:11px;color:var(--mu);margin-bottom:16px">O que fazer para destravar os clientes parados em cada etapa.</p>
-        <div id="sugestoes-list"></div>
+      <!-- ANÁLISE DO FUNIL + SUGESTÕES (lado a lado) -->
+      <div class="analise-grid" style="margin-bottom:20px">
+        <div class="card">
+          <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span> Análise do Funil</div>
+          <p style="font-size:11px;color:var(--mu);margin-bottom:12px">Distribuição dos clientes por fase. Veja onde estão concentrados.</p>
+          <div style="position:relative;width:100%;height:260px"><canvas id="funil-pie" role="img" aria-label="Gráfico de pizza da distribuição de clientes por fase do pipeline"></canvas></div>
+          <div id="funil-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;font-size:10px"></div>
+        </div>
+        <div class="card">
+          <div class="ct" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">💡</span> Sugestões de Ação</div>
+          <p style="font-size:11px;color:var(--mu);margin-bottom:12px">O que fazer para destravar cada fase.</p>
+          <div id="sugestoes-list" style="max-height:340px;overflow-y:auto"></div>
+        </div>
       </div>
 
       <div class="dg">
@@ -950,6 +960,51 @@ async function recuperarDadosLocais(){
   }catch(e){alert('Erro: '+e.message);}
 }
 
+
+// ===== VER CLIENTES ARQUIVADOS =====
+async function verArquivados(){
+  if(!supa){alert('Supabase não conectado.');return;}
+  let arquivados=[];
+  try{
+    const {data,error}=await supa.from('clientes_arquivados').select('*').order('data_arquivamento',{ascending:false});
+    if(error)throw error;
+    arquivados=data||[];
+  }catch(e){alert('Erro ao buscar arquivados: '+e.message);return;}
+
+  const fmt=v=>'R$ '+(Number(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let html='<div style="max-height:70vh;overflow-y:auto">';
+  if(!arquivados.length){
+    html+='<div style="color:var(--mu);text-align:center;padding:30px">Nenhum cliente arquivado ainda.<br><span style="font-size:11px">Use "Arquivar Finalizados" para mover clientes concluídos para cá.</span></div>';
+  }else{
+    html+='<div style="font-size:11px;color:var(--mu);margin-bottom:14px">'+arquivados.length+' cliente(s) arquivado(s) — dados preservados para uso com o bot.</div>';
+    html+=arquivados.map(a=>{
+      const dt=a.data_arquivamento?new Date(a.data_arquivamento).toLocaleDateString('pt-BR'):'—';
+      return `<div style="background:rgba(255,255,255,0.03);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-weight:700;font-size:13px">${a.nome||'—'}</span>
+          <span style="font-size:9px;color:var(--mu)">Arquivado em ${dt}</span>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.7">
+          📱 ${a.telefone||'—'} &nbsp;|&nbsp; 🏠 ${fmt(a.valor_imovel)} &nbsp;|&nbsp; 💰 ${fmt(a.valor_financiamento)}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  html+='</div>';
+
+  // Mostra num modal simples
+  let modal=document.getElementById('mo-arquivados');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='mo-arquivados';
+    modal.className='mo';
+    modal.innerHTML='<div class="md" style="max-width:560px"><div class="mh"><div class="mt">📦 Clientes Arquivados</div><button class="mc" onclick="closeModal(\'mo-arquivados\')">✕</button></div><div class="mb" id="arquivados-body"></div></div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('arquivados-body').innerHTML=html;
+  modal.classList.add('open');
+}
+
 // ===== ARQUIVAR FINALIZADOS (tira do pipeline, guarda no banco) =====
 async function arquivarFinalizados(){
   const finalizados=clients.filter(c=>c.status==='finalizados');
@@ -973,91 +1028,113 @@ async function arquivarFinalizados(){
   }catch(e){alert('Erro ao arquivar: '+e.message);}
 }
 
-// ===== EXPORTAR RESUMO DO MÊS =====
+// ===== EXPORTAR RESUMO DO MÊS (PDF) =====
 function exportResumoMes(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,m=18;
   const agora=new Date();
   const mesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const mes=agora.getMonth(), ano=agora.getFullYear();
   const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
-
-  // Clientes cadastrados no mês
-  const novosMes=clients.filter(c=>noMes(c.dataCadastro));
-  // Fechamentos (pagamento) no mês
-  const fechados=clients.filter(c=>c.status==='pagamento'||c.status==='finalizados');
-  const fechadosMes=fechados.filter(c=>noMes(c.dataPagamento)||noMes(c.dataMovimentacao));
-  // Perdidos
-  const perdidos=clients.filter(c=>c.status==='perdidos');
-  // Vistorias (agenda tipo vistoria no mês)
-  const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes);
-
-  // Financeiro do mês
-  const valorFechado=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
-
-  // Por corretor
-  const porCorretor={};
-  novosMes.forEach(c=>{
-    const nome=c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (sem corretor)';
-    porCorretor[nome]=(porCorretor[nome]||0)+1;
-  });
-
-  // Por banco (fechados)
-  const porBanco={};
-  fechadosMes.forEach(c=>{
-    const b=banks.find(bk=>bk.id===c.bancoEscolhido)||banks.find(bk=>(c.bancos||[]).includes(bk.id));
-    const nome=b?b.nome:'Sem banco';
-    porBanco[nome]=(porBanco[nome]||0)+1;
-  });
-
   const fmt=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-  let txt='═══════════════════════════════════\n';
-  txt+='   RESUMO MENSAL — NEXA CAPITAL\n';
-  txt+='   '+mesNomes[mes]+' de '+ano+'\n';
-  txt+='═══════════════════════════════════\n\n';
+  // Dados
+  const novosMes=clients.filter(c=>noMes(c.dataCadastro));
+  const fechados=clients.filter(c=>c.status==='pagamento'||c.status==='finalizados');
+  const fechadosMes=fechados.filter(c=>noMes(c.dataPagamento)||noMes(c.dataMovimentacao));
+  const perdidos=clients.filter(c=>c.status==='perdidos');
+  const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes);
+  const valorFechado=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
+  const ativos=clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length;
 
-  txt+='📊 VISÃO GERAL\n';
-  txt+='───────────────────────────────────\n';
-  txt+='Novos clientes no mês: '+novosMes.length+'\n';
-  txt+='Fechamentos no mês: '+fechadosMes.length+'\n';
-  txt+='Clientes perdidos: '+perdidos.length+'\n';
-  txt+='Vistorias agendadas: '+vistorias.length+'\n';
-  txt+='Clientes ativos no pipeline: '+clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length+'\n\n';
+  const porCorretor={};
+  novosMes.forEach(c=>{const nome=c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (site/manual)';porCorretor[nome]=(porCorretor[nome]||0)+1;});
+  const porBanco={};
+  fechadosMes.forEach(c=>{const b=banks.find(bk=>bk.id===c.bancoEscolhido)||banks.find(bk=>(c.bancos||[]).includes(bk.id));const nome=b?b.nome:'Sem banco';porBanco[nome]=(porBanco[nome]||0)+1;});
 
-  txt+='💰 FINANCEIRO\n';
-  txt+='───────────────────────────────────\n';
-  txt+='Volume financiado (fechados): '+fmt(valorFechado)+'\n';
-  txt+='Ticket médio: '+fmt(fechadosMes.length?valorFechado/fechadosMes.length:0)+'\n\n';
+  let y=pdfHeader(doc,'RESUMO MENSAL',mesNomes[mes]+' de '+ano);
 
-  txt+='👥 CLIENTES POR ORIGEM\n';
-  txt+='───────────────────────────────────\n';
-  Object.entries(porCorretor).sort((a,b)=>b[1]-a[1]).forEach(([n,q])=>{txt+=n+': '+q+' cliente(s)\n';});
-  txt+='\n';
+  // Função auxiliar: título de seção
+  function secao(titulo){
+    if(y>260){doc.addPage();y=20;}
+    doc.setFillColor(13,27,42);doc.rect(m,y,W-m*2,7,'F');
+    doc.setTextColor(201,168,76);doc.setFont('helvetica','bold');doc.setFontSize(9);
+    doc.text(titulo,m+3,y+4.8);
+    y+=12;
+    doc.setTextColor(40,50,60);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  }
+  function linha(label,valor,destaque){
+    if(y>270){doc.addPage();y=20;}
+    doc.setTextColor(80,90,100);doc.setFont('helvetica','normal');doc.setFontSize(9);
+    doc.text(label,m+2,y);
+    doc.setTextColor(destaque?201:40,destaque?168:50,destaque?76:60);
+    doc.setFont('helvetica','bold');
+    doc.text(String(valor),W-m-2,y,{align:'right'});
+    y+=6;
+  }
 
-  txt+='🏦 FECHAMENTOS POR BANCO\n';
-  txt+='───────────────────────────────────\n';
-  if(Object.keys(porBanco).length){Object.entries(porBanco).sort((a,b)=>b[1]-a[1]).forEach(([n,q])=>{txt+=n+': '+q+' fechamento(s)\n';});}
-  else{txt+='Nenhum fechamento neste mês.\n';}
-  txt+='\n';
+  // VISÃO GERAL
+  secao('VISÃO GERAL');
+  linha('Novos clientes no mês',novosMes.length);
+  linha('Fechamentos no mês',fechadosMes.length,true);
+  linha('Clientes perdidos',perdidos.length);
+  linha('Vistorias agendadas',vistorias.length);
+  linha('Clientes ativos no pipeline',ativos);
+  y+=3;
 
-  // Análise geral
-  txt+='📈 ANÁLISE GERAL\n';
-  txt+='───────────────────────────────────\n';
+  // FINANCEIRO
+  secao('FINANCEIRO');
+  linha('Volume financiado (fechados)',fmt(valorFechado),true);
+  linha('Ticket médio',fmt(fechadosMes.length?valorFechado/fechadosMes.length:0));
+  y+=3;
+
+  // POR ORIGEM
+  secao('CLIENTES POR ORIGEM');
+  const corrEntries=Object.entries(porCorretor).sort((a,b)=>b[1]-a[1]);
+  if(corrEntries.length){corrEntries.forEach(([n,q])=>linha(n,q+' cliente(s)'));}
+  else{linha('Nenhum cliente novo no mês','—');}
+  y+=3;
+
+  // POR BANCO
+  secao('FECHAMENTOS POR BANCO');
+  const bancoEntries=Object.entries(porBanco).sort((a,b)=>b[1]-a[1]);
+  if(bancoEntries.length){bancoEntries.forEach(([n,q])=>linha(n,q+' fechamento(s)'));}
+  else{linha('Nenhum fechamento neste mês','—');}
+  y+=3;
+
+  // ANÁLISE INTELIGENTE
+  secao('ANÁLISE DOS RESULTADOS');
   const taxaConv=novosMes.length?((fechadosMes.length/novosMes.length)*100).toFixed(1):0;
-  txt+='Taxa de conversão do mês: '+taxaConv+'%\n';
-  if(perdidos.length>fechadosMes.length){txt+='⚠️ Atenção: mais clientes perdidos do que fechados. Revisar abordagem.\n';}
-  if(fechadosMes.length>0){txt+='✅ '+fechadosMes.length+' fechamento(s) — bom trabalho!\n';}
-  const melhorCorretor=Object.entries(porCorretor).sort((a,b)=>b[1]-a[1])[0];
-  if(melhorCorretor&&melhorCorretor[0]!=='Direto (sem corretor)'){txt+='🏆 Corretor destaque: '+melhorCorretor[0]+' ('+melhorCorretor[1]+' indicações)\n';}
-  txt+='\n═══════════════════════════════════\n';
-  txt+='Gerado em '+agora.toLocaleString('pt-BR')+'\n';
+  const analises=[];
+  analises.push('Taxa de conversao do mes: '+taxaConv+'% ('+fechadosMes.length+' fechados de '+novosMes.length+' novos).');
+  if(perdidos.length>fechadosMes.length&&perdidos.length>0){analises.push('Atencao: o numero de perdidos ('+perdidos.length+') superou os fechamentos. Recomenda-se revisar a qualificacao dos leads e agilizar o primeiro contato.');}
+  if(fechadosMes.length>=3){analises.push('Otimo desempenho em fechamentos ('+fechadosMes.length+'). Mantenha o padrao de acompanhamento que esta funcionando.');}
+  const melhorCorr=corrEntries.find(e=>e[0]!=='Direto (site/manual)');
+  if(melhorCorr){analises.push('Corretor destaque: '+melhorCorr[0]+' com '+melhorCorr[1]+' indicacao(oes). Vale fortalecer essa parceria.');}
+  if(ativos>=10){analises.push('Ha '+ativos+' clientes ativos no funil. Priorize os que estao parados ha mais tempo para nao esfriar.');}
+  if(valorFechado>0){analises.push('O volume financiado de '+fmt(valorFechado)+' representa o resultado consolidado do mes.');}
+  if(!analises.length){analises.push('Ainda nao ha dados suficientes no mes para uma analise aprofundada.');}
 
-  // Download
-  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='Resumo_NEXA_'+mesNomes[mes]+'_'+ano+'.txt';
-  a.click();URL.revokeObjectURL(url);
+  doc.setFontSize(9);doc.setTextColor(50,60,70);doc.setFont('helvetica','normal');
+  analises.forEach(a=>{
+    if(y>270){doc.addPage();y=20;}
+    const linhas=doc.splitTextToSize('• '+a,W-m*2-4);
+    doc.text(linhas,m+2,y);
+    y+=linhas.length*5+2;
+  });
+
+  // Rodapé
+  const totalPages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=totalPages;i++){
+    doc.setPage(i);
+    doc.setFontSize(7);doc.setTextColor(150,160,170);
+    doc.text('NEXA Capital — Relatório gerado em '+agora.toLocaleString('pt-BR'),W/2,290,{align:'center'});
+  }
+
+  doc.save('Resumo_NEXA_'+mesNomes[mes]+'_'+ano+'.pdf');
 }
+
 
 // Migração: envia dados locais atuais para o Supabase (uma vez)
 async function migrarParaSupabase(){
@@ -1191,47 +1268,115 @@ const SUGESTOES_FASE={
 };
 
 function renderFunilAnalise(){
-  const el=document.getElementById('funil-chart');
-  if(!el)return;
-  // Conta clientes por fase (só ativos, exclui finalizados/perdidos do gráfico principal)
-  const fases=COLS.map(col=>({k:col.k,l:col.l,n:clients.filter(c=>c.status===col.k).length}));
-  const max=Math.max(...fases.map(f=>f.n),1);
-  el.innerHTML=fases.map(f=>{
-    const pct=Math.round(f.n/max*100);
-    const cor=f.k==='perdidos'?'#f87171':(f.k==='finalizados'||f.k==='pagamento'?'#4ade80':'linear-gradient(90deg,#c9a84c,#e2c77a)');
-    return `<div style="margin-bottom:11px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:600">${f.l}</span>
-        <span style="font-size:12px;font-weight:700;color:var(--gd)">${f.n}</span>
-      </div>
-      <div style="height:7px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:${cor};border-radius:4px;transition:width .4s"></div>
-      </div>
-    </div>`;
-  }).join('');
+  const canvas=document.getElementById('funil-pie');
+  if(!canvas||typeof Chart==='undefined')return;
+  // Cores por fase (paleta NEXA + semânticas)
+  const cores={
+    novo:'#3987e5', contato:'#199e70', simulacao:'#c98500', analise:'#9085e9',
+    aprovado:'#008300', checklist:'#e2c77a', engenharia:'#d95926', juridico:'#d55181',
+    interveniente:'#1baf7a', fgts:'#eda100', contrato:'#4a3aa7', cartorio:'#e66767',
+    pagamento:'#0ca30c', finalizados:'#0f6e56', perdidos:'#d03b3b'
+  };
+  // Só fases com clientes
+  const dados=COLS.map(col=>({l:col.l,k:col.k,n:clients.filter(c=>c.status===col.k).length})).filter(d=>d.n>0);
+  const total=dados.reduce((s,d)=>s+d.n,0);
+
+  if(window._funilChart){window._funilChart.destroy();}
+  const leg=document.getElementById('funil-legend');
+
+  if(!dados.length){
+    if(leg)leg.innerHTML='<span style="color:var(--mu)">Nenhum cliente no pipeline.</span>';
+    return;
+  }
+
+  window._funilChart=new Chart(canvas,{
+    type:'doughnut',
+    data:{
+      labels:dados.map(d=>d.l),
+      datasets:[{
+        data:dados.map(d=>d.n),
+        backgroundColor:dados.map(d=>cores[d.k]||'#888'),
+        borderColor:'#0d1b2a',
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>{const pct=Math.round(ctx.parsed/total*100);return ' '+ctx.label+': '+ctx.parsed+' ('+pct+'%)';}}}
+      }
+    }
+  });
+
+  // Legenda customizada
+  if(leg){
+    leg.innerHTML=dados.map(d=>{
+      const pct=Math.round(d.n/total*100);
+      return `<span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:${cores[d.k]||'#888'}"></span>${d.l}: ${d.n} (${pct}%)</span>`;
+    }).join('');
+  }
 }
 
 function renderSugestoes(){
   const el=document.getElementById('sugestoes-list');
   if(!el)return;
-  // Mostra sugestões só para as fases que têm clientes parados (exclui finalizados)
+  let html='';
+
+  // INSIGHTS INTELIGENTES no topo
+  const insights=[];
+  const totalAtivo=clients.filter(c=>!['finalizados','perdidos'].includes(c.status)).length;
+  const perdidos=clients.filter(c=>c.status==='perdidos').length;
+  const fechados=clients.filter(c=>c.status==='pagamento').length;
+  const novos=clients.filter(c=>c.status==='novo').length;
+
+  // Maior gargalo
+  const fases=COLS.filter(col=>!['finalizados','perdidos'].includes(col.k)).map(col=>({l:col.l,k:col.k,n:clients.filter(c=>c.status===col.k).length}));
+  const gargalo=fases.sort((a,b)=>b.n-a.n)[0];
+  if(gargalo&&gargalo.n>=3){
+    insights.push({tipo:'alerta',txt:'<b>Maior gargalo:</b> '+gargalo.n+' clientes parados em <b>'+gargalo.l+'</b>. Foque energia aqui para destravar o funil.'});
+  }
+  // Taxa de perda
+  if(perdidos>0&&(perdidos+fechados)>0){
+    const taxaPerda=Math.round(perdidos/(perdidos+fechados)*100);
+    if(taxaPerda>=40){insights.push({tipo:'alerta',txt:'<b>Taxa de perda alta ('+taxaPerda+'%).</b> Revise a qualificação inicial dos leads e o tempo de resposta.'});}
+  }
+  // Muitos novos sem contato
+  if(novos>=5){insights.push({tipo:'acao',txt:'<b>'+novos+' clientes novos</b> aguardando primeiro contato. Leads esfriam rápido — priorize hoje!'});}
+  // Parabéns
+  if(fechados>=3){insights.push({tipo:'bom',txt:'<b>'+fechados+' financiamentos</b> na reta final (Pagamento Vendedor). Ótimo trabalho! 🎉'});}
+
+  if(insights.length){
+    html+='<div style="margin-bottom:14px">';
+    html+=insights.map(i=>{
+      const cor=i.tipo==='alerta'?'#f87171':(i.tipo==='bom'?'#4ade80':'var(--gd)');
+      const icon=i.tipo==='alerta'?'⚠️':(i.tipo==='bom'?'✅':'🎯');
+      return `<div style="background:rgba(255,255,255,0.03);border-left:3px solid ${cor};border-radius:6px;padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.6;color:rgba(255,255,255,0.85)">${icon} ${i.txt}</div>`;
+    }).join('');
+    html+='</div>';
+    html+='<div style="font-size:10px;letter-spacing:1px;color:var(--gd);font-weight:700;margin-bottom:10px;text-transform:uppercase">Ações por fase</div>';
+  }
+
+  // Sugestões por fase (só fases com clientes)
   const fasesComClientes=COLS.filter(col=>col.k!=='finalizados'&&clients.filter(c=>c.status===col.k).length>0);
-  if(!fasesComClientes.length){
+  if(!fasesComClientes.length&&!insights.length){
     el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhum cliente ativo no pipeline no momento.</div>';
     return;
   }
-  el.innerHTML=fasesComClientes.map(col=>{
+  html+=fasesComClientes.map(col=>{
     const qtd=clients.filter(c=>c.status===col.k).length;
     const sug=SUGESTOES_FASE[col.k]||'Acompanhe o andamento deste cliente.';
     const alerta=qtd>=3?'⚠️ ':'';
-    return `<div style="background:rgba(255,255,255,0.02);border-left:3px solid var(--gd);border-radius:6px;padding:12px 14px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <span style="font-size:12px;font-weight:700;color:var(--gd)">${col.l}</span>
-        <span style="font-size:10px;color:var(--mu)">${alerta}${qtd} cliente(s) parado(s)</span>
+    return `<div style="background:rgba(255,255,255,0.02);border-left:3px solid var(--gd);border-radius:6px;padding:11px 13px;margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:700;color:var(--gd)">${col.l}</span>
+        <span style="font-size:9px;color:var(--mu)">${alerta}${qtd} parado(s)</span>
       </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.6">${sug}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);line-height:1.6">${sug}</div>
     </div>`;
   }).join('');
+
+  el.innerHTML=html;
 }
 
 function renderPipeline(){
