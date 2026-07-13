@@ -2035,8 +2035,14 @@ async function testZAPI(){
 // ===== CORRETORES =====
 let corretores = [];
 
-function loadCorretores(){
-  try{const r=localStorage.getItem('nexa_corretores');if(r)corretores=JSON.parse(r);}catch(e){}
+async function loadCorretores(){
+  const supaCor=await supaLoadCorretores();
+  if(supaCor!==null){
+    corretores=supaCor;
+    try{localStorage.setItem('nexa_corretores',JSON.stringify(corretores));}catch(e){}
+  }else{
+    try{const r=localStorage.getItem('nexa_corretores');if(r)corretores=JSON.parse(r);}catch(e){}
+  }
   renderCorretores();
 }
 
@@ -2233,6 +2239,16 @@ const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.va
       supa.channel('agenda-realtime')
         .on('postgres_changes',{event:'*',schema:'public',table:'agenda'},()=>{
           supaLoadAgenda().then(a=>{if(a){agenda=a;renderAll();}});
+        })
+        .subscribe();
+      supa.channel('corretores-realtime')
+        .on('postgres_changes',{event:'*',schema:'public',table:'corretores'},()=>{
+          supaLoadCorretores().then(co=>{if(co){corretores=co;renderCorretores();}});
+        })
+        .subscribe();
+      supa.channel('bancos-realtime')
+        .on('postgres_changes',{event:'*',schema:'public',table:'bancos'},()=>{
+          supaLoadBancos().then(b=>{if(b){banks=b;renderAll();}});
         })
         .subscribe();
     }catch(e){console.warn('Realtime falhou',e);}
