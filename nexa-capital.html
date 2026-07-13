@@ -15,6 +15,8 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 let supa=null;
 try{ supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){ console.warn('Supabase init falhou',e); }
 let SUPA_ONLINE=false;
+let _deletando=false;
+let _idsExcluidos=new Set();
 </script>
 
 <style>
@@ -811,44 +813,29 @@ async function loadAll(){
   const supaClientes=await supaLoadClientes();
   if(supaClientes!==null){
     SUPA_ONLINE=true;
-    clients=supaClientes;
+    // Remove qualquer cliente que foi excluído nesta sessão (proteção extra)
+    clients=supaClientes.filter(cl=>!_idsExcluidos.has(cl.id));
     // Backup local
     try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   } else {
-    // Fallback: Google Sheets + localStorage (modo antigo)
+    // Fallback: SOMENTE localStorage (Google Sheets desativado para não re-importar excluídos)
     SUPA_ONLINE=false;
     let internal=[];
-    try{
-      let fromSheets=[];
-      try{
-        const resp=await fetch('https://script.google.com/macros/s/AKfycbwgBtSzr0gt2duMQP8hTNjG7os8fNvnsR8mF9kZCz9bF6FIllk7bn5XiP9znTkXzlFRlA/exec');
-        if(resp.ok){const j=await resp.json();if(Array.isArray(j))fromSheets=j;}
-      }catch(e){}
-      let localClients=[];
-      try{const r=localStorage.getItem('nexa_clients_int');if(r)localClients=JSON.parse(r);}catch(e){}
-      let deletedIds=[];try{const d=localStorage.getItem('nexa_deleted_ids');if(d)deletedIds=JSON.parse(d);}catch(e){}
-      const deletedSet=new Set(deletedIds);
-      let deletedKeys=[];try{const dk=localStorage.getItem('nexa_deleted_keys');if(dk)deletedKeys=JSON.parse(dk);}catch(e){}
-      const deletedKeySet=new Set(deletedKeys);
-      const localIds=new Set(localClients.map(c=>c.id));
-      const newFromSheets=fromSheets.filter(c=>{
-        if(localIds.has(c.id))return false;
-        if(deletedSet.has(c.id))return false;
-        const k=(c.nome||'')+'|'+(c.telefone||'');
-        if(deletedKeySet.has(k))return false;
-        return true;
-      });
-      internal=[...localClients,...newFromSheets];
-      if(newFromSheets.length>0){localStorage.setItem('nexa_clients_int',JSON.stringify(internal));}
-    }catch(e){internal=DEMO_CLIENTS;}
+    try{const r=localStorage.getItem('nexa_clients_int');if(r)internal=JSON.parse(r);}catch(e){internal=[];}
+    if(!internal.length)internal=DEMO_CLIENTS;
+    // Remove excluídos e deduplica
+    let deletedIds=[];try{const d=localStorage.getItem('nexa_deleted_ids');if(d)deletedIds=JSON.parse(d);}catch(e){}
+    const deletedSet=new Set(deletedIds);
+    _idsExcluidos.forEach(id=>deletedSet.add(id));
     const seenIds=new Set();const seenKeys=new Set();
     clients=internal.filter(cl=>{
+      if(deletedSet.has(cl.id))return false;
       if(seenIds.has(cl.id))return false;
       const key=(cl.nome||'')+'|'+(cl.telefone||'')+'|'+(cl.cpf||'');
       if(key!='||' && seenKeys.has(key))return false;
       seenIds.add(cl.id);seenKeys.add(key);return true;
     });
-  }
+    }
   // Detecta novos clientes para notificação sonora
   const newNovos=clients.filter(c=>c.status==='novo').length;
   if(newNovos>prevNovos && prevNovos>0) notifyNovoCliente(newNovos-prevNovos);
@@ -856,8 +843,8 @@ async function loadAll(){
   renderAll();
 }
 async function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
-  // Sincroniza todos com Supabase
-  if(supa&&clients){clients.forEach(cl=>supaSaveCliente(cl));}
+  // Sincroniza com Supabase (nunca re-envia clientes já excluídos)
+  if(supa&&clients){clients.forEach(cl=>{if(!_idsExcluidos.has(cl.id))supaSaveCliente(cl);});}
 }
 async function saveBanks(){try{localStorage.setItem('nexa_banks',JSON.stringify(banks));}catch(e){}
   if(supa&&banks){banks.forEach(b=>supaSaveBanco(b));}}
@@ -1196,25 +1183,34 @@ function registerDeleted(idsToDelete){
   localStorage.setItem('nexa_deleted_ids',JSON.stringify(delIds));
   localStorage.setItem('nexa_deleted_keys',JSON.stringify(delKeys));
 }
-function delOne(id){
+async function delOne(id){
   if(!confirm('Excluir este cliente?'))return;
+  _deletando=true;
+  _idsExcluidos.add(id);
   registerDeleted([id]);
-  supaDeleteCliente(id);
+  // Remove da tela imediatamente
   clients=clients.filter(cl=>cl.id!==id);
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
+  // Aguarda exclusão no Supabase antes de liberar
+  await supaDeleteCliente(id);
+  setTimeout(()=>{_deletando=false;},1500);
 }
-function delSelected(){
+async function delSelected(){
   const ids=Array.from(document.querySelectorAll('.sel-cli:checked')).map(el=>el.dataset.id);
   if(!ids.length)return;
   if(!confirm('Excluir '+ids.length+' cliente(s) selecionado(s)?'))return;
+  _deletando=true;
+  ids.forEach(id=>_idsExcluidos.add(id));
   registerDeleted(ids);
-  ids.forEach(id=>supaDeleteCliente(id));
   clients=clients.filter(cl=>!ids.includes(cl.id));
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
   const btn=document.getElementById('btn-del-sel');
   if(btn)btn.style.display='none';
+  // Aguarda todas as exclusões no Supabase
+  for(const id of ids){await supaDeleteCliente(id);}
+  setTimeout(()=>{_deletando=false;},1500);
 }
 
 function renderAll(){
@@ -2616,9 +2612,9 @@ const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.va
       supa.channel('clientes-realtime')
         .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},payload=>{
           console.log('Realtime clientes:',payload.eventType);
-          // Recarrega clientes quando houver mudança de outro dispositivo
+          // Não recarrega durante exclusão ou seleção (evita cliente voltar)
           const hasChecked=document.querySelectorAll('.sel-cli:checked').length>0;
-          if(!hasChecked)loadAll();
+          if(!hasChecked && !_deletando)loadAll();
         })
         .subscribe();
       supa.channel('agenda-realtime')
