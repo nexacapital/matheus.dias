@@ -660,6 +660,7 @@ checkAuth();
         <div class="fg"><label>Valor Financiamento <span class="rq">*</span></label><input type="text" id="nc-fv" placeholder="R$ 0,00" oninput="fmtCur(this);chkLim()"><div class="fe" id="e-nc-fv">Obrigatório</div></div>
       </div>
       <div class="fg" style="margin-top:10px"><label>Renda Familiar <span class="rq">*</span></label><input type="text" id="nc-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"><div class="fe" id="e-nc-renda">Obrigatório</div></div>
+      <div class="fg" style="margin-top:10px"><label>Intenção de Compra</label><select id="nc-prazo"><option value="">Selecione (opcional)</option><option value="0-30 dias">0 a 30 dias</option><option value="1-3 meses">1 a 3 meses</option><option value="3-6 meses">3 a 6 meses</option><option value="6 meses+">6 meses ou mais</option></select></div>
       <div id="nc-lwarn" style="font-size:10px;color:var(--rd);display:none;margin-bottom:8px">⚠️ Financiamento máximo é 80% do imóvel.</div>
       <div class="ct" style="margin-top:14px">Bancos para Simulação</div>
       <div class="bchips" id="nc-bchips"></div>
@@ -870,7 +871,7 @@ function cliToRow(cl){
   return {
     id:cl.id, nome:cl.nome||'', cpf:cl.cpf||null, nascimento:cl.nascimento||null,
     estado_civil:cl.estadoCivil||null, telefone:cl.telefone||null,
-    valor_imovel:Number(cl.valorImovel)||0, valor_financiamento:Number(cl.valorFinanciamento)||0, renda_familiar:Number(cl.rendaFamiliar)||0,
+    valor_imovel:Number(cl.valorImovel)||0, valor_financiamento:Number(cl.valorFinanciamento)||0, renda_familiar:Number(cl.rendaFamiliar)||0, prazo_intencao:cl.prazoIntencao||null,
     conjuge:cl.conjuge||null, obs:cl.obs||null, status:cl.status||'novo',
     bancos:cl.bancos||[], banco_escolhido:cl.bancoEscolhido||'',
     origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
@@ -881,7 +882,7 @@ function cliToRow(cl){
 function rowToCli(r){
   return {
     id:r.id, nome:r.nome, cpf:r.cpf, nascimento:r.nascimento, estadoCivil:r.estado_civil,
-    telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento, rendaFamiliar:r.renda_familiar,
+    telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento, rendaFamiliar:r.renda_familiar, prazoIntencao:r.prazo_intencao,
     conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
     bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
     dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao
@@ -1438,6 +1439,7 @@ function openClientDetail(id){
       ['Estado Civil', ecMap[c.estadoCivil]||c.estadoCivil||'—'],
       ['WhatsApp', c.telefone||'—'],
       ['Renda Familiar', c.rendaFamiliar?fmtV(c.rendaFamiliar):'—'],
+      ['Intenção de Compra', c.prazoIntencao||'—'],
       ['Origem', c.origem==='formulario_publico'?'✦ Formulário público':'Cadastro interno'],
       ['Corretor', c.refCorretor||'—'],
       ['Data Cadastro', c.dataCadastro?new Date(c.dataCadastro).toLocaleDateString('pt-BR'):'—'],
@@ -1492,7 +1494,7 @@ function saveNewClient(){
   if(iv>0&&fv>iv*.8){chkLim();ok=false;}
   if(!ok)return;
   const selBanks=[...document.querySelectorAll('#nc-bchips .bchip.sel')].map(el=>el.dataset.bid);
-  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),obs:document.getElementById('nc-obs').value,status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
+  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),prazoIntencao:document.getElementById('nc-prazo').value||'',obs:document.getElementById('nc-obs').value,status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
   clients.unshift(c);closeModal('mo-nc');saveClients();renderAll();
 }
 

@@ -200,6 +200,16 @@ try{ supa=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){ co
           <input type="text" id="f-renda" placeholder="R$ 0,00" inputmode="numeric" oninput="formatCurrency(this)">
           <div class="field-error" id="e-renda">Campo obrigatório.</div>
         </div>
+        <div class="form-group" style="margin-top:16px">
+          <label>Pretende entrar no financiamento em quanto tempo?</label>
+          <select id="f-prazo">
+            <option value="">Selecione (opcional)</option>
+            <option value="0-30 dias">0 a 30 dias</option>
+            <option value="1-3 meses">1 a 3 meses</option>
+            <option value="3-6 meses">3 a 6 meses</option>
+            <option value="6 meses+">6 meses ou mais</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-footer">
@@ -297,6 +307,7 @@ async function submitForm(){
       valorImovel: iv,
       valorFinanciamento: fv,
       rendaFamiliar: parseCurrency(document.getElementById('f-renda').value),
+      prazoIntencao: document.getElementById('f-prazo').value || '',
       status: 'novo',
       banco: '',
       bancoEscolhido: '',
@@ -318,6 +329,7 @@ async function submitForm(){
         valor_imovel: Number(client.valorImovel)||0,
         valor_financiamento: Number(client.valorFinanciamento)||0,
         renda_familiar: Number(client.rendaFamiliar)||0,
+        prazo_intencao: client.prazoIntencao || null,
         conjuge: client.conjuge || null,
         status: 'novo',
         bancos: [],
