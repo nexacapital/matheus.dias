@@ -1154,13 +1154,18 @@ function updateDelBtn(){
   const btn=document.getElementById('btn-del-sel');
   if(btn) btn.style.display=sel.length>0?'inline-flex':'none';
 }
-function deleteSelected(){
+async function deleteSelected(){
   const ids=Array.from(document.querySelectorAll('.sel-client:checked')).map(el=>el.dataset.id);
   if(!ids.length) return;
   if(!confirm('Excluir '+ids.length+' cliente(s)?')) return;
+  _deletando=true;
+  ids.forEach(id=>_idsExcluidos.add(id));
+  registerDeleted(ids);
   clients=clients.filter(cl=>!ids.includes(cl.id));
-  saveClients();
+  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
+  if(supa){for(const id of ids){try{await supa.from('clientes').delete().eq('id',id);}catch(e){console.error(e);}}}
+  setTimeout(()=>{_deletando=false;},2000);
 }
 
 function updDelBtn(){
@@ -1474,7 +1479,25 @@ function toggleCDBk(bid,el){
   saveClients();renderAll();
 }
 function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;c[f]=v;saveClients();renderAll();}
-function delClient(){if(!confirm('Excluir?'))return;clients=clients.filter(c=>c.id!==editClientId);closeModal('mo-cd');saveClients();renderAll();}
+async function delClient(){
+  if(!confirm('Excluir este cliente?'))return;
+  const id=editClientId;
+  _deletando=true;
+  _idsExcluidos.add(id);
+  registerDeleted([id]);
+  clients=clients.filter(c=>c.id!==id);
+  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  closeModal('mo-cd');
+  renderAll();
+  if(supa){
+    try{
+      const {error}=await supa.from('clientes').delete().eq('id',id);
+      if(error){console.error('Erro Supabase delete:',error);alert('⚠️ Não consegui excluir da nuvem: '+error.message);}
+      else{console.log('Cliente excluído do Supabase:',id);}
+    }catch(e){console.error(e);alert('⚠️ Erro de conexão ao excluir.');}
+  }
+  setTimeout(()=>{_deletando=false;},2000);
+}
 
 // ===== NEW CLIENT =====
 function openNewClient(){
