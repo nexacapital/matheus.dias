@@ -299,7 +299,7 @@ checkAuth();
 
     <!-- DASHBOARD -->
     <div class="pg active ain" id="page-dashboard">
-      <div class="ph"><h1>Visão Geral</h1><p>Acompanhe suas operações em tempo real</p><div class="phl"></div><div id="frase-dia" style="margin-top:14px;padding:14px 18px;background:rgba(201,168,76,.06);border-left:3px solid var(--gd);border-radius:8px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.82)"></div></div>
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap"><div><h1>Visão Geral</h1><p>Acompanhe suas operações em tempo real</p><div class="phl"></div></div><div id="frase-dia" style="flex:1;min-width:280px;max-width:520px;padding:14px 18px;background:rgba(201,168,76,.06);border-left:3px solid var(--gd);border-radius:8px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.82);text-align:left"></div></div>
       <div class="sg">
         <div class="sc"><div class="sl">Total Clientes</div><div class="sv" id="s1">0</div><div class="ss" id="s1s">—</div></div>
         <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Simulação + Análise</div></div>
@@ -625,6 +625,7 @@ checkAuth();
         <div class="card" style="grid-column:span 3">
           <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
             Comissões — Comissões
+            <button class="btn bo bsm" onclick="limparComissoesOrfas()" title="Remove comissões de clientes já excluídos">🧹 Limpar órfãs</button>
             <button class="btn brd bsm" onclick="limparComissoes()">🗑 Limpar tudo</button>
           </div>
           <div style="font-size:10px;color:var(--mu);margin-bottom:14px">Registrado automaticamente quando o cliente entra em <span style="color:var(--gr)">Pagamento Vendedor</span>, com a comissão do banco. Fica salvo mesmo se o cliente avançar para Finalizados ou for arquivado.</div>
@@ -1298,6 +1299,7 @@ async function deleteSelected(){
   _deletando=true;
   ids.forEach(id=>_idsExcluidos.add(id));
   registerDeleted(ids);
+  await limparVestigiosCliente(ids);
   clients=clients.filter(cl=>!ids.includes(cl.id));
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
@@ -1325,11 +1327,30 @@ function registerDeleted(idsToDelete){
   localStorage.setItem('nexa_deleted_ids',JSON.stringify(delIds));
   localStorage.setItem('nexa_deleted_keys',JSON.stringify(delKeys));
 }
+
+// Ao excluir um cliente, remove também comissão e histórico dele
+async function limparVestigiosCliente(ids){
+  const arr=Array.isArray(ids)?ids:[ids];
+  // comissões
+  comissoes=comissoes.filter(x=>!arr.includes(x.cliente_id||x.id));
+  saveComissoesLocal();
+  // histórico de etapas
+  historicoEtapas=historicoEtapas.filter(h=>!arr.includes(h.cliente_id));
+  saveHistLocal();
+  if(supa){
+    for(const id of arr){
+      try{await supa.from('comissoes').delete().eq('id',id);}catch(e){console.warn('del comissao',e);}
+      try{await supa.from('historico_etapas').delete().eq('cliente_id',id);}catch(e){console.warn('del hist',e);}
+    }
+  }
+}
+
 async function delOne(id){
   if(!confirm('Excluir este cliente?'))return;
   _deletando=true;
   _idsExcluidos.add(id);
   registerDeleted([id]);
+  await limparVestigiosCliente(id);
   clients=clients.filter(cl=>cl.id!==id);
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
@@ -1350,6 +1371,7 @@ async function delSelected(){
   _deletando=true;
   ids.forEach(id=>_idsExcluidos.add(id));
   registerDeleted(ids);
+  await limparVestigiosCliente(ids);
   clients=clients.filter(cl=>!ids.includes(cl.id));
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   renderAll();
@@ -1384,111 +1406,377 @@ function renderDashUltimos(){
 // ===== STATS =====
 
 // ===== FRASE DO DIA =====
-// Estoicos: citações clássicas em domínio público (Marco Aurélio, Sêneca, Epicteto),
-// as mesmas fontes que o "The Daily Stoic" compila.
-// Estratégia: máximas autorais, escritas no espírito de "The Daily Laws" (sem reproduzir o livro).
+// 366 frases — uma por dia do ano.
+// Clássicos em DOMÍNIO PÚBLICO com autoria real (Marco Aurélio, Sêneca, Epicteto, Provérbios,
+// Sun Tzu, Franklin, Confúcio, Lao Tsé, Aristóteles, Da Vinci...).
+// As demais são máximas autorais, marcadas como 'Reflexão do dia' — nunca atribuídas a terceiros.
 const FRASES_DIA=[
   {t:'Você tem poder sobre a sua mente, não sobre os acontecimentos. Perceba isso e encontrará força.',a:'Marco Aurélio'},
-  {t:'Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis.',a:'Sêneca'},
-  {t:'Não são os fatos que perturbam os homens, mas as opiniões que eles têm sobre os fatos.',a:'Epicteto'},
-  {t:'Comece já a ser quem você quer se tornar.',a:'Epicteto'},
-  {t:'Sofremos mais na imaginação do que na realidade.',a:'Sêneca'},
-  {t:'A melhor vingança é não ser igual a quem te feriu.',a:'Marco Aurélio'},
-  {t:'Enquanto adiamos, a vida passa.',a:'Sêneca'},
-  {t:'Nenhum homem é livre se não for senhor de si mesmo.',a:'Epicteto'},
-  {t:'O obstáculo à ação avança a ação. O que está no caminho vira o caminho.',a:'Marco Aurélio'},
-  {t:'A sorte é o que acontece quando o preparo encontra a oportunidade.',a:'Sêneca'},
-  {t:'Se quiser progredir, aceite parecer tolo no começo.',a:'Epicteto'},
-  {t:'Não explique sua filosofia. Incorpore-a.',a:'Epicteto'},
-  {t:'Confine-se ao presente.',a:'Marco Aurélio'},
-  {t:'Toda nova manhã é uma chance de recomeçar.',a:'Marco Aurélio'},
-  {t:'Ter é desejar menos, não acumular mais.',a:'Sêneca'},
-  {t:'Domine o ofício antes de buscar o holofote: a competência sustenta o que a imagem só promete.',a:'Reflexão do dia'},
-  {t:'Paciência não é lentidão; é escolher a hora em que sua ação vale mais.',a:'Reflexão do dia'},
-  {t:'Observe o que as pessoas fazem, não o que dizem. O comportamento é a única confissão sincera.',a:'Reflexão do dia'},
-  {t:'Quem controla as próprias emoções lê melhor a sala do que quem grita mais alto.',a:'Reflexão do dia'},
-  {t:'Aprenda com quem já percorreu o caminho: experiência alheia é atalho barato.',a:'Reflexão do dia'},
-  {t:'O tempo revela tudo. Trabalhe como quem será julgado pelo acumulado, não pelo dia.',a:'Reflexão do dia'},
-  {t:'Excelência é hábito silencioso; reputação é só o eco dele.',a:'Reflexão do dia'},
-  {t:'Não confunda movimento com progresso: ocupado não é o mesmo que eficaz.',a:'Reflexão do dia'},
-  {t:'Escute mais do que fala e você saberá o que ninguém contou.',a:'Reflexão do dia'},
-  {t:'Prepare-se para o difícil enquanto está fácil.',a:'Reflexão do dia'},
-  {t:'Foco é dizer não a coisas boas para poder dizer sim à certa.',a:'Reflexão do dia'},
-  {t:'A pressa entrega sua mão; a calma esconde seu jogo.',a:'Reflexão do dia'},
-  {t:'Faça o trabalho que ninguém vê e colha o resultado que todos veem.',a:'Reflexão do dia'},
-  {t:'Sua palavra cumprida vale mais que qualquer argumento.',a:'Reflexão do dia'},
-  {t:'Constância vence intensidade quando o prazo é longo.',a:'Reflexão do dia'},
-  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'},
-  {t:'A alma se tinge da cor dos seus pensamentos.',a:'Marco Aurélio'},
-  {t:'Que nada seja feito por impulso, mas tudo segundo a razão.',a:'Marco Aurélio'},
-  {t:'Perde-se mais tempo hesitando do que executando.',a:'Marco Aurélio'},
-  {t:'Faça cada ato da vida como se fosse o último.',a:'Marco Aurélio'},
-  {t:'Se algo está ao seu alcance, faça. Se não está, por que se afligir?',a:'Marco Aurélio'},
-  {t:'A dificuldade mostra o que as pessoas são.',a:'Epicteto'},
-  {t:'Primeiro diga a si mesmo o que você quer ser; depois faça o que precisa ser feito.',a:'Epicteto'},
-  {t:'Temos duas orelhas e uma boca para ouvir o dobro do que falamos.',a:'Epicteto'},
-  {t:'Riqueza não é ter muitos bens, mas ter poucas necessidades.',a:'Epicteto'},
-  {t:'Não deseje que as coisas sejam como você quer; queira-as como são, e viverá em paz.',a:'Epicteto'},
-  {t:'A vida é longa se você souber usá-la.',a:'Sêneca'},
-  {t:'Não é que tenhamos pouco tempo: é que perdemos muito.',a:'Sêneca'},
-  {t:'Quem está em toda parte não está em lugar nenhum.',a:'Sêneca'},
-  {t:'Nenhum vento é favorável a quem não sabe para onde vai.',a:'Sêneca'},
-  {t:'A dificuldade fortalece a mente, como o trabalho fortalece o corpo.',a:'Sêneca'},
-  {t:'Comece onde está, com o que tem. Isso já basta.',a:'Sêneca'},
-  {t:'Enquanto ensinamos, aprendemos.',a:'Sêneca'},
-  {t:'A verdadeira felicidade é não depender do futuro.',a:'Sêneca'},
-  {t:'Aceite o que acontece e caminhe com ele.',a:'Marco Aurélio'},
-  {t:'A conduta correta é a melhor resposta às críticas.',a:'Marco Aurélio'},
-  {t:'Não perca mais tempo discutindo como deve ser um bom homem. Seja um.',a:'Marco Aurélio'},
-  {t:'Ninguém pode te ofender sem a sua permissão.',a:'Epicteto'},
-  {t:'A ansiedade nasce de querer controlar o que não é seu.',a:'Epicteto'},
-  {t:'Grandes negócios exigem tempo e paciência; frutos verdes não se colhem.',a:'Epicteto'},
-  {t:'Prefira ser vencido pela verdade a vencer pela mentira.',a:'Reflexão do dia'},
-  {t:'Antes de responder, respire: a primeira reação raramente é a melhor.',a:'Reflexão do dia'},
-  {t:'Quem promete rápido demais costuma entregar devagar demais.',a:'Reflexão do dia'},
-  {t:'Reputação leva anos para construir e uma resposta mal pensada para abalar.',a:'Reflexão do dia'},
-  {t:'Não venda o que o cliente não precisa; a venda certa volta, a errada cobra juros.',a:'Reflexão do dia'},
-  {t:'O detalhe que você ignora hoje é o problema que te procura amanhã.',a:'Reflexão do dia'},
   {t:'Follow-up não é insistência: é cuidado com quem confiou em você.',a:'Reflexão do dia'},
-  {t:'Números não mentem, mas também não contam a história inteira. Olhe os dois.',a:'Reflexão do dia'},
-  {t:'Clareza é gentileza: explicar bem evita o retrabalho de amanhã.',a:'Reflexão do dia'},
-  {t:'Preço se discute; confiança se conquista.',a:'Reflexão do dia'},
-  {t:'Quem organiza o processo compra tempo; quem improvisa aluga estresse.',a:'Reflexão do dia'},
-  {t:'Um "não" honesto vale mais que um "talvez" que enrola.',a:'Reflexão do dia'},
+  {t:'O obstáculo à ação avança a ação. O que está no caminho vira o caminho.',a:'Marco Aurélio'},
   {t:'O cliente esquece o que você disse, mas lembra como você o tratou.',a:'Reflexão do dia'},
-  {t:'Estude o mercado quando estiver calmo, para agir quando estiver agitado.',a:'Reflexão do dia'},
-  {t:'Toda proposta recusada ensina algo — se você perguntar o porquê.',a:'Reflexão do dia'},
-  {t:'Fazer o básico bem feito, todo dia, é o que parece sorte de fora.',a:'Reflexão do dia'},
-  {t:'Não confunda urgência do outro com prioridade sua.',a:'Reflexão do dia'},
+  {t:'A alma se tinge da cor dos seus pensamentos.',a:'Marco Aurélio'},
+  {t:'Preço se discute; confiança se conquista.',a:'Reflexão do dia'},
+  {t:'Não venda o que o cliente não precisa; a venda certa volta, a errada cobra juros.',a:'Reflexão do dia'},
+  {t:'Que nada seja feito por impulso, mas tudo segundo a razão.',a:'Marco Aurélio'},
+  {t:'Quem responde rápido ganha a chance; quem responde bem ganha o cliente.',a:'Reflexão do dia'},
+  {t:'Todo processo travado tem um nome e um telefone esperando resposta.',a:'Reflexão do dia'},
+  {t:'Perde-se mais tempo hesitando do que executando.',a:'Marco Aurélio'},
   {t:'Anote. Memória é o pior CRM que existe.',a:'Reflexão do dia'},
   {t:'Cliente bem atendido traz outro; cliente mal atendido conta para dez.',a:'Reflexão do dia'},
-  {t:'Simplicidade vende: se precisa explicar três vezes, simplifique.',a:'Reflexão do dia'},
-  {t:'Ganhe a confiança antes de tentar ganhar o contrato.',a:'Reflexão do dia'},
-  {t:'Trabalhe para não precisar prometer: o histórico fala por você.',a:'Reflexão do dia'},
-  {t:'Disciplina é lembrar do que você quer de verdade.',a:'Reflexão do dia'},
-  {t:'A concorrência copia seu preço, não sua reputação.',a:'Reflexão do dia'},
-  {t:'Comemore o fechamento, mas estude a perda: ela ensina mais.',a:'Reflexão do dia'},
-  {t:'Quem cuida do detalhe pequeno é confiável no detalhe grande.',a:'Reflexão do dia'},
-  {t:'Metas sem prazo são só desejos.',a:'Reflexão do dia'},
-  {t:'Sua energia é limitada: gaste onde há decisão, não onde há barulho.',a:'Reflexão do dia'},
-  {t:'Escute o que o cliente não está dizendo.',a:'Reflexão do dia'},
-  {t:'Trate cada processo como se fosse o seu próprio imóvel.',a:'Reflexão do dia'},
-  {t:'Constância é a vantagem competitiva mais barata que existe.',a:'Reflexão do dia'},
-  {t:'Não corra atrás de todo lead: corra atrás do lead certo.',a:'Reflexão do dia'},
-  {t:'Você não controla a aprovação, mas controla o quanto se preparou para ela.',a:'Reflexão do dia'},
+  {t:'Faça cada ato da vida como se fosse o último.',a:'Marco Aurélio'},
+  {t:'Um \'não\' honesto vale mais que um \'talvez\' que enrola.',a:'Reflexão do dia'},
   {t:'Menos promessa, mais entrega.',a:'Reflexão do dia'},
-  {t:'Quem responde rápido ganha a chance; quem responde bem ganha o cliente.',a:'Reflexão do dia'},
+  {t:'Se algo está ao seu alcance, faça. Se não está, por que se afligir?',a:'Marco Aurélio'},
+  {t:'Clareza é gentileza: explicar bem evita o retrabalho de amanhã.',a:'Reflexão do dia'},
+  {t:'Reputação leva anos para construir e uma resposta mal pensada para abalar.',a:'Reflexão do dia'},
+  {t:'A melhor vingança é não ser igual a quem te feriu.',a:'Marco Aurélio'},
+  {t:'Quem organiza o processo compra tempo; quem improvisa aluga estresse.',a:'Reflexão do dia'},
+  {t:'Não confunda urgência do outro com prioridade sua.',a:'Reflexão do dia'},
+  {t:'Confine-se ao presente.',a:'Marco Aurélio'},
+  {t:'Ganhe a confiança antes de tentar ganhar o contrato.',a:'Reflexão do dia'},
+  {t:'Comemore o fechamento, mas estude a perda: ela ensina mais.',a:'Reflexão do dia'},
+  {t:'Toda nova manhã é uma chance de recomeçar.',a:'Marco Aurélio'},
+  {t:'Metas sem prazo são só desejos.',a:'Reflexão do dia'},
+  {t:'Escute o que o cliente não está dizendo.',a:'Reflexão do dia'},
+  {t:'Aceite o que acontece e caminhe com ele.',a:'Marco Aurélio'},
+  {t:'Trate cada processo como se fosse o seu próprio imóvel.',a:'Reflexão do dia'},
+  {t:'Não corra atrás de todo lead: corra atrás do lead certo.',a:'Reflexão do dia'},
+  {t:'A conduta correta é a melhor resposta às críticas.',a:'Marco Aurélio'},
+  {t:'Você não controla a aprovação, mas controla o quanto se preparou para ela.',a:'Reflexão do dia'},
   {t:'O melhor momento para organizar o funil é antes de precisar dele.',a:'Reflexão do dia'},
-  {t:'Ambição sem paciência vira ansiedade; paciência sem ambição vira estagnação.',a:'Reflexão do dia'},
+  {t:'Não perca mais tempo discutindo como deve ser um bom homem. Seja um.',a:'Marco Aurélio'},
   {t:'Se está fácil demais, confira o que você não olhou.',a:'Reflexão do dia'},
   {t:'Feche o dia sabendo qual é a primeira tarefa de amanhã.',a:'Reflexão do dia'},
+  {t:'A felicidade da sua vida depende da qualidade dos seus pensamentos.',a:'Marco Aurélio'},
   {t:'Reclamar do mercado não muda o mercado; mudar a abordagem muda.',a:'Reflexão do dia'},
   {t:'Confiança se constrói na etapa chata, não na assinatura.',a:'Reflexão do dia'},
-  {t:'Todo processo travado tem um nome e um telefone esperando resposta.',a:'Reflexão do dia'},
+  {t:'Onde há vida, há possibilidade de fazer o bem.',a:'Marco Aurélio'},
   {t:'Não deixe para amanhã o retorno que o cliente espera hoje.',a:'Reflexão do dia'},
+  {t:'Quem entende o problema do cliente não precisa vender: precisa resolver.',a:'Reflexão do dia'},
+  {t:'Nunca deixe o futuro te perturbar. Você o enfrentará com as mesmas armas da razão.',a:'Marco Aurélio'},
+  {t:'Números não mentem, mas também não contam a história inteira.',a:'Reflexão do dia'},
+  {t:'Simplicidade vende: se precisa explicar três vezes, simplifique.',a:'Reflexão do dia'},
+  {t:'O que não é útil à colmeia não é útil à abelha.',a:'Marco Aurélio'},
+  {t:'Estude o mercado quando estiver calmo, para agir quando estiver agitado.',a:'Reflexão do dia'},
+  {t:'Toda proposta recusada ensina algo — se você perguntar o porquê.',a:'Reflexão do dia'},
+  {t:'Seja como o promontório contra o qual as ondas quebram continuamente.',a:'Marco Aurélio'},
+  {t:'Fazer o básico bem feito, todo dia, é o que parece sorte de fora.',a:'Reflexão do dia'},
+  {t:'Disciplina é lembrar do que você quer de verdade.',a:'Reflexão do dia'},
+  {t:'Nossas ações podem ser impedidas, mas nossas intenções não.',a:'Marco Aurélio'},
+  {t:'A concorrência copia seu preço, não sua reputação.',a:'Reflexão do dia'},
+  {t:'Quem cuida do detalhe pequeno é confiável no detalhe grande.',a:'Reflexão do dia'},
+  {t:'A arte de viver é mais parecida com a luta do que com a dança.',a:'Marco Aurélio'},
+  {t:'Sua energia é limitada: gaste onde há decisão, não onde há barulho.',a:'Reflexão do dia'},
+  {t:'Constância é a vantagem competitiva mais barata que existe.',a:'Reflexão do dia'},
+  {t:'Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis.',a:'Sêneca'},
+  {t:'Ambição sem paciência vira ansiedade; paciência sem ambição vira estagnação.',a:'Reflexão do dia'},
   {t:'Prepare o difícil com antecedência e o fácil se resolve sozinho.',a:'Reflexão do dia'},
-  {t:'A pressa custa caro em contrato.',a:'Reflexão do dia'},
-  {t:'Quem entende o problema do cliente não precisa vender: precisa resolver.',a:'Reflexão do dia'}
+  {t:'Sofremos mais na imaginação do que na realidade.',a:'Sêneca'},
+  {t:'Antes de responder, respire: a primeira reação raramente é a melhor.',a:'Reflexão do dia'},
+  {t:'Quem promete rápido demais costuma entregar devagar demais.',a:'Reflexão do dia'},
+  {t:'Enquanto adiamos, a vida passa.',a:'Sêneca'},
+  {t:'O detalhe que você ignora hoje é o problema que te procura amanhã.',a:'Reflexão do dia'},
+  {t:'Domine o ofício antes de buscar o holofote.',a:'Reflexão do dia'},
+  {t:'A sorte é o que acontece quando o preparo encontra a oportunidade.',a:'Sêneca'},
+  {t:'Paciência não é lentidão; é escolher a hora em que sua ação vale mais.',a:'Reflexão do dia'},
+  {t:'Observe o que as pessoas fazem, não o que dizem.',a:'Reflexão do dia'},
+  {t:'Ter é desejar menos, não acumular mais.',a:'Sêneca'},
+  {t:'Quem controla as próprias emoções lê melhor a sala do que quem grita mais alto.',a:'Reflexão do dia'},
+  {t:'Aprenda com quem já percorreu o caminho: experiência alheia é atalho barato.',a:'Reflexão do dia'},
+  {t:'A vida é longa se você souber usá-la.',a:'Sêneca'},
+  {t:'O tempo revela tudo. Trabalhe pelo acumulado, não pelo dia.',a:'Reflexão do dia'},
+  {t:'Excelência é hábito silencioso; reputação é só o eco dele.',a:'Reflexão do dia'},
+  {t:'Não é que tenhamos pouco tempo: é que perdemos muito.',a:'Sêneca'},
+  {t:'Não confunda movimento com progresso: ocupado não é o mesmo que eficaz.',a:'Reflexão do dia'},
+  {t:'Escute mais do que fala e você saberá o que ninguém contou.',a:'Reflexão do dia'},
+  {t:'Quem está em toda parte não está em lugar nenhum.',a:'Sêneca'},
+  {t:'Foco é dizer não a coisas boas para poder dizer sim à certa.',a:'Reflexão do dia'},
+  {t:'A pressa entrega sua mão; a calma esconde seu jogo.',a:'Reflexão do dia'},
+  {t:'Nenhum vento é favorável a quem não sabe para onde vai.',a:'Sêneca'},
+  {t:'Faça o trabalho que ninguém vê e colha o resultado que todos veem.',a:'Reflexão do dia'},
+  {t:'Sua palavra cumprida vale mais que qualquer argumento.',a:'Reflexão do dia'},
+  {t:'A dificuldade fortalece a mente, como o trabalho fortalece o corpo.',a:'Sêneca'},
+  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'},
+  {t:'Um cliente que entende o processo reclama menos e indica mais.',a:'Reflexão do dia'},
+  {t:'Comece onde está, com o que tem. Isso já basta.',a:'Sêneca'},
+  {t:'O silêncio do cliente não é paciência: é dúvida crescendo.',a:'Reflexão do dia'},
+  {t:'Toda etapa parada custa mais caro que uma ligação difícil.',a:'Reflexão do dia'},
+  {t:'Enquanto ensinamos, aprendemos.',a:'Sêneca'},
+  {t:'Documentação completa hoje é aprovação rápida amanhã.',a:'Reflexão do dia'},
+  {t:'Quem antecipa o problema vira consultor; quem reage vira desculpa.',a:'Reflexão do dia'},
+  {t:'A verdadeira felicidade é não depender do futuro.',a:'Sêneca'},
+  {t:'Prometa o prazo que você cumpre no pior cenário, não no melhor.',a:'Reflexão do dia'},
+  {t:'Cada processo tem uma pessoa ansiosa do outro lado. Lembre-se dela.',a:'Reflexão do dia'},
+  {t:'Não há vento favorável para quem não sabe aonde ir.',a:'Sêneca'},
+  {t:'Não deixe a rotina te fazer esquecer que ali é o sonho de alguém.',a:'Reflexão do dia'},
+  {t:'Cliente informado é cliente calmo.',a:'Reflexão do dia'},
+  {t:'O tempo descobre a verdade.',a:'Sêneca'},
+  {t:'Vender é ajudar alguém a decidir com segurança.',a:'Reflexão do dia'},
+  {t:'Se você não sabe a resposta, diga isso e volte com ela.',a:'Reflexão do dia'},
+  {t:'Associe-se a quem te torna melhor.',a:'Sêneca'},
+  {t:'Trabalhe para ser indicado, não para ser lembrado só na necessidade.',a:'Reflexão do dia'},
+  {t:'Uma boa pergunta vale mais que dez argumentos.',a:'Reflexão do dia'},
+  {t:'A pressa é inimiga de tudo que se quer bem feito.',a:'Sêneca'},
+  {t:'A meta não é fechar o mês: é fechar o mês sem queimar ninguém.',a:'Reflexão do dia'},
+  {t:'Cuide do funil como cuida do jardim: o que não se rega, seca.',a:'Reflexão do dia'},
+  {t:'Todo começo é consequência; todo começo termina algo.',a:'Sêneca'},
+  {t:'Sua taxa de conversão é a média das suas desculpas.',a:'Reflexão do dia'},
+  {t:'Quem controla o processo dorme melhor que quem controla a promessa.',a:'Reflexão do dia'},
+  {t:'Grande fortuna é grande escravidão.',a:'Sêneca'},
+  {t:'Prazo prometido é dívida assumida.',a:'Reflexão do dia'},
+  {t:'Um cliente perdido com respeito volta; um perdido com descaso, nunca.',a:'Reflexão do dia'},
+  {t:'Errar é humano; persistir no erro, insensato.',a:'Sêneca'},
+  {t:'Antes de culpar o banco, revise seu checklist.',a:'Reflexão do dia'},
+  {t:'O bom corretor não empurra: ele encaixa.',a:'Reflexão do dia'},
+  {t:'Não são os fatos que perturbam os homens, mas as opiniões que eles têm sobre os fatos.',a:'Epicteto'},
+  {t:'Detalhe conferido duas vezes economiza semana inteira.',a:'Reflexão do dia'},
+  {t:'Explique o custo antes de ele virar surpresa.',a:'Reflexão do dia'},
+  {t:'Comece já a ser quem você quer se tornar.',a:'Epicteto'},
+  {t:'Simular é fácil; conduzir até a chave na mão é o serviço.',a:'Reflexão do dia'},
+  {t:'Todo processo é feito de espera. Sua função é encurtá-la.',a:'Reflexão do dia'},
+  {t:'Nenhum homem é livre se não for senhor de si mesmo.',a:'Epicteto'},
+  {t:'Quem tem o histórico organizado nunca começa do zero.',a:'Reflexão do dia'},
+  {t:'Não prometa aprovação: prometa dedicação.',a:'Reflexão do dia'},
+  {t:'Se quiser progredir, aceite parecer tolo no começo.',a:'Epicteto'},
+  {t:'Um retorno rápido vale mais que um discurso ensaiado.',a:'Reflexão do dia'},
+  {t:'Cliente não compra taxa: compra tranquilidade.',a:'Reflexão do dia'},
+  {t:'Não explique sua filosofia. Incorpore-a.',a:'Epicteto'},
+  {t:'A melhor propaganda é um processo que correu bem.',a:'Reflexão do dia'},
+  {t:'Falar difícil não impressiona: confunde.',a:'Reflexão do dia'},
+  {t:'A dificuldade mostra o que as pessoas são.',a:'Epicteto'},
+  {t:'Faça a conta antes de dar a esperança.',a:'Reflexão do dia'},
+  {t:'Organize hoje o que seu eu de amanhã vai agradecer.',a:'Reflexão do dia'},
+  {t:'Primeiro diga a si mesmo o que você quer ser; depois faça o que precisa ser feito.',a:'Epicteto'},
+  {t:'Cada \'estou vendo isso\' sem retorno custa um pouco da sua credibilidade.',a:'Reflexão do dia'},
+  {t:'Não deixe o lead morrer de espera: ligue.',a:'Reflexão do dia'},
+  {t:'Temos duas orelhas e uma boca para ouvir o dobro do que falamos.',a:'Epicteto'},
+  {t:'Você é lembrado pelo pior atendimento, não pelo melhor.',a:'Reflexão do dia'},
+  {t:'Se o processo trava sempre no mesmo ponto, o problema não é o cliente.',a:'Reflexão do dia'},
+  {t:'Riqueza não é ter muitos bens, mas ter poucas necessidades.',a:'Epicteto'},
+  {t:'Bom atendimento não é dizer sim: é ser claro.',a:'Reflexão do dia'},
+  {t:'O que você registra hoje é o que você prova amanhã.',a:'Reflexão do dia'},
+  {t:'Não deseje que as coisas sejam como você quer; queira-as como são, e viverá em paz.',a:'Epicteto'},
+  {t:'Confiança é construída em minutos de atenção, não em anos de contato.',a:'Reflexão do dia'},
+  {t:'Ninguém se lembra do desconto; todos se lembram do descaso.',a:'Reflexão do dia'},
+  {t:'Ninguém pode te ofender sem a sua permissão.',a:'Epicteto'},
+  {t:'Trabalho bem feito é o marketing mais barato que existe.',a:'Reflexão do dia'},
+  {t:'Empatia não atrasa a venda: ela a garante.',a:'Reflexão do dia'},
+  {t:'A ansiedade nasce de querer controlar o que não é seu.',a:'Epicteto'},
+  {t:'Antes de pedir indicação, mereça a indicação.',a:'Reflexão do dia'},
+  {t:'Quem cuida do cliente depois da assinatura tem o próximo garantido.',a:'Reflexão do dia'},
+  {t:'Grandes negócios exigem tempo e paciência; frutos verdes não se colhem.',a:'Epicteto'},
+  {t:'Faça o simples com excelência e o complexo se resolve.',a:'Reflexão do dia'},
+  {t:'Aprovação é consequência de preparo, não de sorte.',a:'Reflexão do dia'},
+  {t:'Só o instruído é livre.',a:'Epicteto'},
+  {t:'Se você não acompanhar, ninguém vai.',a:'Reflexão do dia'},
+  {t:'Um processo transparente vale mais que um discurso brilhante.',a:'Reflexão do dia'},
+  {t:'É impossível aprender aquilo que se pensa já saber.',a:'Epicteto'},
+  {t:'O tempo do cliente é o ativo mais caro da negociação.',a:'Reflexão do dia'},
+  {t:'Boas perguntas encurtam processos.',a:'Reflexão do dia'},
+  {t:'Circunstâncias não fazem o homem; elas o revelam a si mesmo.',a:'Epicteto'},
+  {t:'Você não vende financiamento: vende a chave de uma casa.',a:'Reflexão do dia'},
+  {t:'O nome na porta é seu; o cuidado precisa ser também.',a:'Reflexão do dia'},
+  {t:'Exija de si mesmo o que os outros não exigem.',a:'Epicteto'},
+  {t:'Não terceirize a relação com quem confiou em você.',a:'Reflexão do dia'},
+  {t:'Cliente satisfeito é o único vendedor que não cobra comissão.',a:'Reflexão do dia'},
+  {t:'Faça o melhor com o que está sob seu controle e aceite o resto.',a:'Epicteto'},
+  {t:'Antes de ligar, saiba o que você vai resolver.',a:'Reflexão do dia'},
+  {t:'Cada follow-up é uma chance de provar que você é diferente.',a:'Reflexão do dia'},
+  {t:'O que planeja com cuidado tem lucro certo; quem se apressa acaba na pobreza.',a:'Provérbios 21:5'},
+  {t:'Quem organiza o dia domina a semana.',a:'Reflexão do dia'},
+  {t:'Uma pendência escondida sempre reaparece maior.',a:'Reflexão do dia'},
+  {t:'Melhor é o fim das coisas do que o seu começo; melhor é o paciente do que o arrogante.',a:'Eclesiastes 7:8'},
+  {t:'Confiança perdida custa mais que negócio perdido.',a:'Reflexão do dia'},
+  {t:'Trabalhe como se cada cliente fosse escrever sua próxima avaliação.',a:'Reflexão do dia'},
+  {t:'Confie os seus trabalhos ao Senhor, e os seus planos serão bem-sucedidos.',a:'Provérbios 16:3'},
+  {t:'Nada substitui a ligação que você não fez.',a:'Reflexão do dia'},
+  {t:'O bom profissional resolve; o excelente antecipa.',a:'Reflexão do dia'},
+  {t:'O ferro afia o ferro; assim, um homem afia o outro.',a:'Provérbios 27:17'},
+  {t:'Registre a promessa que você fez: sua palavra tem data.',a:'Reflexão do dia'},
+  {t:'Um cliente bem conduzido não pergunta o preço duas vezes.',a:'Reflexão do dia'},
+  {t:'Quem anda com sábios será sábio.',a:'Provérbios 13:20'},
+  {t:'Se o cliente precisa te cobrar, você já falhou um pouco.',a:'Reflexão do dia'},
+  {t:'Faça o difícil primeiro: o resto do dia fica leve.',a:'Reflexão do dia'},
+  {t:'Melhor é o pouco com justiça do que muito lucro com injustiça.',a:'Provérbios 16:8'},
+  {t:'A rotina que te entedia é a mesma que te sustenta.',a:'Reflexão do dia'},
+  {t:'Não confunda ser acessível com ser disponível o tempo todo.',a:'Reflexão do dia'},
+  {t:'Ouça o conselho e aceite a correção, e no final você será sábio.',a:'Provérbios 19:20'},
+  {t:'Escolha bem seus clientes: eles definem sua rotina.',a:'Reflexão do dia'},
+  {t:'Quem sabe dizer não protege quem já disse sim.',a:'Reflexão do dia'},
+  {t:'O que é justo caminha em integridade; felizes são seus filhos depois dele.',a:'Provérbios 20:7'},
+  {t:'Meta clara transforma esforço em direção.',a:'Reflexão do dia'},
+  {t:'O funil não mente: ele só mostra o que você evitou olhar.',a:'Reflexão do dia'},
+  {t:'Uma boa reputação vale mais que grandes riquezas.',a:'Provérbios 22:1'},
+  {t:'Prospectar no mês bom evita desespero no mês ruim.',a:'Reflexão do dia'},
+  {t:'Sua agenda revela suas prioridades reais.',a:'Reflexão do dia'},
+  {t:'Não se gabe do dia de amanhã, pois você não sabe o que ele trará.',a:'Provérbios 27:1'},
+  {t:'Reserve tempo para pensar, não só para executar.',a:'Reflexão do dia'},
+  {t:'Excelência é o que você faz quando ninguém está cobrando.',a:'Reflexão do dia'},
+  {t:'O trabalho diligente traz fartura; a pressa por enriquecer traz perdas.',a:'Provérbios 21:5'},
+  {t:'Um bom processo protege o cliente das suas falhas.',a:'Reflexão do dia'},
+  {t:'Não improvise no que você pode padronizar.',a:'Reflexão do dia'},
+  {t:'A resposta branda desvia o furor.',a:'Provérbios 15:1'},
+  {t:'Todo atalho cobra pedágio depois.',a:'Reflexão do dia'},
+  {t:'Consistência ganha do talento quando o talento não aparece.',a:'Reflexão do dia'},
+  {t:'Tudo tem o seu tempo determinado.',a:'Eclesiastes 3:1'},
+  {t:'Faça hoje a ligação que você está adiando.',a:'Reflexão do dia'},
+  {t:'O cliente lembra quem apareceu na dificuldade.',a:'Reflexão do dia'},
+  {t:'Onde não há conselho, os planos falham; com muitos conselheiros, eles se realizam.',a:'Provérbios 15:22'},
+  {t:'Erro admitido rápido custa barato.',a:'Reflexão do dia'},
+  {t:'Não deixe o orgulho atrapalhar a correção.',a:'Reflexão do dia'},
+  {t:'Quem guarda a sua boca guarda a sua vida.',a:'Provérbios 13:3'},
+  {t:'Quem escuta bem negocia melhor.',a:'Reflexão do dia'},
+  {t:'A calma é vantagem competitiva.',a:'Reflexão do dia'},
+  {t:'Toda batalha é vencida antes de ser travada.',a:'Sun Tzu'},
+  {t:'Antes de mudar a estratégia, cheque a execução.',a:'Reflexão do dia'},
+  {t:'Faça as pazes com o processo lento: ele é parte do jogo.',a:'Reflexão do dia'},
+  {t:'Oportunidades se multiplicam à medida que são agarradas.',a:'Sun Tzu'},
+  {t:'Bom senso vale mais que script.',a:'Reflexão do dia'},
+  {t:'Quem trata bem o corretor parceiro ganha o próximo cliente dele.',a:'Reflexão do dia'},
+  {t:'Conheça o inimigo e a si mesmo, e não temerá cem batalhas.',a:'Sun Tzu'},
+  {t:'Parceria se cuida com transparência, não com promessa.',a:'Reflexão do dia'},
+  {t:'Quem indica você está apostando a reputação dele. Honre isso.',a:'Reflexão do dia'},
+  {t:'No meio do caos, há também oportunidade.',a:'Sun Tzu'},
+  {t:'Trate o corretor como cliente: ele também escolhe com quem trabalhar.',a:'Reflexão do dia'},
+  {t:'O que é combinado não é caro.',a:'Reflexão do dia'},
+  {t:'A suprema arte da guerra é vencer sem lutar.',a:'Sun Tzu'},
+  {t:'Comissão justa mantém parceria longa.',a:'Reflexão do dia'},
+  {t:'Divida a informação: parceiro no escuro vira parceiro perdido.',a:'Reflexão do dia'},
+  {t:'Planejamento sem ação é inútil; ação sem planejamento é fatal.',a:'Sun Tzu'},
+  {t:'Networking não é coletar contatos: é cultivar confiança.',a:'Reflexão do dia'},
+  {t:'Quem some depois do fechamento não volta a ser chamado.',a:'Reflexão do dia'},
+  {t:'Estratégia sem tática é o caminho mais lento para a vitória.',a:'Sun Tzu'},
+  {t:'Sua rede vale o quanto você cuidou dela.',a:'Reflexão do dia'},
+  {t:'O mercado é pequeno: sua conduta chega antes de você.',a:'Reflexão do dia'},
+  {t:'Quem se conhece e conhece o terreno vence sempre.',a:'Sun Tzu'},
+  {t:'Ajude sem esperar retorno; o retorno chega sozinho.',a:'Reflexão do dia'},
+  {t:'Ser confiável é mais raro que ser bom.',a:'Reflexão do dia'},
+  {t:'Falhar em se preparar é se preparar para falhar.',a:'Benjamin Franklin'},
+  {t:'Fama se constrói devagar e se perde rápido.',a:'Reflexão do dia'},
+  {t:'Cada entrega é um depósito na sua reputação.',a:'Reflexão do dia'},
+  {t:'Tempo é dinheiro.',a:'Benjamin Franklin'},
+  {t:'Não prometa o que depende de terceiros sem avisar que depende.',a:'Reflexão do dia'},
+  {t:'Transparência sobre o prazo evita ansiedade sobre o resultado.',a:'Reflexão do dia'},
+  {t:'Um investimento em conhecimento paga os melhores juros.',a:'Benjamin Franklin'},
+  {t:'Cliente entende demora; não entende silêncio.',a:'Reflexão do dia'},
+  {t:'Antecipe a má notícia: ela piora com o tempo.',a:'Reflexão do dia'},
+  {t:'Não deixe para amanhã o que pode fazer hoje.',a:'Benjamin Franklin'},
+  {t:'Dar notícia ruim rápido é sinal de respeito.',a:'Reflexão do dia'},
+  {t:'Quem explica o \'porquê\' reduz a cobrança do \'quando\'.',a:'Reflexão do dia'},
+  {t:'Bem feito é melhor que bem dito.',a:'Benjamin Franklin'},
+  {t:'Detalhe hoje, tranquilidade amanhã.',a:'Reflexão do dia'},
+  {t:'A confiança do cliente é emprestada: devolva com juros de cuidado.',a:'Reflexão do dia'},
+  {t:'Cuidado com as pequenas despesas: um pequeno vazamento afunda um grande navio.',a:'Benjamin Franklin'},
+  {t:'Trabalhe para não ser necessário no problema, mas lembrado na solução.',a:'Reflexão do dia'},
+  {t:'Um dia organizado vale por três improvisados.',a:'Reflexão do dia'},
+  {t:'Diga-me e eu esqueço; ensine-me e eu lembro; envolva-me e eu aprendo.',a:'Benjamin Franklin'},
+  {t:'Quem mede melhora; quem não mede, adivinha.',a:'Reflexão do dia'},
+  {t:'Não tenha medo do número ruim: tenha medo de não olhá-lo.',a:'Reflexão do dia'},
+  {t:'A honestidade é a melhor política.',a:'Benjamin Franklin'},
+  {t:'Dados mostram onde doer; coragem mostra o que mudar.',a:'Reflexão do dia'},
+  {t:'Olhe o funil semanalmente: mensal já é tarde.',a:'Reflexão do dia'},
+  {t:'Energia e persistência conquistam todas as coisas.',a:'Benjamin Franklin'},
+  {t:'Perder é dado, não destino.',a:'Reflexão do dia'},
+  {t:'Analise a perda sem se defender e você aprende dobrado.',a:'Reflexão do dia'},
+  {t:'Não importa quão devagar você vá, desde que não pare.',a:'Confúcio'},
+  {t:'Melhor um cliente bem atendido que três mal conduzidos.',a:'Reflexão do dia'},
+  {t:'Qualidade do lead vale mais que quantidade.',a:'Reflexão do dia'},
+  {t:'O homem que move montanhas começa carregando pequenas pedras.',a:'Confúcio'},
+  {t:'Sua carteira é jardim, não estoque.',a:'Reflexão do dia'},
+  {t:'Antes de buscar novos leads, cuide dos parados.',a:'Reflexão do dia'},
+  {t:'Escolha um trabalho que ame e não terá que trabalhar um dia sequer.',a:'Confúcio'},
+  {t:'O que está no funil há meses precisa de decisão, não de esperança.',a:'Reflexão do dia'},
+  {t:'Limpe o funil: clareza vale mais que volume.',a:'Reflexão do dia'},
+  {t:'A vida é realmente simples, mas insistimos em complicá-la.',a:'Confúcio'},
+  {t:'Se você não sabe o próximo passo do cliente, ele também não sabe.',a:'Reflexão do dia'},
+  {t:'Cada etapa deve terminar com uma data marcada.',a:'Reflexão do dia'},
+  {t:'Quando for evidente que as metas não serão alcançadas, ajuste as ações.',a:'Confúcio'},
+  {t:'Reunião sem próximo passo é conversa.',a:'Reflexão do dia'},
+  {t:'Tarefa sem dono não acontece.',a:'Reflexão do dia'},
+  {t:'Nossa maior glória não é nunca cair, mas levantar toda vez que caímos.',a:'Confúcio'},
+  {t:'Prazo sem lembrete é promessa esquecida.',a:'Reflexão do dia'},
+  {t:'Sistema bom é o que você usa, não o que você admira.',a:'Reflexão do dia'},
+  {t:'Antes de sair para se vingar, cave duas covas.',a:'Confúcio'},
+  {t:'Registre agora: depois vira nunca.',a:'Reflexão do dia'},
+  {t:'Processo existe para proteger seu dia ruim.',a:'Reflexão do dia'},
+  {t:'Estudar sem pensar é inútil; pensar sem estudar é perigoso.',a:'Confúcio'},
+  {t:'Padronize o repetitivo, personalize o humano.',a:'Reflexão do dia'},
+  {t:'Automatize a tarefa, nunca o cuidado.',a:'Reflexão do dia'},
+  {t:'O homem superior é modesto no falar e excede no agir.',a:'Confúcio'},
+  {t:'Tecnologia acelera o bom atendimento e escancara o ruim.',a:'Reflexão do dia'},
+  {t:'A ferramenta não salva quem não decide.',a:'Reflexão do dia'},
+  {t:'Somos o que repetidamente fazemos. A excelência não é um ato, mas um hábito.',a:'Aristóteles'},
+  {t:'Comece pequeno, mas comece hoje.',a:'Reflexão do dia'},
+  {t:'Melhor feito que perfeito parado.',a:'Reflexão do dia'},
+  {t:'A paciência é amarga, mas seu fruto é doce.',a:'Aristóteles'},
+  {t:'O plano perfeito na gaveta perde do plano razoável em execução.',a:'Reflexão do dia'},
+  {t:'Revise o que funcionou: repetir acerto é estratégia.',a:'Reflexão do dia'},
+  {t:'Conhecer a si mesmo é o começo de toda sabedoria.',a:'Aristóteles'},
+  {t:'Sucesso deixa pistas; fracasso também.',a:'Reflexão do dia'},
+  {t:'Não mude tudo de uma vez: você não saberá o que funcionou.',a:'Reflexão do dia'},
+  {t:'A qualidade não é um ato, é um hábito.',a:'Aristóteles'},
+  {t:'Um passo por dia constrói um ano.',a:'Reflexão do dia'},
+  {t:'Não se compare ao topo dos outros estando na base do seu processo.',a:'Reflexão do dia'},
+  {t:'O todo é maior que a soma das partes.',a:'Aristóteles'},
+  {t:'Sua única concorrência real é o seu mês anterior.',a:'Reflexão do dia'},
+  {t:'Melhore 1% e deixe o tempo multiplicar.',a:'Reflexão do dia'},
+  {t:'Educar a mente sem educar o coração não é educação alguma.',a:'Aristóteles'},
+  {t:'Grandes resultados são pequenos acertos acumulados.',a:'Reflexão do dia'},
+  {t:'Dias ruins fazem parte do gráfico que sobe.',a:'Reflexão do dia'},
+  {t:'A simplicidade é o último grau de sofisticação.',a:'Leonardo da Vinci'},
+  {t:'Persistência é talento disfarçado.',a:'Reflexão do dia'},
+  {t:'Quem aguenta o tédio da rotina colhe o extraordinário.',a:'Reflexão do dia'},
+  {t:'Saber não é suficiente; devemos aplicar. Querer não é suficiente; devemos fazer.',a:'Leonardo da Vinci'},
+  {t:'Nada muda até você mudar a agenda.',a:'Reflexão do dia'},
+  {t:'Comece pelo que está sob seu controle.',a:'Reflexão do dia'},
+  {t:'Obstáculos não me dobram; toda obstinação é destruída pela firmeza.',a:'Leonardo da Vinci'},
+  {t:'O resto é ruído.',a:'Reflexão do dia'},
+  {t:'Trabalhe com quem você teria orgulho de apresentar à sua família.',a:'Reflexão do dia'},
+  {t:'O tempo permanece o suficiente para quem o usa.',a:'Leonardo da Vinci'},
+  {t:'Reputação é a única garantia que nenhum banco financia.',a:'Reflexão do dia'},
+  {t:'Faça o certo mesmo quando ninguém vai saber.',a:'Reflexão do dia'},
+  {t:'Conhece-te a ti mesmo.',a:'Sócrates'},
+  {t:'Ética não é estratégia: é fundação.',a:'Reflexão do dia'},
+  {t:'Dinheiro rápido custa caro no longo prazo.',a:'Reflexão do dia'},
+  {t:'A única sabedoria verdadeira está em saber que nada sabe.',a:'Sócrates'},
+  {t:'Ganhe o cliente pelo processo, não pela promessa.',a:'Reflexão do dia'},
+  {t:'Quem trapaceia o pequeno negócio perde o grande.',a:'Reflexão do dia'},
+  {t:'Uma vida sem exame não vale a pena ser vivida.',a:'Sócrates'},
+  {t:'O curto prazo tenta; o longo prazo cobra.',a:'Reflexão do dia'},
+  {t:'Prefira perder a venda a perder a confiança.',a:'Reflexão do dia'},
+  {t:'A jornada de mil milhas começa com um único passo.',a:'Lao Tsé'},
+  {t:'Quem cuida do processo não precisa cobrar reconhecimento.',a:'Reflexão do dia'},
+  {t:'A casa que você financia hoje é a história que alguém vai contar por 30 anos.',a:'Reflexão do dia'},
+  {t:'Quem conhece os outros é sábio; quem conhece a si mesmo é iluminado.',a:'Lao Tsé'},
+  {t:'Trabalho honesto não precisa de defesa.',a:'Reflexão do dia'},
+  {t:'O melhor dia para organizar a semana foi ontem; o segundo melhor é hoje.',a:'Reflexão do dia'},
+  {t:'Dominar os outros é força; dominar a si mesmo é verdadeiro poder.',a:'Lao Tsé'},
+  {t:'Cliente não quer o melhor discurso: quer o melhor encaminhamento.',a:'Reflexão do dia'},
+  {t:'A natureza não tem pressa, e mesmo assim tudo se realiza.',a:'Lao Tsé'},
+  {t:'Aquele que tem um porquê enfrenta quase qualquer como.',a:'Friedrich Nietzsche'},
+  {t:'O que não me mata me fortalece.',a:'Friedrich Nietzsche'},
+  {t:'A felicidade não é algo pronto: ela vem das suas próprias ações.',a:'Provérbio antigo'},
+  {t:'Gota a gota se enche a bilha.',a:'Provérbio latino'},
+  {t:'Devagar se vai ao longe.',a:'Provérbio português'},
+  {t:'Quem semeia vento colhe tempestade.',a:'Provérbio popular'},
+  {t:'Água mole em pedra dura tanto bate até que fura.',a:'Provérbio português'},
+  {t:'Mais vale um pássaro na mão do que dois voando.',a:'Provérbio popular'},
+  {t:'De grão em grão a galinha enche o papo.',a:'Provérbio português'},
+  {t:'A palavra é prata, o silêncio é ouro.',a:'Provérbio popular'},
+  {t:'Quem não arrisca não petisca.',a:'Provérbio popular'},
+  {t:'Casa de ferreiro, espeto de pau.',a:'Provérbio popular'},
+  {t:'O barato sai caro.',a:'Provérbio popular'},
+  {t:'A pressa é inimiga da perfeição.',a:'Provérbio popular'},
+  {t:'Cada macaco no seu galho.',a:'Provérbio popular'},
+  {t:'Quem tem boca vai a Roma.',a:'Provérbio popular'},
+  {t:'Antes tarde do que nunca.',a:'Provérbio popular'},
+  {t:'Uma andorinha só não faz verão.',a:'Provérbio popular'},
+  {t:'Não julgue o livro pela capa.',a:'Provérbio popular'},
+  {t:'Quem espera sempre alcança.',a:'Provérbio popular'},
+  {t:'Deus ajuda quem cedo madruga.',a:'Provérbio popular'},
+  {t:'Filho de peixe, peixinho é.',a:'Provérbio popular'},
+  {t:'A união faz a força.',a:'Provérbio popular'}
 ];
 function frasePorDia(){
   const hoje=new Date();
@@ -1744,6 +2032,7 @@ async function delClient(){
   _deletando=true;
   _idsExcluidos.add(id);
   registerDeleted([id]);
+  await limparVestigiosCliente(id);
   clients=clients.filter(c=>c.id!==id);
   try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   closeModal('mo-cd');
@@ -2327,6 +2616,24 @@ async function excluirComissao(id){
   renderFin();
 }
 
+
+// Remove comissões cujo cliente não existe mais (limpeza de testes antigos)
+async function limparComissoesOrfas(){
+  const idsVivos=new Set(clients.map(c=>c.id));
+  const orfas=comissoes.filter(x=>!idsVivos.has(x.cliente_id||x.id));
+  if(!orfas.length){alert('Nenhuma comissão órfã encontrada. Tudo certo!');return;}
+  if(!confirm('Encontrei '+orfas.length+' comissão(ões) de clientes que não existem mais (provavelmente de testes).\n\nRemover do Financeiro e do Resumo?\n\nNenhum cliente ativo será afetado.'))return;
+  const ids=orfas.map(x=>x.id);
+  comissoes=comissoes.filter(x=>!ids.includes(x.id));
+  saveComissoesLocal();
+  if(supa){for(const id of ids){try{await supa.from('comissoes').delete().eq('id',id);}catch(e){console.warn(e);}}}
+  // histórico órfão também
+  historicoEtapas=historicoEtapas.filter(h=>idsVivos.has(h.cliente_id));
+  saveHistLocal();
+  renderFin();if(typeof renderResumo==='function')renderResumo();if(typeof renderBankDash==='function')renderBankDash();
+  alert('✅ '+ids.length+' comissão(ões) órfã(s) removida(s).');
+}
+
 async function limparComissoes(){
   const m=getFinMes(), y=getFinAno();
   const doMes=comissoes.filter(x=>x.mes===m&&x.ano===y);
@@ -2357,6 +2664,15 @@ async function initComissoes(){
   const emPagamento=clients.filter(c=>c.status==='pagamento');
   for(const cl of emPagamento){
     if(!comissoes.some(x=>x.id===cl.id))await registrarComissao(cl);
+  }
+  // Limpa comissões órfãs (cliente foi excluído): não deve contar em lugar nenhum
+  const idsVivos=new Set(clients.map(c=>c.id));
+  const orfas=comissoes.filter(x=>!idsVivos.has(x.cliente_id||x.id) && _idsExcluidos.has(x.cliente_id||x.id));
+  if(orfas.length){
+    const ids=orfas.map(x=>x.id);
+    comissoes=comissoes.filter(x=>!ids.includes(x.id));
+    saveComissoesLocal();
+    for(const id of ids){try{await supa.from('comissoes').delete().eq('id',id);}catch(e){}}
   }
   if(typeof renderFin==='function')renderFin();
 }
@@ -2410,7 +2726,9 @@ async function initHistorico(){
 // Estatísticas: tempo médio por etapa
 function statsEtapas(){
   const porEtapa={};
-  historicoEtapas.forEach(h=>{
+  // Finalizados/Perdidos são destinos finais, não gargalos: não entram na análise
+  const IGNORAR=['finalizados','perdidos'];
+  historicoEtapas.filter(h=>!IGNORAR.includes(h.etapa)).forEach(h=>{
     if(!porEtapa[h.etapa])porEtapa[h.etapa]={total:0,n:0,max:0,maxCliente:''};
     const e=porEtapa[h.etapa];
     e.total+=Number(h.dias_na_etapa)||0; e.n++;
