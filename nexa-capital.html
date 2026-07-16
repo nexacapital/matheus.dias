@@ -262,26 +262,17 @@ checkAuth();
     <div class="ni" data-page="comparativo"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparativo PDF</div>
     <div class="sb-sec">Config</div>
     <div class="ni" data-page="financeiro"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Financeiro</div>
-    <div class="ni" data-page="corretores"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Corretores</div>
+    <div class="ni" data-page="resumo"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Resumo Mensal</div>
+  <div class="ni" data-page="marketing"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Marketing</div>
+  <div class="ni" data-page="corretores"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Corretores</div>
     <div class="ni" data-page="bancos"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Meus Bancos</div>
   </nav>
   <div style="padding:10px 10px 0;border-top:1px solid var(--bd)">
-    <div class="ni" onclick="exportResumoMes()" style="color:var(--mu)">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Exportar Resumo do Mês
-    </div>
-    <div class="ni" onclick="recuperarDadosLocais()" style="color:var(--mu)">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
-      Recuperar Dados do Navegador
-    </div>
     <div class="ni" onclick="arquivarFinalizados()" style="color:var(--mu)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
       Arquivar Finalizados
     </div>
-    <div class="ni" onclick="verArquivados()" style="color:var(--mu)">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 3h16a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M12 13v8"/><path d="M8 17l4 4 4-4"/></svg>
-      Ver Clientes Arquivados
-    </div>
+    
     <div class="ni" onclick="copyFormLink()" style="color:var(--gd);border-color:var(--bd);background:var(--gdm)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
       Link Formulário
@@ -297,7 +288,7 @@ checkAuth();
       <span class="tt" id="ttl">Dashboard</span>
     </div>
     <div class="tr">
-      <span class="td" id="tdate"></span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="td" id="tdate"></span><span id="frase-dia" style="font-size:10px;color:var(--mu);text-align:right;max-width:430px;line-height:1.5"></span></div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn bg bsm" onclick="openNewClient()" title="Cadastrar cliente manualmente">+ Cliente</button>
         <button class="btn bo bsm" onclick="copyFormLink()" id="copy-link-btn" title="Copiar link do formulário público">🔗 Link Formulário</button>
@@ -313,7 +304,7 @@ checkAuth();
         <div class="sc"><div class="sl">Total Clientes</div><div class="sv" id="s1">0</div><div class="ss" id="s1s">—</div></div>
         <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Simulação + Análise</div></div>
         <div class="sc"><div class="sl">Aprovados</div><div class="sv" id="s3">0</div><div class="ss">Total aprovados</div></div>
-        <div class="sc"><div class="sl">Volume Total</div><div class="sv" id="s4" style="font-size:20px">R$0</div><div class="ss">Financiamentos</div></div>
+        <div class="sc"><div class="sl">Volume Total</div><div class="sv" id="s4" style="font-size:16px;white-space:nowrap">R$ 0,00</div><div class="ss">Financiamentos</div></div>
       </div>
       <div class="card" style="margin-bottom:20px">
         <div class="ct">Pipeline de Processos</div>
@@ -369,7 +360,7 @@ checkAuth();
             <option value="">Todos</option><option value="novo">Novo Contato</option><option value="contato">Em Contato</option><option value="simulacao">Simulação</option><option value="analise">Análise</option><option value="aprovado">Aprovado</option>
           </select>
         </div>
-        <div class="tw"><table class="mt"><thead><tr><th>Cliente</th><th>Telefone</th><th>Imóvel</th><th>Financiamento</th><th>Bancos</th><th>Status</th></tr></thead><tbody id="ctbody"></tbody></table></div>
+        <div class="tw"><table class="mt"><thead><tr><th style="width:34px"></th><th>Cliente</th><th>Telefone</th><th>Imóvel</th><th>Financiamento</th><th>Bancos</th><th>Status</th><th style="width:44px"></th></tr></thead><tbody id="ctbody"></tbody></table></div>
       </div>
     </div>
 
@@ -532,6 +523,40 @@ checkAuth();
     </div>
 
 
+
+    <!-- RESUMO MENSAL -->
+    <div class="pg ain" id="page-resumo">
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+        <div><h1>Resumo Mensal</h1><p>Analise o desempenho de qualquer mês</p><div class="phl"></div></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <select id="res-mes" onchange="renderResumo()" style="width:auto;font-size:12px;padding:8px 12px"></select>
+          <select id="res-ano" onchange="renderResumo()" style="width:auto;font-size:12px;padding:8px 12px"></select>
+          <button class="btn bg bsm" onclick="exportResumoMes()">📄 Baixar PDF</button>
+          <button class="btn brd bsm" onclick="excluirResumoMes()" title="Excluir o resumo salvo deste mês">🗑</button>
+        </div>
+      </div>
+      <div id="resumo-conteudo"></div>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="pg ain" id="page-marketing">
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+        <div><h1>Marketing</h1><p>Clientes arquivados — reative e gere novas oportunidades</p><div class="phl"></div></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <select id="mkt-filtro" onchange="renderMarketing()" style="width:auto;font-size:12px;padding:8px 12px">
+            <option value="todos">Todos</option>
+            <option value="aniversario_imovel">Aniversário do financiamento</option>
+            <option value="garantia">Potencial p/ crédito com garantia</option>
+            <option value="indicacao">Pedir indicação (fechou recente)</option>
+            <option value="aniversario">Aniversariantes do mês</option>
+            <option value="frios">Sem contato há +90 dias</option>
+          </select>
+        </div>
+      </div>
+      <div id="mkt-oportunidades" style="margin-bottom:16px"></div>
+      <div class="card"><div id="mkt-lista"></div></div>
+    </div>
+
     <!-- CORRETORES -->
     <div class="pg ain" id="page-corretores">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -593,10 +618,10 @@ checkAuth();
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;grid-template-rows:auto auto">
         <div class="card" style="grid-column:span 3">
           <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
-            Comissões — Clientes Aprovados
-            <button class="btn bo bsm" onclick="syncAprovados()">↻ Sincronizar</button>
+            Comissões — Comissões
+            <button class="btn brd bsm" onclick="limparComissoes()">🗑 Limpar tudo</button>
           </div>
-          <div style="font-size:10px;color:var(--mu);margin-bottom:14px">Calculado automaticamente a partir dos clientes com status <span style="color:var(--gr)">Aprovado</span> no pipeline, com a comissão de cada banco.</div>
+          <div style="font-size:10px;color:var(--mu);margin-bottom:14px">Registrado automaticamente quando o cliente entra em <span style="color:var(--gr)">Pagamento Vendedor</span>, com a comissão do banco. Fica salvo mesmo se o cliente avançar para Finalizados ou for arquivado.</div>
           <div id="fin-receitas-list">
             <div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhum cliente aprovado ainda</div>
           </div>
@@ -863,7 +888,7 @@ function cliToRow(cl){
     bancos:cl.bancos||[], banco_escolhido:cl.bancoEscolhido||'',
     origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
     data_cadastro:cl.dataCadastro||new Date().toISOString(),
-    data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null
+    data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null, entrou_etapa_em:cl.entrouEtapaEm||null
   };
 }
 function rowToCli(r){
@@ -872,7 +897,7 @@ function rowToCli(r){
     telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento, rendaFamiliar:r.renda_familiar, prazoIntencao:r.prazo_intencao,
     conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
     bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
-    dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao
+    dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao, entrouEtapaEm:r.entrou_etapa_em
   };
 }
 
@@ -997,7 +1022,7 @@ async function verArquivados(){
 async function arquivarFinalizados(){
   const finalizados=clients.filter(c=>c.status==='finalizados');
   if(!finalizados.length){alert('Nenhum cliente na etapa Finalizados para arquivar.');return;}
-  if(!confirm('Arquivar '+finalizados.length+' cliente(s) finalizado(s)? Eles saem do pipeline mas os dados ficam guardados (para uso com o bot).'))return;
+  if(!confirm('Arquivar '+finalizados.length+' cliente(s) finalizado(s)?\n\nEles saem do pipeline e vão para a aba MARKETING, onde você pode reativá-los.\nNenhum dado é perdido — dá para desarquivar quando quiser.'))return;
   try{
     if(supa){
       // Copia para clientes_arquivados
@@ -1012,7 +1037,8 @@ async function arquivarFinalizados(){
     clients=clients.filter(c=>!ids.includes(c.id));
     try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
     renderAll();
-    alert('✅ '+finalizados.length+' cliente(s) arquivado(s) com sucesso! Os dados estão guardados na nuvem.');
+    alert('✅ '+finalizados.length+' cliente(s) movido(s) para a aba Marketing.\nSe foi sem querer, use o botão Desarquivar lá.');
+    if(typeof loadArquivados==='function'){await loadArquivados();if(typeof renderMarketing==='function')renderMarketing();}
   }catch(e){alert('Erro ao arquivar: '+e.message);}
 }
 
@@ -1023,7 +1049,8 @@ function exportResumoMes(){
   const W=210,m=18;
   const agora=new Date();
   const mesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const mes=agora.getMonth(), ano=agora.getFullYear();
+  const mes=(typeof getResMes==='function'&&document.getElementById('res-mes'))?getResMes():agora.getMonth();
+  const ano=(typeof getResAno==='function'&&document.getElementById('res-ano'))?getResAno():agora.getFullYear();
   const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
   const fmt=v=>'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -1095,13 +1122,54 @@ function exportResumoMes(){
   secao('ANÁLISE DOS RESULTADOS');
   const taxaConv=novosMes.length?((fechadosMes.length/novosMes.length)*100).toFixed(1):0;
   const analises=[];
-  analises.push('Taxa de conversao do mes: '+taxaConv+'% ('+fechadosMes.length+' fechados de '+novosMes.length+' novos).');
-  if(perdidos.length>fechadosMes.length&&perdidos.length>0){analises.push('Atencao: o numero de perdidos ('+perdidos.length+') superou os fechamentos. Recomenda-se revisar a qualificacao dos leads e agilizar o primeiro contato.');}
-  if(fechadosMes.length>=3){analises.push('Otimo desempenho em fechamentos ('+fechadosMes.length+'). Mantenha o padrao de acompanhamento que esta funcionando.');}
-  const melhorCorr=corrEntries.find(e=>e[0]!=='Direto (site/manual)');
-  if(melhorCorr){analises.push('Corretor destaque: '+melhorCorr[0]+' com '+melhorCorr[1]+' indicacao(oes). Vale fortalecer essa parceria.');}
-  if(ativos>=10){analises.push('Ha '+ativos+' clientes ativos no funil. Priorize os que estao parados ha mais tempo para nao esfriar.');}
-  if(valorFechado>0){analises.push('O volume financiado de '+fmt(valorFechado)+' representa o resultado consolidado do mes.');}
+
+  // Leitura franca do mes
+  if(novosMes.length===0){
+    analises.push('Nenhum cliente novo entrou no mes. Sem entrada no topo do funil, os proximos meses ficam comprometidos: prospeccao precisa virar prioridade agora.');
+  } else {
+    analises.push('Taxa de conversao: '+taxaConv+'% ('+fechadosMes.length+' fechados de '+novosMes.length+' novos). '+
+      (taxaConv<10?'Esta baixa — de cada 10 leads, menos de 1 fecha. Vale investigar se o problema e a qualidade do lead ou a velocidade do primeiro contato.':
+       taxaConv<25?'Esta dentro do esperado, mas ha espaco para melhorar o aproveitamento.':
+       'Aproveitamento forte — o que esta sendo feito esta funcionando e merece ser repetido.'));
+  }
+  if(perdidos.length>fechadosMes.length&&perdidos.length>0){
+    analises.push('Alerta: '+perdidos.length+' perdidos contra '+fechadosMes.length+' fechados. Perder mais do que fecha e insustentavel. Sugestao: revisar o motivo das perdas uma a uma e checar quanto tempo o lead espera pelo primeiro retorno.');
+  }
+  // Gargalo real, com base no historico
+  const stA=statsEtapas();
+  if(stA.length){
+    const pior=stA[0];
+    analises.push('Etapa mais lenta: '+pior.label+', com media de '+pior.media.toFixed(1)+' dias ('+pior.n+' passagens). '+
+      (pior.media>=15?'Esse e o gargalo do processo — cada dia parado aqui aumenta o risco de desistencia.':'O tempo esta sob controle.'));
+    if(pior.max>=20&&pior.maxCliente){
+      analises.push('Pior caso registrado: '+pior.maxCliente+' ficou '+pior.max.toFixed(0)+' dias em '+pior.label+'. Vale entender o que travou para nao repetir.');
+    }
+    const sug=SUGESTOES_FASE[pior.etapa];
+    if(sug)analises.push('Acao sugerida para '+pior.label+': '+sug);
+  } else {
+    analises.push('Ainda nao ha historico suficiente de movimentacao entre etapas. A partir de agora o sistema registra o tempo em cada fase, e o proximo relatorio ja mostra onde o processo trava.');
+  }
+  // Parados agora
+  const parA=paradosAgora();
+  if(parA.length){
+    analises.push(parA.length+' cliente(s) estao parados ha mais de 7 dias na mesma etapa. O mais antigo: '+parA[0].nome+' ('+Math.floor(parA[0].dias)+' dias em '+parA[0].etapa+'). Recomenda-se contato ainda esta semana.');
+  }
+  // Concentracao de banco
+  if(bancoEntries.length===1&&fechadosMes.length>=3){
+    analises.push('Todos os fechamentos do mes sairam por um unico banco ('+bancoEntries[0][0]+'). Concentracao facilita a operacao, mas cria dependencia: se esse banco endurecer, o mes inteiro para.');
+  }
+  // Corretores
+  const melhorCorr2=corrEntries.find(e=>e[0]!=='Direto (site/manual)');
+  if(melhorCorr2){
+    const parcela=Math.round(melhorCorr2[1]/novosMes.length*100);
+    analises.push('Corretor destaque: '+melhorCorr2[0]+' com '+melhorCorr2[1]+' indicacao(oes), '+parcela+'% da entrada do mes.'+(parcela>=50?' Atencao: metade ou mais dos leads vem de uma unica fonte — vale diversificar.':''));
+  }
+  if(ativos>=10){
+    analises.push('Ha '+ativos+' clientes ativos no funil. Priorize os parados ha mais tempo: lead esquecido esfria e vira perdido.');
+  }
+  if(valorFechado>0){
+    analises.push('Volume financiado no mes: '+fmt(valorFechado)+' em '+fechadosMes.length+' operacao(oes).');
+  }
   if(!analises.length){analises.push('Ainda nao ha dados suficientes no mes para uma analise aprofundada.');}
 
   doc.setFontSize(9);doc.setTextColor(50,60,70);doc.setFont('helvetica','normal');
@@ -1111,6 +1179,60 @@ function exportResumoMes(){
     doc.text(linhas,m+2,y);
     y+=linhas.length*5+2;
   });
+
+  // COMPARATIVO COM O MÊS ANTERIOR
+  const cmpP=comparaMesAnterior(mes,ano);
+  const pct=(v)=>v===null||v===undefined?'—':((v>0?'+':'')+v.toFixed(0)+'%');
+  secao('COMPARATIVO COM O MÊS ANTERIOR');
+  linha('Novos clientes', cmpP.atual.novos+' (mês anterior: '+cmpP.ant.novos+')  '+pct(cmpP.dNovos));
+  linha('Fechamentos', cmpP.atual.fechados+' (mês anterior: '+cmpP.ant.fechados+')  '+pct(cmpP.dFechados));
+  linha('Volume financiado', fmt(cmpP.atual.volume)+'  '+pct(cmpP.dVolume), true);
+  y+=3;
+
+  // TEMPO DO CADASTRO ATÉ O FECHAMENTO
+  const mt=calcMetricas(mes,ano);
+  secao('TEMPO DO CADASTRO ATÉ O FECHAMENTO');
+  if(mt.cicloMedio!==null){
+    linha('Ciclo médio', mt.cicloMedio.toFixed(0)+' dias', mt.cicloMedio>60);
+    linha('Mais rápido', mt.cicloMin.toFixed(0)+' dias');
+    linha('Mais lento', mt.cicloMax.toFixed(0)+' dias');
+  } else { linha('Sem fechamentos no mês','—'); }
+  y+=3;
+
+  // CONVERSÃO POR CORRETOR
+  if(mt.corretorStats.length){
+    secao('DESEMPENHO POR CORRETOR (VOLUME x CONVERSÃO)');
+    mt.corretorStats.forEach(cs=>{
+      linha(cs.nome, cs.leads+' leads · '+cs.fechou+' fechou · '+(cs.taxa!==null?cs.taxa.toFixed(0)+'%':'—'), cs.taxa!==null&&cs.taxa>=50);
+    });
+    y+=3;
+  }
+
+  // ONDE O PROCESSO TRAVA (tempo por etapa)
+  const st=statsEtapas();
+  if(st.length){
+    secao('ONDE O PROCESSO TRAVA — TEMPO MÉDIO POR ETAPA');
+    st.slice(0,8).forEach(e=>linha(e.label+' ('+e.n+'x)', e.media.toFixed(1)+' dias', e.media>=15));
+    y+=3;
+  }
+
+  // CLIENTES PARADOS AGORA
+  const par=paradosAgora();
+  if(par.length){
+    secao('CLIENTES PARADOS HÁ MAIS DE 7 DIAS');
+    par.slice(0,10).forEach(p=>linha(p.nome+' — '+p.etapa, Math.floor(p.dias)+' dias', p.dias>=20));
+    y+=3;
+  }
+
+  // COMISSÕES DO MÊS
+  const comMes=comissoes.filter(x=>x.mes===mes&&x.ano===ano);
+  const totalCom=comMes.reduce((s,x)=>s+(Number(x.comissao_valor)||0),0);
+  secao('COMISSÕES REGISTRADAS NO MÊS');
+  linha('Comissões registradas',comMes.length);
+  linha('Total em comissões',fmt(totalCom),true);
+  const recebidas=comMes.filter(x=>x.data_recebimento);
+  linha('Já com data de recebimento',recebidas.length+' de '+comMes.length);
+  y+=3;
 
   // Rodapé
   const totalPages=doc.internal.getNumberOfPages();
@@ -1245,6 +1367,58 @@ function renderDashUltimos(){
 }
 
 // ===== STATS =====
+
+// ===== FRASE DO DIA =====
+// Estoicos: citações clássicas em domínio público (Marco Aurélio, Sêneca, Epicteto),
+// as mesmas fontes que o "The Daily Stoic" compila.
+// Estratégia: máximas autorais, escritas no espírito de "The Daily Laws" (sem reproduzir o livro).
+const FRASES_DIA=[
+  {t:'Você tem poder sobre a sua mente, não sobre os acontecimentos. Perceba isso e encontrará força.',a:'Marco Aurélio'},
+  {t:'Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis.',a:'Sêneca'},
+  {t:'Não são os fatos que perturbam os homens, mas as opiniões que eles têm sobre os fatos.',a:'Epicteto'},
+  {t:'Comece já a ser quem você quer se tornar.',a:'Epicteto'},
+  {t:'Sofremos mais na imaginação do que na realidade.',a:'Sêneca'},
+  {t:'A melhor vingança é não ser igual a quem te feriu.',a:'Marco Aurélio'},
+  {t:'Enquanto adiamos, a vida passa.',a:'Sêneca'},
+  {t:'Nenhum homem é livre se não for senhor de si mesmo.',a:'Epicteto'},
+  {t:'O obstáculo à ação avança a ação. O que está no caminho vira o caminho.',a:'Marco Aurélio'},
+  {t:'A sorte é o que acontece quando o preparo encontra a oportunidade.',a:'Sêneca'},
+  {t:'Se quiser progredir, aceite parecer tolo no começo.',a:'Epicteto'},
+  {t:'Não explique sua filosofia. Incorpore-a.',a:'Epicteto'},
+  {t:'Confine-se ao presente.',a:'Marco Aurélio'},
+  {t:'Toda nova manhã é uma chance de recomeçar.',a:'Marco Aurélio'},
+  {t:'Ter é desejar menos, não acumular mais.',a:'Sêneca'},
+  {t:'Domine o ofício antes de buscar o holofote: a competência sustenta o que a imagem só promete.',a:'Reflexão do dia'},
+  {t:'Paciência não é lentidão; é escolher a hora em que sua ação vale mais.',a:'Reflexão do dia'},
+  {t:'Observe o que as pessoas fazem, não o que dizem. O comportamento é a única confissão sincera.',a:'Reflexão do dia'},
+  {t:'Quem controla as próprias emoções lê melhor a sala do que quem grita mais alto.',a:'Reflexão do dia'},
+  {t:'Aprenda com quem já percorreu o caminho: experiência alheia é atalho barato.',a:'Reflexão do dia'},
+  {t:'O tempo revela tudo. Trabalhe como quem será julgado pelo acumulado, não pelo dia.',a:'Reflexão do dia'},
+  {t:'Excelência é hábito silencioso; reputação é só o eco dele.',a:'Reflexão do dia'},
+  {t:'Não confunda movimento com progresso: ocupado não é o mesmo que eficaz.',a:'Reflexão do dia'},
+  {t:'Escute mais do que fala e você saberá o que ninguém contou.',a:'Reflexão do dia'},
+  {t:'Prepare-se para o difícil enquanto está fácil.',a:'Reflexão do dia'},
+  {t:'Foco é dizer não a coisas boas para poder dizer sim à certa.',a:'Reflexão do dia'},
+  {t:'A pressa entrega sua mão; a calma esconde seu jogo.',a:'Reflexão do dia'},
+  {t:'Faça o trabalho que ninguém vê e colha o resultado que todos veem.',a:'Reflexão do dia'},
+  {t:'Sua palavra cumprida vale mais que qualquer argumento.',a:'Reflexão do dia'},
+  {t:'Constância vence intensidade quando o prazo é longo.',a:'Reflexão do dia'},
+  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'}
+];
+function frasePorDia(){
+  const hoje=new Date();
+  // dia do ano -> mesma frase o dia inteiro, muda todo dia
+  const inicio=new Date(hoje.getFullYear(),0,0);
+  const diaAno=Math.floor((hoje-inicio)/86400000);
+  return FRASES_DIA[diaAno%FRASES_DIA.length];
+}
+function renderFraseDia(){
+  const el=document.getElementById('frase-dia');
+  if(!el)return;
+  const f=frasePorDia();
+  el.innerHTML=`<span style="font-style:italic">"${f.t}"</span> <span style="color:var(--gd);white-space:nowrap">— ${f.a}</span>`;
+}
+
 function renderStats(){
   const ff=clients.filter(c=>c.origem==='formulario_publico').length;
   document.getElementById('s1').textContent=clients.length;
@@ -1252,7 +1426,7 @@ function renderStats(){
   document.getElementById('s2').textContent=clients.filter(c=>['simulacao','analise'].includes(c.status)).length;
   document.getElementById('s3').textContent=clients.filter(c=>c.status==='aprovado').length;
   const vol=clients.reduce((s,c)=>s+(c.valorFinanciamento||0),0);
-  document.getElementById('s4').textContent=vol>=1e6?'R$'+(vol/1e6).toFixed(1)+'M':fmtV(vol);
+  document.getElementById('s4').textContent=fmtV(vol);
   const nn=clients.filter(c=>c.status==='novo').length;
   const dot=document.getElementById('ndot');
   if(dot)dot.style.display=nn>0?'block':'none';
@@ -1412,7 +1586,7 @@ function renderPipeline(){
     if(!cc.length){const h=document.createElement('div');h.className='pdh';h.textContent='Arraste aqui';d.appendChild(h);}
     d.ondragover=e=>{e.preventDefault();d.classList.add('do');};
     d.ondragleave=()=>d.classList.remove('do');
-    d.ondrop=e=>{e.preventDefault();d.classList.remove('do');const cid=e.dataTransfer.getData('cid');const cl=clients.find(x=>x.id===cid);if(cl){const oldStatus=cl.status;cl.status=col.k;if(col.k==='pagamento')cl.dataPagamento=new Date().toISOString();cl.dataMovimentacao=new Date().toISOString();saveClients();renderAll();if(oldStatus!==col.k&&typeof onStatusChange==='function')onStatusChange(cid,col.k);}};
+    d.ondrop=e=>{e.preventDefault();d.classList.remove('do');const cid=e.dataTransfer.getData('cid');const cl=clients.find(x=>x.id===cid);if(cl){const oldStatus=cl.status;registrarSaidaEtapa(cl,oldStatus,col.k);cl.status=col.k;if(col.k==='pagamento'){cl.dataPagamento=new Date().toISOString();registrarComissao(cl);}cl.dataMovimentacao=new Date().toISOString();saveClients();renderAll();if(oldStatus!==col.k&&typeof onStatusChange==='function')onStatusChange(cid,col.k);}};
     g.appendChild(d);
   });
 }
@@ -1478,7 +1652,7 @@ function toggleCDBk(bid,el){
   else{c.bancos.push(bid);el.classList.add('sel');}
   saveClients();renderAll();
 }
-function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;c[f]=v;saveClients();renderAll();}
+function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(f==='status'&&c.status!==v)registrarSaidaEtapa(c,c.status,v);c[f]=v;if(f==='status'&&v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();registrarComissao(c);}saveClients();renderAll();}
 async function delClient(){
   if(!confirm('Excluir este cliente?'))return;
   const id=editClientId;
@@ -1979,7 +2153,7 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function toggleSB(){document.getElementById('sbo').classList.toggle('open');document.getElementById('sidebar').classList.toggle('open');}
 function closeSB(){document.getElementById('sbo').classList.remove('open');document.getElementById('sidebar').classList.remove('open');}
-function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores'};document.getElementById('ttl').textContent=titles[p]||p;if(window.innerWidth<=768)closeSB();}
+function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(window.innerWidth<=768)closeSB();}
 
 
 // ===== FINANCEIRO =====
@@ -1988,11 +2162,477 @@ let finData={receitas:[],descontos:[],despesas:[]};
 async function loadFin(){
   try{const r=localStorage.getItem('nexa_fin');if(r)finData=JSON.parse(r);}catch(e){}
   renderFin();
+  if(p==='resumo'){initResumoSelects();renderResumo();}
+  if(p==='marketing'){loadArquivados().then(renderMarketing);}
 }
 async function saveFin(){try{localStorage.setItem('nexa_fin',JSON.stringify(finData));}catch(e){}}
 
 function getFinMes(){return parseInt(document.getElementById('fin-mes')?.value||new Date().getMonth());}
 function getFinAno(){return parseInt(document.getElementById('fin-ano')?.value||new Date().getFullYear());}
+
+
+
+// ============================================
+// COMISSÕES — snapshot ao entrar em Pagamento Vendedor
+// Registra uma cópia. Não some se o cliente avançar de etapa ou for arquivado.
+// ============================================
+let comissoes=[];
+
+async function supaLoadComissoes(){
+  if(!supa)return null;
+  try{const {data,error}=await supa.from('comissoes').select('*').order('data_registro',{ascending:false});
+    if(error)throw error;return data;}
+  catch(e){console.warn('supaLoadComissoes',e);return null;}
+}
+async function supaSaveComissao(row){
+  if(!supa)return false;
+  try{const {error}=await supa.from('comissoes').upsert(row);if(error)throw error;return true;}
+  catch(e){console.warn('supaSaveComissao',e);return false;}
+}
+async function supaDeleteComissao(id){
+  if(!supa)return false;
+  try{const {error}=await supa.from('comissoes').delete().eq('id',id);if(error)throw error;return true;}
+  catch(e){console.warn('supaDeleteComissao',e);return false;}
+}
+
+function loadComissoesLocal(){
+  try{const r=localStorage.getItem('nexa_comissoes');if(r)comissoes=JSON.parse(r);}catch(e){}
+}
+function saveComissoesLocal(){
+  try{localStorage.setItem('nexa_comissoes',JSON.stringify(comissoes));}catch(e){}
+}
+
+// Registra a comissão do cliente (idempotente: se já existe, não duplica)
+async function registrarComissao(cl){
+  if(!cl)return;
+  if(comissoes.some(x=>x.id===cl.id))return; // já registrada
+  const bk=banks.find(b=>b.id===cl.bancoEscolhido)||banks.find(b=>(cl.bancos||[]).includes(b.id));
+  const pct=bk?.comissao||0;
+  const agora=new Date();
+  const row={
+    id:cl.id, cliente_id:cl.id, cliente_nome:cl.nome||'',
+    banco_id:bk?.id||null, banco_nome:bk?.nome||'—',
+    valor_financiamento:Number(cl.valorFinanciamento)||0,
+    comissao_pct:pct,
+    comissao_valor:(Number(cl.valorFinanciamento)||0)*pct/100,
+    data_registro:agora.toISOString(),
+    data_recebimento:null,
+    mes:agora.getMonth(), ano:agora.getFullYear()
+  };
+  comissoes.unshift(row);
+  saveComissoesLocal();
+  await supaSaveComissao(row);
+  if(typeof renderFin==='function')renderFin();
+}
+
+async function excluirComissao(id){
+  if(!confirm('Excluir esta comissão do Financeiro?\n\nO cliente NÃO será excluído — continua no pipeline normalmente.'))return;
+  comissoes=comissoes.filter(x=>x.id!==id);
+  saveComissoesLocal();
+  await supaDeleteComissao(id);
+  renderFin();
+}
+
+async function limparComissoes(){
+  const m=getFinMes(), y=getFinAno();
+  const doMes=comissoes.filter(x=>x.mes===m&&x.ano===y);
+  if(!doMes.length){alert('Não há comissões neste mês para limpar.');return;}
+  if(!confirm('Limpar TODAS as '+doMes.length+' comissão(ões) deste mês?\n\nOs clientes NÃO serão excluídos — continuam no pipeline.\nEssa ação não pode ser desfeita.'))return;
+  const ids=doMes.map(x=>x.id);
+  comissoes=comissoes.filter(x=>!ids.includes(x.id));
+  saveComissoesLocal();
+  for(const id of ids){await supaDeleteComissao(id);}
+  renderFin();
+}
+
+function salvarDataRecebComissao(id,valor){
+  const cm=comissoes.find(x=>x.id===id);
+  if(!cm)return;
+  cm.data_recebimento=valor||null;
+  saveComissoesLocal();
+  supaSaveComissao(cm);
+}
+
+
+// Carrega comissões (Supabase -> local) e registra as que faltam
+async function initComissoes(){
+  loadComissoesLocal();
+  const remoto=await supaLoadComissoes();
+  if(remoto!==null){comissoes=remoto;saveComissoesLocal();}
+  // Quem já está em Pagamento Vendedor mas ainda não tem comissão registrada
+  const emPagamento=clients.filter(c=>c.status==='pagamento');
+  for(const cl of emPagamento){
+    if(!comissoes.some(x=>x.id===cl.id))await registrarComissao(cl);
+  }
+  if(typeof renderFin==='function')renderFin();
+}
+
+
+// ============================================
+// HISTÓRICO DE ETAPAS — mede quanto tempo o cliente fica parado em cada fase
+// ============================================
+let historicoEtapas=[];
+
+async function supaLoadHistorico(){
+  if(!supa)return null;
+  try{const {data,error}=await supa.from('historico_etapas').select('*').order('saiu_em',{ascending:false});
+    if(error)throw error;return data;}catch(e){console.warn('supaLoadHistorico',e);return null;}
+}
+async function supaSaveHistorico(row){
+  if(!supa)return;
+  try{const {error}=await supa.from('historico_etapas').upsert(row);if(error)throw error;}
+  catch(e){console.warn('supaSaveHistorico',e);}
+}
+function saveHistLocal(){try{localStorage.setItem('nexa_historico',JSON.stringify(historicoEtapas));}catch(e){}}
+function loadHistLocal(){try{const r=localStorage.getItem('nexa_historico');if(r)historicoEtapas=JSON.parse(r);}catch(e){}}
+
+// Registra a saída de uma etapa (chamado quando o status muda)
+async function registrarSaidaEtapa(cl,etapaAntiga,etapaNova){
+  if(!cl||etapaAntiga===etapaNova)return;
+  const agora=new Date();
+  const entrou=cl.entrouEtapaEm?new Date(cl.entrouEtapaEm):(cl.dataCadastro?new Date(cl.dataCadastro):agora);
+  const dias=Math.max(0,(agora-entrou)/86400000);
+  const row={
+    id:cl.id+'_'+etapaAntiga+'_'+agora.getTime(),
+    cliente_id:cl.id, cliente_nome:cl.nome||'',
+    etapa:etapaAntiga, etapa_destino:etapaNova,
+    entrou_em:entrou.toISOString(), saiu_em:agora.toISOString(),
+    dias_na_etapa:Number(dias.toFixed(2)),
+    mes:agora.getMonth(), ano:agora.getFullYear()
+  };
+  historicoEtapas.unshift(row);
+  saveHistLocal();
+  await supaSaveHistorico(row);
+  // marca a entrada na nova etapa
+  cl.entrouEtapaEm=agora.toISOString();
+}
+
+async function initHistorico(){
+  loadHistLocal();
+  const remoto=await supaLoadHistorico();
+  if(remoto!==null){historicoEtapas=remoto;saveHistLocal();}
+}
+
+// Estatísticas: tempo médio por etapa
+function statsEtapas(){
+  const porEtapa={};
+  historicoEtapas.forEach(h=>{
+    if(!porEtapa[h.etapa])porEtapa[h.etapa]={total:0,n:0,max:0,maxCliente:''};
+    const e=porEtapa[h.etapa];
+    e.total+=Number(h.dias_na_etapa)||0; e.n++;
+    if((Number(h.dias_na_etapa)||0)>e.max){e.max=Number(h.dias_na_etapa)||0;e.maxCliente=h.cliente_nome;}
+  });
+  return Object.entries(porEtapa).map(([k,v])=>({
+    etapa:k, label:(SN[k]||k), media:v.total/v.n, n:v.n, max:v.max, maxCliente:v.maxCliente
+  })).sort((a,b)=>b.media-a.media);
+}
+
+// Clientes parados agora há muito tempo na etapa atual
+function paradosAgora(){
+  const agora=new Date();
+  return clients.filter(c=>!['finalizados','perdidos'].includes(c.status)).map(c=>{
+    const base=c.entrouEtapaEm||c.dataMovimentacao||c.dataCadastro;
+    const dias=base?(agora-new Date(base))/86400000:0;
+    return {nome:c.nome,etapa:SN[c.status]||c.status,dias};
+  }).filter(x=>x.dias>=7).sort((a,b)=>b.dias-a.dias);
+}
+
+
+// ============================================
+// MÉTRICAS DO MÊS (usado pela aba Resumo e pelo PDF)
+// ============================================
+function calcMetricas(mes,ano){
+  const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
+  const novos=clients.filter(c=>noMes(c.dataCadastro));
+  const fechadosMes=clients.filter(c=>(c.status==='pagamento'||c.status==='finalizados')&&(noMes(c.dataPagamento)||noMes(c.dataMovimentacao)));
+  const perdidos=clients.filter(c=>c.status==='perdidos'&&(noMes(c.dataMovimentacao)||noMes(c.dataCadastro)));
+  const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes&&new Date(a.data+'T12:00:00').getFullYear()===ano);
+  const comMes=comissoes.filter(x=>x.mes===mes&&x.ano===ano);
+  const totalCom=comMes.reduce((s,x)=>s+(Number(x.comissao_valor)||0),0);
+  const volume=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
+  const ativos=clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length;
+
+  // Tempo médio do cadastro até o fechamento
+  const ciclos=fechadosMes.map(c=>{
+    const ini=c.dataCadastro?new Date(c.dataCadastro):null;
+    const fim=c.dataPagamento?new Date(c.dataPagamento):(c.dataMovimentacao?new Date(c.dataMovimentacao):null);
+    return (ini&&fim&&fim>ini)?(fim-ini)/86400000:null;
+  }).filter(x=>x!==null);
+  const cicloMedio=ciclos.length?ciclos.reduce((a,b)=>a+b,0)/ciclos.length:null;
+  const cicloMin=ciclos.length?Math.min(...ciclos):null;
+  const cicloMax=ciclos.length?Math.max(...ciclos):null;
+
+  // Conversão por corretor: volume de leads x quantos fecharam
+  const porCorretor={};
+  const nomeCor=(c)=>c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (site/manual)';
+  novos.forEach(c=>{const n=nomeCor(c);porCorretor[n]??={leads:0,fechou:0,volume:0};porCorretor[n].leads++;});
+  fechadosMes.forEach(c=>{const n=nomeCor(c);porCorretor[n]??={leads:0,fechou:0,volume:0};porCorretor[n].fechou++;porCorretor[n].volume+=Number(c.valorFinanciamento)||0;});
+  const corretorStats=Object.entries(porCorretor).map(([nome,v])=>({
+    nome, leads:v.leads, fechou:v.fechou, volume:v.volume,
+    taxa:v.leads>0?(v.fechou/v.leads*100):null
+  })).sort((a,b)=>b.fechou-a.fechou||b.leads-a.leads);
+
+  // Por banco
+  const porBanco={};
+  fechadosMes.forEach(c=>{const b=banks.find(bk=>bk.id===c.bancoEscolhido)||banks.find(bk=>(c.bancos||[]).includes(bk.id));
+    const n=b?b.nome:'Sem banco';porBanco[n]=(porBanco[n]||0)+1;});
+
+  return {mes,ano,novos:novos.length,fechados:fechadosMes.length,perdidos:perdidos.length,
+    vistorias:vistorias.length,volume,ativos,comissoes:comMes.length,totalComissoes:totalCom,
+    taxaConv:novos.length?(fechadosMes.length/novos.length*100):null,
+    cicloMedio,cicloMin,cicloMax,corretorStats,porBanco,
+    _novosObj:novos,_fechadosObj:fechadosMes};
+}
+
+// Comparativo com o mês anterior
+function comparaMesAnterior(mes,ano){
+  const pm=mes===0?11:mes-1, pa=mes===0?ano-1:ano;
+  const atual=calcMetricas(mes,ano), ant=calcMetricas(pm,pa);
+  const delta=(a,b)=>{if(b===0||b===null)return a>0?null:0;return ((a-b)/b*100);};
+  return {atual,ant,
+    dNovos:delta(atual.novos,ant.novos),
+    dFechados:delta(atual.fechados,ant.fechados),
+    dVolume:delta(atual.volume,ant.volume),
+    dComissoes:delta(atual.totalComissoes,ant.totalComissoes)};
+}
+
+
+// ===== ABA RESUMO MENSAL =====
+const MESES_NOME=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function initResumoSelects(){
+  const sm=document.getElementById('res-mes'), sa=document.getElementById('res-ano');
+  if(!sm||!sa||sm.options.length)return;
+  const hoje=new Date();
+  MESES_NOME.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;if(i===hoje.getMonth())o.selected=true;sm.appendChild(o);});
+  for(let a=hoje.getFullYear()-2;a<=hoje.getFullYear()+1;a++){const o=document.createElement('option');o.value=a;o.textContent=a;if(a===hoje.getFullYear())o.selected=true;sa.appendChild(o);}
+}
+function getResMes(){return parseInt(document.getElementById('res-mes')?.value??new Date().getMonth());}
+function getResAno(){return parseInt(document.getElementById('res-ano')?.value??new Date().getFullYear());}
+
+function seta(v){
+  if(v===null||v===undefined)return '<span style="color:var(--mu);font-size:10px">—</span>';
+  if(Math.abs(v)<0.5)return '<span style="color:var(--mu);font-size:10px">estável</span>';
+  const up=v>0;
+  return `<span style="color:${up?'#4ade80':'#f87171'};font-size:10px;font-weight:700">${up?'▲':'▼'} ${Math.abs(v).toFixed(0)}%</span>`;
+}
+
+function renderResumo(){
+  const el=document.getElementById('resumo-conteudo');
+  if(!el)return;
+  initResumoSelects();
+  const m=getResMes(), y=getResAno();
+  const cmp=comparaMesAnterior(m,y);
+  const d=cmp.atual;
+  const mesAntNome=MESES_NOME[m===0?11:m-1];
+  const fmt=v=>fmtV(v);
+
+  // cards principais com comparativo
+  let html=`<div class="sg" style="margin-bottom:18px">
+    <div class="sc"><div class="sl">Novos Clientes</div><div class="sv">${d.novos}</div><div class="ss">${seta(cmp.dNovos)} vs ${mesAntNome}</div></div>
+    <div class="sc"><div class="sl">Fechamentos</div><div class="sv">${d.fechados}</div><div class="ss">${seta(cmp.dFechados)} vs ${mesAntNome}</div></div>
+    <div class="sc"><div class="sl">Volume Financiado</div><div class="sv" style="font-size:15px;white-space:nowrap">${fmt(d.volume)}</div><div class="ss">${seta(cmp.dVolume)} vs ${mesAntNome}</div></div>
+    <div class="sc"><div class="sl">Comissões</div><div class="sv" style="font-size:15px;white-space:nowrap">${fmt(d.totalComissoes)}</div><div class="ss">${seta(cmp.dComissoes)} vs ${mesAntNome}</div></div>
+  </div>`;
+
+  // ciclo médio
+  html+=`<div class="analise-grid" style="margin-bottom:18px">
+    <div class="card">
+      <div class="ct">⏱️ Tempo do cadastro até o fechamento</div>
+      ${d.cicloMedio!==null?`
+        <div style="font-size:30px;font-weight:700;color:var(--gd);margin:8px 0">${d.cicloMedio.toFixed(0)} <span style="font-size:14px;color:var(--mu)">dias em média</span></div>
+        <div style="font-size:11px;color:var(--mu)">Mais rápido: ${d.cicloMin.toFixed(0)} dias · Mais lento: ${d.cicloMax.toFixed(0)} dias</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:10px;line-height:1.6">${
+          d.cicloMedio<=30?'Ciclo saudável — o processo está fluindo bem.':
+          d.cicloMedio<=60?'Ciclo dentro do normal para financiamento imobiliário.':
+          'Ciclo longo. Vale olhar a etapa mais lenta abaixo para encurtar.'}</div>`
+      :'<div style="color:var(--mu);font-size:11px;padding:16px 0">Nenhum fechamento neste mês para calcular o ciclo.</div>'}
+    </div>
+    <div class="card">
+      <div class="ct">📊 Visão do mês</div>
+      <div style="font-size:12px;line-height:2.1">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Taxa de conversão</span><b style="color:var(--gd)">${d.taxaConv!==null?d.taxaConv.toFixed(1)+'%':'—'}</b></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Perdidos</span><b>${d.perdidos}</b></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Vistorias</span><b>${d.vistorias}</b></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Ativos no pipeline</span><b>${d.ativos}</b></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">Ticket médio</span><b>${d.fechados?fmt(d.volume/d.fechados):'—'}</b></div>
+      </div>
+    </div>
+  </div>`;
+
+  // corretores
+  html+=`<div class="card" style="margin-bottom:18px">
+    <div class="ct">🤝 Desempenho por corretor — quem traz volume x quem traz lead que fecha</div>
+    ${d.corretorStats.length?`<table style="width:100%;border-collapse:collapse;margin-top:10px">
+      <thead><tr>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd)">ORIGEM</th>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)">LEADS</th>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)">FECHOU</th>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)">CONVERSÃO</th>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 8px;border-bottom:1px solid var(--bd)">VOLUME</th>
+      </tr></thead><tbody>
+      ${d.corretorStats.map(cs=>{
+        const cor=cs.taxa===null?'var(--mu)':(cs.taxa>=50?'#4ade80':(cs.taxa>=20?'var(--gd)':'#f87171'));
+        return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+          <td style="padding:9px 8px;font-size:12px;font-weight:600">${cs.nome}</td>
+          <td style="padding:9px 8px;font-size:12px;text-align:right">${cs.leads}</td>
+          <td style="padding:9px 8px;font-size:12px;text-align:right;color:var(--gd)">${cs.fechou}</td>
+          <td style="padding:9px 8px;font-size:12px;text-align:right;font-weight:700;color:${cor}">${cs.taxa!==null?cs.taxa.toFixed(0)+'%':'—'}</td>
+          <td style="padding:9px 8px;font-size:11px;text-align:right">${cs.volume?fmt(cs.volume):'—'}</td>
+        </tr>`;}).join('')}
+      </tbody></table>`
+    :'<div style="color:var(--mu);font-size:11px;padding:16px 0">Nenhum lead neste mês.</div>'}
+  </div>`;
+
+  // gargalo
+  const st=statsEtapas();
+  html+=`<div class="card">
+    <div class="ct">🚧 Onde o processo trava</div>
+    ${st.length?st.slice(0,6).map(e=>{
+      const alerta=e.media>=15;
+      return `<div style="margin-bottom:11px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:600">${e.label} <span style="color:var(--mu);font-weight:400">(${e.n}x)</span></span>
+          <span style="font-size:12px;font-weight:700;color:${alerta?'#f87171':'var(--gd)'}">${e.media.toFixed(1)} dias</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.min(100,e.media/Math.max(st[0].media,1)*100)}%;background:${alerta?'#f87171':'linear-gradient(90deg,#c9a84c,#e2c77a)'};border-radius:3px"></div>
+        </div>
+        ${alerta?`<div style="font-size:10px;color:#f87171;margin-top:3px">⚠️ Gargalo · pior caso: ${e.maxCliente} (${e.max.toFixed(0)}d)</div>`:''}
+      </div>`;}).join('')
+    :'<div style="color:var(--mu);font-size:11px;padding:16px 0">Ainda sem histórico de movimentação. A partir de agora o sistema registra o tempo em cada etapa.</div>'}
+  </div>`;
+
+  el.innerHTML=html;
+  salvarResumoMes(m,y,d);
+}
+
+
+// Salva snapshot do resumo (histórico) — silencioso
+async function salvarResumoMes(m,y,dados){
+  if(!supa)return;
+  const id=y+'-'+String(m+1).padStart(2,'0');
+  const limpo={novos:dados.novos,fechados:dados.fechados,perdidos:dados.perdidos,vistorias:dados.vistorias,
+    volume:dados.volume,ativos:dados.ativos,comissoes:dados.comissoes,totalComissoes:dados.totalComissoes,
+    taxaConv:dados.taxaConv,cicloMedio:dados.cicloMedio,corretorStats:dados.corretorStats,porBanco:dados.porBanco};
+  try{await supa.from('resumos_mensais').upsert({id,mes:m,ano:y,gerado_em:new Date().toISOString(),dados:limpo});}
+  catch(e){console.warn('salvarResumoMes',e);}
+}
+async function excluirResumoMes(){
+  const m=getResMes(), y=getResAno();
+  const id=y+'-'+String(m+1).padStart(2,'0');
+  if(!confirm('Excluir o resumo salvo de '+MESES_NOME[m]+'/'+y+'?\n\nIsso apaga apenas o snapshot salvo do relatório.\nNENHUM cliente, comissão ou dado do sistema será excluído.'))return;
+  if(supa){try{await supa.from('resumos_mensais').delete().eq('id',id);}catch(e){console.warn(e);}}
+  alert('Resumo salvo de '+MESES_NOME[m]+'/'+y+' excluído. Os dados do sistema continuam intactos.');
+  renderResumo();
+}
+
+// ===== ABA MARKETING =====
+let arquivados=[];
+async function loadArquivados(){
+  if(!supa){arquivados=[];return;}
+  try{const {data,error}=await supa.from('clientes_arquivados').select('*').order('data_arquivamento',{ascending:false});
+    if(error)throw error;arquivados=data||[];}
+  catch(e){console.warn('loadArquivados',e);arquivados=[];}
+}
+
+// Desfazer arquivamento: volta pro pipeline
+async function desarquivarCliente(id){
+  const a=arquivados.find(x=>x.id===id);
+  if(!a)return;
+  if(!confirm('Devolver "'+a.nome+'" para o pipeline?\n\nO cliente volta para a etapa Finalizados e sai do Marketing.'))return;
+  const cl=rowToCli(a);
+  try{
+    if(supa){
+      await supa.from('clientes').upsert(cliToRow(cl));
+      await supa.from('clientes_arquivados').delete().eq('id',id);
+    }
+    _idsExcluidos.delete(id);
+    clients.unshift(cl);
+    try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+    await loadArquivados();
+    renderMarketing();renderAll();
+    alert('✅ Cliente devolvido ao pipeline.');
+  }catch(e){alert('Erro ao desarquivar: '+e.message);}
+}
+
+function waLink(tel,msg){
+  const p=(tel||'').replace(/\D/g,'');
+  const num=p.length<=11?'55'+p:p;
+  return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+}
+
+// Oportunidades a partir dos arquivados
+function oportunidadesMkt(){
+  const hoje=new Date();
+  const meses=(d)=>d?(hoje-new Date(d))/2592000000:null;
+  const anivImovel=arquivados.filter(a=>{const m=meses(a.data_pagamento||a.data_arquivamento);return m!==null&&m>=11&&m<=13;});
+  const garantia=arquivados.filter(a=>Number(a.valor_imovel)>0);
+  const indicacao=arquivados.filter(a=>{const m=meses(a.data_pagamento||a.data_arquivamento);return m!==null&&m<=2;});
+  const aniversario=arquivados.filter(a=>a.nascimento&&new Date(a.nascimento+'T12:00:00').getMonth()===hoje.getMonth());
+  const frios=arquivados.filter(a=>{const base=a.ultimo_contato_marketing||a.data_arquivamento;const d=base?(hoje-new Date(base))/86400000:999;return d>=90;});
+  return {anivImovel,garantia,indicacao,aniversario,frios};
+}
+
+function renderMarketing(){
+  const opEl=document.getElementById('mkt-oportunidades');
+  const el=document.getElementById('mkt-lista');
+  if(!el)return;
+  const o=oportunidadesMkt();
+  const filtro=document.getElementById('mkt-filtro')?.value||'todos';
+
+  if(opEl){
+    opEl.innerHTML=`<div class="sg">
+      <div class="sc" style="cursor:pointer" onclick="document.getElementById('mkt-filtro').value='aniversario_imovel';renderMarketing()"><div class="sl">Aniversário do financiamento</div><div class="sv">${o.anivImovel.length}</div><div class="ss">~1 ano do fechamento</div></div>
+      <div class="sc" style="cursor:pointer" onclick="document.getElementById('mkt-filtro').value='garantia';renderMarketing()"><div class="sl">Crédito com garantia</div><div class="sv">${o.garantia.length}</div><div class="ss">Já possuem imóvel</div></div>
+      <div class="sc" style="cursor:pointer" onclick="document.getElementById('mkt-filtro').value='indicacao';renderMarketing()"><div class="sl">Pedir indicação</div><div class="sv">${o.indicacao.length}</div><div class="ss">Fecharam recente</div></div>
+      <div class="sc" style="cursor:pointer" onclick="document.getElementById('mkt-filtro').value='aniversario';renderMarketing()"><div class="sl">Aniversariantes</div><div class="sv">${o.aniversario.length}</div><div class="ss">Neste mês</div></div>
+    </div>`;
+  }
+
+  let lista=arquivados;
+  const msgs={};
+  if(filtro==='aniversario_imovel')lista=o.anivImovel;
+  if(filtro==='garantia')lista=o.garantia;
+  if(filtro==='indicacao')lista=o.indicacao;
+  if(filtro==='aniversario')lista=o.aniversario;
+  if(filtro==='frios')lista=o.frios;
+
+  if(!lista.length){
+    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:26px">Nenhum cliente nesta lista.<br><span style="font-size:10px">Clientes arquivados na etapa Finalizados aparecem aqui.</span></div>';
+    return;
+  }
+
+  el.innerHTML=`<div style="font-size:11px;color:var(--mu);margin-bottom:12px">${lista.length} cliente(s) · dados preservados, nada foi excluído</div>`+
+  lista.map(a=>{
+    const primeiro=(a.nome||'').split(' ')[0];
+    let msg='Olá '+primeiro+'! Aqui é o Matheus da NEXA Capital. Tudo bem?';
+    if(filtro==='aniversario_imovel')msg='Olá '+primeiro+'! Aqui é o Matheus da NEXA Capital. Faz cerca de um ano que fechamos seu financiamento — passando para saber como você está e se posso ajudar em algo. 🏠';
+    if(filtro==='garantia')msg='Olá '+primeiro+'! Aqui é o Matheus da NEXA Capital. Como você já tem imóvel, queria te apresentar o crédito com garantia de imóvel: taxas menores e prazos maiores. Faz sentido conversarmos?';
+    if(filtro==='indicacao')msg='Olá '+primeiro+'! Aqui é o Matheus da NEXA Capital. Foi um prazer conduzir seu financiamento! Se conhecer alguém buscando imóvel, eu cuido de tudo com o mesmo carinho. 😊';
+    if(filtro==='aniversario')msg='Olá '+primeiro+'! Aqui é o Matheus da NEXA Capital. Passando para desejar um feliz aniversário! 🎉';
+    const ult=a.ultimo_contato_marketing?new Date(a.ultimo_contato_marketing).toLocaleDateString('pt-BR'):'nunca';
+    return `<div style="background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-weight:700;font-size:13px">${a.nome||'—'}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:3px">📱 ${a.telefone||'—'} · 🏠 ${a.valor_imovel?fmtV(a.valor_imovel):'—'} · último contato: ${ult}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="${waLink(a.telefone,msg)}" target="_blank" class="btn bg bsm" onclick="marcarContatoMkt('${a.id}')">💬 WhatsApp</a>
+          <button class="btn bo bsm" onclick="desarquivarCliente('${a.id}')" title="Devolver ao pipeline">↩ Desarquivar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function marcarContatoMkt(id){
+  const a=arquivados.find(x=>x.id===id);
+  if(!a)return;
+  a.ultimo_contato_marketing=new Date().toISOString();
+  if(supa){try{await supa.from('clientes_arquivados').update({ultimo_contato_marketing:a.ultimo_contato_marketing}).eq('id',id);}catch(e){console.warn(e);}}
+  setTimeout(renderMarketing,600);
+}
 
 function renderFin(){
   const m=getFinMes(),y=getFinAno();
@@ -2001,11 +2641,11 @@ function renderFin(){
   // Receitas — from aprovados
   const recEl=document.getElementById('fin-receitas-list');
   if(!recEl)return;
-  const aprovados=clients.filter(c=>c.status==='pagamento');
-  if(!aprovados.length){
-    recEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhum financiamento concluído ainda.<br><span style="font-size:10px">Arraste clientes para a coluna Pagamento Vendedor no pipeline.</span></div>';
+  const m2=getFinMes(), y2=getFinAno();
+  const lista=comissoes.filter(x=>x.mes===m2&&x.ano===y2);
+  if(!lista.length){
+    recEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhuma comissão registrada neste mês.<br><span style="font-size:10px">As comissões são registradas quando o cliente entra em Pagamento Vendedor.</span></div>';
   } else {
-    // Merge with saved date data
     recEl.innerHTML=`<table style="width:100%;border-collapse:collapse">
       <thead><tr>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd)">CLIENTE</th>
@@ -2013,34 +2653,27 @@ function renderFin(){
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 10px;border-bottom:1px solid var(--bd)">FINANCIAMENTO</th>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 10px;border-bottom:1px solid var(--bd)">COMISSÃO</th>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd)">DATA RECEB.</th>
+        <th style="width:40px;border-bottom:1px solid var(--bd)"></th>
       </tr></thead>
-      <tbody>${aprovados.map(cl=>{
-        const bk=banks.find(b=>b.id===cl.bancoEscolhido)||banks.find(b=>(cl.bancos||[]).includes(b.id));
-        const comPct=bk?.comissao||0;
-        const comVal=(cl.valorFinanciamento||0)*comPct/100;
-        const prazoRec=bk?.prazo||0;
-        const savedDate=finData.receitas.find(r=>r.clienteId===cl.id);
-        return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-          <td style="padding:10px;font-size:12px;font-weight:600">${cl.nome}</td>
-          <td style="padding:10px;font-size:11px;color:var(--mu)">${bk?.nome||'—'}</td>
-          <td style="padding:10px;font-size:12px;text-align:right;color:var(--gd)">${cl.valorFinanciamento?fmtV(cl.valorFinanciamento):'—'}</td>
+      <tbody>${lista.map(cm=>`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+          <td style="padding:10px;font-size:12px;font-weight:600">${cm.cliente_nome||'—'}</td>
+          <td style="padding:10px;font-size:11px;color:var(--mu)">${cm.banco_nome||'—'}</td>
+          <td style="padding:10px;font-size:12px;text-align:right;color:var(--gd)">${cm.valor_financiamento?fmtV(cm.valor_financiamento):'—'}</td>
           <td style="padding:10px;text-align:right">
-            <div style="font-size:13px;font-weight:700;color:var(--gr)">${comVal>0?fmtV(comVal):'—'}</div>
-            <div style="font-size:9px;color:var(--mu)">${comPct>0?comPct+'%':''} ${prazoRec>0?'· prazo '+prazoRec+'d':''}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--gr)">${cm.comissao_valor>0?fmtV(cm.comissao_valor):'—'}</div>
+            <div style="font-size:9px;color:var(--mu)">${cm.comissao_pct>0?cm.comissao_pct+'%':''}</div>
           </td>
           <td style="padding:10px">
-            <input type="date" value="${savedDate?.data||''}" style="font-size:11px;padding:5px 8px;width:130px" onchange="saveReceitaDate('${cl.id}',this.value)">
+            <input type="date" value="${cm.data_recebimento||''}" style="font-size:11px;padding:5px 8px;width:130px" onchange="salvarDataRecebComissao('${cm.id}',this.value)">
           </td>
-        </tr>`;
-      }).join('')}</tbody>
+          <td style="padding:10px;text-align:right">
+            <button class="btn brd bsm" title="Excluir comissão (não exclui o cliente)" onclick="excluirComissao('${cm.id}')">✕</button>
+          </td>
+        </tr>`).join('')}</tbody>
     </table>`;
   }
-  // Update total bruto from aprovados
-  const totalBruto2=aprovados.reduce((s,cl)=>{
-    const bk=banks.find(b=>b.id===cl.bancoEscolhido)||banks.find(b=>(cl.bancos||[]).includes(b.id));
-    const comPct=bk?.comissao||0;
-    return s+(cl.valorFinanciamento||0)*comPct/100;
-  },0);
+  // Total bruto vem das comissões registradas do mês
+  const totalBruto2=lista.reduce((s,cm)=>s+(Number(cm.comissao_valor)||0),0);
   // Descontos
   const desEl=document.getElementById('fin-desc-list');
   const totalBruto=totalBruto2;
@@ -2633,6 +3266,7 @@ document.querySelectorAll('.ni').forEach(item=>{
 });
 
 // INIT
+renderFraseDia();
 document.getElementById('tdate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.value=_now.getMonth();
 // Inicialização com Supabase
@@ -2640,6 +3274,9 @@ const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.va
   await loadAll();
   // Migração dos dados locais para o Supabase (só na 1ª vez)
   await migrarParaSupabase();
+  // Comissões: carrega e registra as pendentes
+  await initComissoes();
+  await initHistorico();
   // Realtime: escuta mudanças na tabela clientes
   if(supa){
     try{
