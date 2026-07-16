@@ -288,7 +288,7 @@ checkAuth();
       <span class="tt" id="ttl">Dashboard</span>
     </div>
     <div class="tr">
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="td" id="tdate"></span><span id="frase-dia" style="font-size:10px;color:var(--mu);text-align:right;max-width:430px;line-height:1.5"></span></div>
+      <span class="td" id="tdate"></span>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn bg bsm" onclick="openNewClient()" title="Cadastrar cliente manualmente">+ Cliente</button>
         <button class="btn bo bsm" onclick="copyFormLink()" id="copy-link-btn" title="Copiar link do formulário público">🔗 Link Formulário</button>
@@ -299,7 +299,7 @@ checkAuth();
 
     <!-- DASHBOARD -->
     <div class="pg active ain" id="page-dashboard">
-      <div class="ph"><h1>Visão Geral</h1><p>Acompanhe suas operações em tempo real</p><div class="phl"></div></div>
+      <div class="ph"><h1>Visão Geral</h1><p>Acompanhe suas operações em tempo real</p><div class="phl"></div><div id="frase-dia" style="margin-top:14px;padding:14px 18px;background:rgba(201,168,76,.06);border-left:3px solid var(--gd);border-radius:8px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.82)"></div></div>
       <div class="sg">
         <div class="sc"><div class="sl">Total Clientes</div><div class="sv" id="s1">0</div><div class="ss" id="s1s">—</div></div>
         <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Simulação + Análise</div></div>
@@ -489,13 +489,19 @@ checkAuth();
       <div class="card" style="margin-top:20px">
         <div class="ct" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span> Financiamentos por Banco</div>
-          <select id="bank-dash-mes" onchange="renderBankDash()" style="width:auto;font-size:12px;padding:8px 12px">
-            <option value="all">Todos os meses</option>
-            <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-            <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-            <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-            <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-          </select>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:9px;letter-spacing:1px;color:var(--mu)">FILTRAR:</span>
+            <select id="bank-dash-mes" onchange="renderBankDash()" style="width:auto;font-size:12px;padding:8px 28px 8px 12px;border:1px solid var(--gd);border-radius:6px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,#c9a84c 50%),linear-gradient(135deg,#c9a84c 50%,transparent 50%);background-position:calc(100% - 14px) 14px,calc(100% - 9px) 14px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;-webkit-appearance:none;appearance:none">
+              <option value="all">Todos os meses</option>
+              <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+              <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+              <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+              <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+            </select>
+            <select id="bank-dash-ano" onchange="renderBankDash()" style="width:auto;font-size:12px;padding:8px 28px 8px 12px;border:1px solid var(--gd);border-radius:6px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,#c9a84c 50%),linear-gradient(135deg,#c9a84c 50%,transparent 50%);background-position:calc(100% - 14px) 14px,calc(100% - 9px) 14px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;-webkit-appearance:none;appearance:none">
+              <option value="all">Todos os anos</option>
+            </select>
+          </div>
         </div>
         <p style="font-size:11px;color:var(--mu);margin-bottom:14px">Contagem de financiamentos concluídos (etapa Pagamento Vendedor)</p>
         <div id="bank-dash-list"></div>
@@ -1026,7 +1032,16 @@ async function arquivarFinalizados(){
   try{
     if(supa){
       // Copia para clientes_arquivados
-      const rows=finalizados.map(cl=>{const r=cliToRow(cl);r.data_arquivamento=new Date().toISOString();return r;});
+      // Só as colunas que existem em clientes_arquivados (evita erro de schema)
+      const COLS_ARQ=['id','nome','cpf','nascimento','estado_civil','telefone','valor_imovel',
+        'valor_financiamento','renda_familiar','prazo_intencao','conjuge','obs','status','bancos',
+        'banco_escolhido','origem','ref_corretor','data_cadastro','data_pagamento','data_movimentacao','entrou_etapa_em'];
+      const rows=finalizados.map(cl=>{
+        const full=cliToRow(cl); const r={};
+        COLS_ARQ.forEach(k=>{if(full[k]!==undefined)r[k]=full[k];});
+        r.data_arquivamento=new Date().toISOString();
+        return r;
+      });
       const {error:e1}=await supa.from('clientes_arquivados').upsert(rows);
       if(e1)throw e1;
       // Remove da tabela ativa
@@ -1039,7 +1054,7 @@ async function arquivarFinalizados(){
     renderAll();
     alert('✅ '+finalizados.length+' cliente(s) movido(s) para a aba Marketing.\nSe foi sem querer, use o botão Desarquivar lá.');
     if(typeof loadArquivados==='function'){await loadArquivados();if(typeof renderMarketing==='function')renderMarketing();}
-  }catch(e){alert('Erro ao arquivar: '+e.message);}
+  }catch(e){console.error(e);alert('Erro ao arquivar: '+e.message+'\n\nSe falar em coluna faltando, rode o SQL supabase_fix_arquivados.sql no Supabase.');}
 }
 
 // ===== EXPORTAR RESUMO DO MÊS (PDF) =====
@@ -1403,7 +1418,77 @@ const FRASES_DIA=[
   {t:'Faça o trabalho que ninguém vê e colha o resultado que todos veem.',a:'Reflexão do dia'},
   {t:'Sua palavra cumprida vale mais que qualquer argumento.',a:'Reflexão do dia'},
   {t:'Constância vence intensidade quando o prazo é longo.',a:'Reflexão do dia'},
-  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'}
+  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'},
+  {t:'A alma se tinge da cor dos seus pensamentos.',a:'Marco Aurélio'},
+  {t:'Que nada seja feito por impulso, mas tudo segundo a razão.',a:'Marco Aurélio'},
+  {t:'Perde-se mais tempo hesitando do que executando.',a:'Marco Aurélio'},
+  {t:'Faça cada ato da vida como se fosse o último.',a:'Marco Aurélio'},
+  {t:'Se algo está ao seu alcance, faça. Se não está, por que se afligir?',a:'Marco Aurélio'},
+  {t:'A dificuldade mostra o que as pessoas são.',a:'Epicteto'},
+  {t:'Primeiro diga a si mesmo o que você quer ser; depois faça o que precisa ser feito.',a:'Epicteto'},
+  {t:'Temos duas orelhas e uma boca para ouvir o dobro do que falamos.',a:'Epicteto'},
+  {t:'Riqueza não é ter muitos bens, mas ter poucas necessidades.',a:'Epicteto'},
+  {t:'Não deseje que as coisas sejam como você quer; queira-as como são, e viverá em paz.',a:'Epicteto'},
+  {t:'A vida é longa se você souber usá-la.',a:'Sêneca'},
+  {t:'Não é que tenhamos pouco tempo: é que perdemos muito.',a:'Sêneca'},
+  {t:'Quem está em toda parte não está em lugar nenhum.',a:'Sêneca'},
+  {t:'Nenhum vento é favorável a quem não sabe para onde vai.',a:'Sêneca'},
+  {t:'A dificuldade fortalece a mente, como o trabalho fortalece o corpo.',a:'Sêneca'},
+  {t:'Comece onde está, com o que tem. Isso já basta.',a:'Sêneca'},
+  {t:'Enquanto ensinamos, aprendemos.',a:'Sêneca'},
+  {t:'A verdadeira felicidade é não depender do futuro.',a:'Sêneca'},
+  {t:'Aceite o que acontece e caminhe com ele.',a:'Marco Aurélio'},
+  {t:'A conduta correta é a melhor resposta às críticas.',a:'Marco Aurélio'},
+  {t:'Não perca mais tempo discutindo como deve ser um bom homem. Seja um.',a:'Marco Aurélio'},
+  {t:'Ninguém pode te ofender sem a sua permissão.',a:'Epicteto'},
+  {t:'A ansiedade nasce de querer controlar o que não é seu.',a:'Epicteto'},
+  {t:'Grandes negócios exigem tempo e paciência; frutos verdes não se colhem.',a:'Epicteto'},
+  {t:'Prefira ser vencido pela verdade a vencer pela mentira.',a:'Reflexão do dia'},
+  {t:'Antes de responder, respire: a primeira reação raramente é a melhor.',a:'Reflexão do dia'},
+  {t:'Quem promete rápido demais costuma entregar devagar demais.',a:'Reflexão do dia'},
+  {t:'Reputação leva anos para construir e uma resposta mal pensada para abalar.',a:'Reflexão do dia'},
+  {t:'Não venda o que o cliente não precisa; a venda certa volta, a errada cobra juros.',a:'Reflexão do dia'},
+  {t:'O detalhe que você ignora hoje é o problema que te procura amanhã.',a:'Reflexão do dia'},
+  {t:'Follow-up não é insistência: é cuidado com quem confiou em você.',a:'Reflexão do dia'},
+  {t:'Números não mentem, mas também não contam a história inteira. Olhe os dois.',a:'Reflexão do dia'},
+  {t:'Clareza é gentileza: explicar bem evita o retrabalho de amanhã.',a:'Reflexão do dia'},
+  {t:'Preço se discute; confiança se conquista.',a:'Reflexão do dia'},
+  {t:'Quem organiza o processo compra tempo; quem improvisa aluga estresse.',a:'Reflexão do dia'},
+  {t:'Um "não" honesto vale mais que um "talvez" que enrola.',a:'Reflexão do dia'},
+  {t:'O cliente esquece o que você disse, mas lembra como você o tratou.',a:'Reflexão do dia'},
+  {t:'Estude o mercado quando estiver calmo, para agir quando estiver agitado.',a:'Reflexão do dia'},
+  {t:'Toda proposta recusada ensina algo — se você perguntar o porquê.',a:'Reflexão do dia'},
+  {t:'Fazer o básico bem feito, todo dia, é o que parece sorte de fora.',a:'Reflexão do dia'},
+  {t:'Não confunda urgência do outro com prioridade sua.',a:'Reflexão do dia'},
+  {t:'Anote. Memória é o pior CRM que existe.',a:'Reflexão do dia'},
+  {t:'Cliente bem atendido traz outro; cliente mal atendido conta para dez.',a:'Reflexão do dia'},
+  {t:'Simplicidade vende: se precisa explicar três vezes, simplifique.',a:'Reflexão do dia'},
+  {t:'Ganhe a confiança antes de tentar ganhar o contrato.',a:'Reflexão do dia'},
+  {t:'Trabalhe para não precisar prometer: o histórico fala por você.',a:'Reflexão do dia'},
+  {t:'Disciplina é lembrar do que você quer de verdade.',a:'Reflexão do dia'},
+  {t:'A concorrência copia seu preço, não sua reputação.',a:'Reflexão do dia'},
+  {t:'Comemore o fechamento, mas estude a perda: ela ensina mais.',a:'Reflexão do dia'},
+  {t:'Quem cuida do detalhe pequeno é confiável no detalhe grande.',a:'Reflexão do dia'},
+  {t:'Metas sem prazo são só desejos.',a:'Reflexão do dia'},
+  {t:'Sua energia é limitada: gaste onde há decisão, não onde há barulho.',a:'Reflexão do dia'},
+  {t:'Escute o que o cliente não está dizendo.',a:'Reflexão do dia'},
+  {t:'Trate cada processo como se fosse o seu próprio imóvel.',a:'Reflexão do dia'},
+  {t:'Constância é a vantagem competitiva mais barata que existe.',a:'Reflexão do dia'},
+  {t:'Não corra atrás de todo lead: corra atrás do lead certo.',a:'Reflexão do dia'},
+  {t:'Você não controla a aprovação, mas controla o quanto se preparou para ela.',a:'Reflexão do dia'},
+  {t:'Menos promessa, mais entrega.',a:'Reflexão do dia'},
+  {t:'Quem responde rápido ganha a chance; quem responde bem ganha o cliente.',a:'Reflexão do dia'},
+  {t:'O melhor momento para organizar o funil é antes de precisar dele.',a:'Reflexão do dia'},
+  {t:'Ambição sem paciência vira ansiedade; paciência sem ambição vira estagnação.',a:'Reflexão do dia'},
+  {t:'Se está fácil demais, confira o que você não olhou.',a:'Reflexão do dia'},
+  {t:'Feche o dia sabendo qual é a primeira tarefa de amanhã.',a:'Reflexão do dia'},
+  {t:'Reclamar do mercado não muda o mercado; mudar a abordagem muda.',a:'Reflexão do dia'},
+  {t:'Confiança se constrói na etapa chata, não na assinatura.',a:'Reflexão do dia'},
+  {t:'Todo processo travado tem um nome e um telefone esperando resposta.',a:'Reflexão do dia'},
+  {t:'Não deixe para amanhã o retorno que o cliente espera hoje.',a:'Reflexão do dia'},
+  {t:'Prepare o difícil com antecedência e o fácil se resolve sozinho.',a:'Reflexão do dia'},
+  {t:'A pressa custa caro em contrato.',a:'Reflexão do dia'},
+  {t:'Quem entende o problema do cliente não precisa vender: precisa resolver.',a:'Reflexão do dia'}
 ];
 function frasePorDia(){
   const hoje=new Date();
@@ -1416,7 +1501,7 @@ function renderFraseDia(){
   const el=document.getElementById('frase-dia');
   if(!el)return;
   const f=frasePorDia();
-  el.innerHTML=`<span style="font-style:italic">"${f.t}"</span> <span style="color:var(--gd);white-space:nowrap">— ${f.a}</span>`;
+  el.innerHTML=`<span style="font-style:italic">"${f.t}"</span><br><span style="color:var(--gd);font-size:11px;font-weight:600">— ${f.a}</span>`;
 }
 
 function renderStats(){
@@ -1704,34 +1789,41 @@ function saveNewClient(){
 
 // ===== BANKS =====
 
+
+function initBankDashAno(){
+  const sa=document.getElementById('bank-dash-ano');
+  if(!sa||sa.options.length>1)return;
+  const hoje=new Date().getFullYear();
+  for(let a=hoje-2;a<=hoje+1;a++){
+    const o=document.createElement('option');o.value=a;o.textContent=a;
+    if(a===hoje)o.selected=true;sa.appendChild(o);
+  }
+}
+
 function renderBankDash(){
   const el=document.getElementById('bank-dash-list');
   if(!el)return;
+  initBankDashAno();
   const mesSel=(document.getElementById('bank-dash-mes')||{}).value||'all';
-  // Financiamentos na etapa pagamento
-  let pagos=clients.filter(c=>c.status==='pagamento');
-  // Filtro por mês (usa data de movimentação/cadastro)
-  if(mesSel!=='all'){
-    pagos=pagos.filter(c=>{
-      const d=c.dataPagamento||c.dataCadastro||c.dataMovimentacao;
-      if(!d)return false;
-      return new Date(d).getMonth()===parseInt(mesSel);
-    });
-  }
-  if(!pagos.length){
-    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:18px">Nenhum financiamento concluído'+(mesSel!=='all'?' neste mês':'')+'.</div>';
+  const anoSel=(document.getElementById('bank-dash-ano')||{}).value||'all';
+  // Mesma fonte das Comissões: o snapshot registrado em Pagamento Vendedor
+  let lista=comissoes.slice();
+  if(mesSel!=='all')lista=lista.filter(x=>x.mes===parseInt(mesSel));
+  if(anoSel!=='all')lista=lista.filter(x=>x.ano===parseInt(anoSel));
+  if(!lista.length){
+    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:18px">Nenhum financiamento registrado'+(mesSel!=='all'?' neste período':'')+'.<br><span style="font-size:10px">Contabiliza quando o cliente entra em Pagamento Vendedor.</span></div>';
     return;
   }
-  // Conta por banco
-  const counts={};
-  pagos.forEach(c=>{
-    const bk=banks.find(b=>b.id===c.bancoEscolhido)||banks.find(b=>(c.bancos||[]).includes(b.id));
-    const nome=bk?bk.nome:'Sem banco';
+  const counts={}, valores={};
+  lista.forEach(x=>{
+    const nome=x.banco_nome||'Sem banco';
     counts[nome]=(counts[nome]||0)+1;
+    valores[nome]=(valores[nome]||0)+(Number(x.valor_financiamento)||0);
   });
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   const max=sorted[0][1];
-  const total=pagos.length;
+  const total=lista.length;
+  const totalVol=Object.values(valores).reduce((a,b)=>a+b,0);
   el.innerHTML=sorted.map(([nome,n])=>{
     const pct=Math.round(n/max*100);
     return `<div style="margin-bottom:12px">
@@ -1742,8 +1834,12 @@ function renderBankDash(){
       <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden">
         <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#c9a84c,#e2c77a);border-radius:4px"></div>
       </div>
+      <div style="font-size:9px;color:var(--mu);margin-top:3px">${fmtV(valores[nome])}</div>
     </div>`;
-  }).join('')+`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px;display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--mu)">Total</span><span style="font-size:14px;font-weight:700;color:var(--gd)">${total} financiamento${total>1?'s':''}</span></div>`;
+  }).join('')+`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px">
+    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--mu)">Total</span><span style="font-size:14px;font-weight:700;color:var(--gd)">${total} financiamento${total>1?'s':''}</span></div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:11px;color:var(--mu)">Volume</span><span style="font-size:12px;font-weight:600">${fmtV(totalVol)}</span></div>
+  </div>`;
 }
 
 function renderBanks(){
@@ -2153,7 +2249,7 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function toggleSB(){document.getElementById('sbo').classList.toggle('open');document.getElementById('sidebar').classList.toggle('open');}
 function closeSB(){document.getElementById('sbo').classList.remove('open');document.getElementById('sidebar').classList.remove('open');}
-function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(window.innerWidth<=768)closeSB();}
+function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(p==='resumo'){initResumoSelects();renderResumo();}if(p==='marketing'){loadArquivados().then(renderMarketing);}if(window.innerWidth<=768)closeSB();}
 
 
 // ===== FINANCEIRO =====
@@ -2162,8 +2258,6 @@ let finData={receitas:[],descontos:[],despesas:[]};
 async function loadFin(){
   try{const r=localStorage.getItem('nexa_fin');if(r)finData=JSON.parse(r);}catch(e){}
   renderFin();
-  if(p==='resumo'){initResumoSelects();renderResumo();}
-  if(p==='marketing'){loadArquivados().then(renderMarketing);}
 }
 async function saveFin(){try{localStorage.setItem('nexa_fin',JSON.stringify(finData));}catch(e){}}
 
