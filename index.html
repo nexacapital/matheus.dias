@@ -447,7 +447,7 @@ function cS(){
       <div class="sri" style="border:none"><span class="l">Total</span><span class="v" style="font-size:11px;color:#60a5fa">${fmt(pt)}</span></div>
     </div>`;
 }
-function maskPhoneLP(i){let v=i.value.replace(/\D/g,'').slice(0,11);if(v.length>10)v=v.replace(/^(\d{2})(\d{5})(\d{4}).*/,'($1) $2-$3');else if(v.length>6)v=v.replace(/^(\d{2})(\d{4})(\d+)/,'($1) $2-$3');else if(v.length>2)v=v.replace(/^(\d{2})(\d+)/,'($1) $2');i.value=v;}
+function maskPhoneLP(i){let v=i.value.replace(/\D/g,'');if(v.length>11&&v.startsWith('55'))v=v.slice(2);v=v.slice(0,11);if(v.length>10)v=v.replace(/^(\d{2})(\d{5})(\d{4}).*/,'($1) $2-$3');else if(v.length>6)v=v.replace(/^(\d{2})(\d{4})(\d+)/,'($1) $2-$3');else if(v.length>2)v=v.replace(/^(\d{2})(\d+)/,'($1) $2');i.value=v;}
 function toggleConjLP(){
   const ec=document.getElementById('lfe').value;
   document.getElementById('lp-conj').style.display=(ec==='casado'||ec==='uniao')?'block':'none';
