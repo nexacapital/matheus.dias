@@ -73,7 +73,12 @@ body{font-family:'Montserrat',sans-serif;background:#0d1b2a!important;color:#fff
 .dg{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px;}
 .pw{overflow-x:auto;padding-bottom:8px;}
 .pg2{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;min-width:900px;}
-.pc{background:var(--nvm);border:1px solid var(--bd);border-radius:10px;padding:12px;min-height:260px;}
+.pc{background:var(--nvm);border:1px solid var(--bd);border-radius:10px;padding:12px;height:460px;display:flex;flex-direction:column;}
+.pc-body{flex:1;overflow-y:auto;overflow-x:hidden;margin:0 -4px;padding:0 4px;}
+.pc-body::-webkit-scrollbar{width:5px;}
+.pc-body::-webkit-scrollbar-track{background:rgba(255,255,255,.03);border-radius:3px;}
+.pc-body::-webkit-scrollbar-thumb{background:rgba(201,168,76,.35);border-radius:3px;}
+.pc-body::-webkit-scrollbar-thumb:hover{background:rgba(201,168,76,.6);}
 .pch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .pct{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);}
 .pb{background:var(--gdm);color:var(--gd);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;}
@@ -360,7 +365,7 @@ checkAuth();
             <option value="">Todos</option><option value="novo">Novo Contato</option><option value="contato">Em Contato</option><option value="simulacao">Simulação</option><option value="analise">Análise</option><option value="aprovado">Aprovado</option>
           </select>
         </div>
-        <div class="tw"><table class="mt"><thead><tr><th style="width:34px"></th><th>Cliente</th><th>Telefone</th><th>Imóvel</th><th>Financiamento</th><th>Bancos</th><th>Status</th><th style="width:44px"></th></tr></thead><tbody id="ctbody"></tbody></table></div>
+        <div class="tw"><table class="mt"><thead><tr><th style="width:34px"></th><th>Cliente</th><th>Telefone</th><th>Corretor</th><th>Imóvel</th><th>Financiamento</th><th>Bancos</th><th>Status</th><th style="width:44px"></th></tr></thead><tbody id="ctbody"></tbody></table></div>
       </div>
     </div>
 
@@ -503,7 +508,7 @@ checkAuth();
             </select>
           </div>
         </div>
-        <p style="font-size:11px;color:var(--mu);margin-bottom:14px">Contagem de financiamentos concluídos (etapa Pagamento Vendedor)</p>
+        <p style="font-size:11px;color:var(--mu);margin-bottom:14px">Contagem por banco, a partir da etapa Emissão de Contrato</p>
         <div id="bank-dash-list"></div>
       </div>
 
@@ -572,7 +577,7 @@ checkAuth();
       <!-- Stats -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
         <div class="sc"><div class="sl">Total Corretores</div><div class="sv" id="cor-total" style="font-size:20px">0</div><div class="ss">Parceiros ativos</div></div>
-        <div class="sc"><div class="sl">Clientes Indicados</div><div class="sv" id="cor-clientes" style="font-size:20px;color:var(--gd)">0</div><div class="ss">Via link de corretor</div></div>
+        <div class="sc"><div class="sl">Clientes Indicados</div><div class="sv" id="cor-clientes" style="font-size:20px;color:var(--gd)">0</div><div class="ss">Total histórico (todos os meses)</div></div>
         <div class="sc"><div class="sl">Melhor Corretor</div><div class="sv" id="cor-melhor" style="font-size:13px;color:var(--gd)">—</div><div class="ss">Mais indicações</div></div>
       </div>
       <div id="corretores-list" class="card">
@@ -602,7 +607,7 @@ checkAuth();
     <!-- FINANCEIRO -->
     <div class="pg ain" id="page-financeiro">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div><h1>Financeiro</h1><p>Receitas, descontos e despesas do mês</p><div class="phl"></div></div>
+        <div><h1>Financeiro</h1><p>Comissões, receitas extras, descontos e despesas do mês</p><div class="phl"></div></div>
         <div style="display:flex;gap:8px;margin-top:4px">
           <select id="fin-mes" style="font-size:11px;width:130px" onchange="renderFin()">
             <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
@@ -615,20 +620,21 @@ checkAuth();
           </select>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
-        <div class="sc"><div class="sl">Total Bruto</div><div class="sv" id="fin-bruto" style="font-size:20px;color:var(--gr)">R$0</div><div class="ss">Comissões</div></div>
-        <div class="sc"><div class="sl">Descontos</div><div class="sv" id="fin-desc" style="font-size:20px;color:var(--rd)">R$0</div><div class="ss">Total descontado</div></div>
-        <div class="sc"><div class="sl">Despesas</div><div class="sv" id="fin-desp" style="font-size:20px;color:var(--rd)">R$0</div><div class="ss">Total despesas</div></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px">
+        <div class="sc"><div class="sl">Total Bruto</div><div class="sv" id="fin-bruto" style="font-size:17px;color:var(--gr)">R$0</div><div class="ss">Comissões</div></div>
+        <div class="sc"><div class="sl">Receitas Extras</div><div class="sv" id="fin-ext" style="font-size:17px;color:var(--gr)">R$0</div><div class="ss">Serviços por fora</div></div>
+        <div class="sc"><div class="sl">Descontos</div><div class="sv" id="fin-desc" style="font-size:17px;color:var(--rd)">R$0</div><div class="ss">Total descontado</div></div>
+        <div class="sc"><div class="sl">Despesas</div><div class="sv" id="fin-desp" style="font-size:17px;color:var(--rd)">R$0</div><div class="ss">Total despesas</div></div>
         <div class="sc" style="border-color:var(--gd)"><div class="sl">Liquido</div><div class="sv" id="fin-liq" style="font-size:20px;color:var(--gd)">R$0</div><div class="ss">Resultado final</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;grid-template-rows:auto auto">
         <div class="card" style="grid-column:span 3">
           <div class="ct" style="display:flex;align-items:center;justify-content:space-between">
             Comissões — Comissões
-            <button class="btn bo bsm" onclick="limparComissoesOrfas()" title="Remove comissões de clientes já excluídos">🧹 Limpar órfãs</button>
+            <button class="btn bo bsm" onclick="limparComissoesOrfas()" title="Remove comissões e etapas de clientes já excluídos">🧹 Limpar órfãs</button>
             <button class="btn brd bsm" onclick="limparComissoes()">🗑 Limpar tudo</button>
           </div>
-          <div style="font-size:10px;color:var(--mu);margin-bottom:14px">Registrado automaticamente quando o cliente entra em <span style="color:var(--gr)">Pagamento Vendedor</span>, com a comissão do banco. Fica salvo mesmo se o cliente avançar para Finalizados ou for arquivado.</div>
+          <div style="font-size:10px;color:var(--mu);margin-bottom:14px">Registrado automaticamente quando o cliente entra em <span style="color:var(--gr)">Emissão de Contrato</span>, com a comissão do banco. Fica salvo mesmo se o cliente avançar de etapa ou for arquivado.</div>
           <div id="fin-receitas-list">
             <div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhum cliente aprovado ainda</div>
           </div>
@@ -646,6 +652,27 @@ checkAuth();
             <button class="btn bg bsm" style="width:100%" onclick="addDesconto()">+ Adicionar</button>
           </div>
         </div>
+        <div class="card">
+          <div class="ct">Receitas Extras</div>
+          <div style="font-size:10px;color:var(--mu);margin-bottom:12px">Serviços por fora que entram no total do mês.</div>
+          <div id="fin-ext-list" style="margin-bottom:12px"></div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <select id="fin-ext-sel" onchange="toggleExtraManual()" style="font-size:12px;padding:8px 10px">
+              <option value="">Selecione o serviço...</option>
+              <option value="Declaração do contador">Declaração do contador</option>
+              <option value="Vistoria / regularização de imóvel">Vistoria / regularização de imóvel</option>
+              <option value="Assessoria documental">Assessoria documental</option>
+              <option value="Despachante">Despachante</option>
+              <option value="__outro">✏️ Outro (escrever)</option>
+            </select>
+            <input type="text" id="fin-ext-nome" placeholder="Nome do serviço" style="font-size:12px;padding:8px 10px;display:none">
+            <div style="display:flex;gap:7px">
+              <input type="text" id="fin-ext-val" placeholder="R$ 0,00" oninput="fmtCur(this)" style="font-size:12px;padding:8px 10px;flex:1">
+              <button class="btn bg bsm" onclick="addExtra()">+ Add</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <div class="ct">Despesas</div>
           <div id="fin-desp-list" style="margin-bottom:12px"><div style="color:var(--mu);font-size:11px;text-align:center;padding:12px">Nenhuma despesa</div></div>
@@ -1059,7 +1086,8 @@ async function arquivarFinalizados(){
 }
 
 // ===== EXPORTAR RESUMO DO MÊS (PDF) =====
-function exportResumoMes(){
+async function exportResumoMes(){
+  if(typeof loadArquivados==='function')await loadArquivados();
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const W=210,m=18;
@@ -1072,12 +1100,15 @@ function exportResumoMes(){
 
   // Dados
   const novosMes=clients.filter(c=>noMes(c.dataCadastro));
-  const fechados=clients.filter(c=>c.status==='pagamento'||c.status==='finalizados');
-  const fechadosMes=fechados.filter(c=>noMes(c.dataPagamento)||noMes(c.dataMovimentacao));
+  const fechados=clients.filter(c=>c.status==='finalizados');
+  const fechadosPipePdf=fechados.filter(c=>noMes(c.dataPagamento)||noMes(c.dataMovimentacao));
+  const fechadosArqPdf=(arquivados||[]).filter(a=>noMes(a.data_arquivamento)||noMes(a.data_pagamento)).map(rowToCli);
+  const idsPdf=new Set(fechadosPipePdf.map(c=>c.id));
+  const fechadosMes=fechadosPipePdf.concat(fechadosArqPdf.filter(a=>!idsPdf.has(a.id)));
   const perdidos=clients.filter(c=>c.status==='perdidos');
   const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes);
   const valorFechado=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
-  const ativos=clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length;
+  const ativos=clients.filter(c=>!['finalizados','perdidos'].includes(c.status)).length;
 
   const porCorretor={};
   novosMes.forEach(c=>{const nome=c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (site/manual)';porCorretor[nome]=(porCorretor[nome]||0)+1;});
@@ -1246,8 +1277,19 @@ function exportResumoMes(){
   secao('COMISSÕES REGISTRADAS NO MÊS');
   linha('Comissões registradas',comMes.length);
   linha('Total em comissões',fmt(totalCom),true);
-  const recebidas=comMes.filter(x=>x.data_recebimento);
-  linha('Já com data de recebimento',recebidas.length+' de '+comMes.length);
+  if(comMes.length){
+    const dReceb=ultimoDiaUtilMesSeguinte(new Date(ano,mes,15).toISOString());
+    linha('Recebimento previsto',dReceb?dReceb.toLocaleDateString('pt-BR')+' (último dia útil do mês seguinte)':'—');
+  }
+  // Receitas extras + líquido do mês
+  const extMes=(finData.extras||[]).filter(e=>e.mes===mes&&e.ano===ano);
+  const totExtPdf=extMes.reduce((s,e)=>s+(Number(e.valor)||0),0);
+  if(extMes.length){
+    linha('Receitas extras ('+extMes.length+' serviço'+(extMes.length>1?'s':'')+')',fmt(totExtPdf));
+  }
+  const descPdf=(finData.descontos||[]).filter(d=>d.mes===mes&&d.ano===ano).reduce((s,d)=>s+(d.pct?totalCom*d.pct/100:(Number(d.valor)||0)),0);
+  const depPdf=(finData.despesas||[]).filter(d=>d.mes===mes&&d.ano===ano).reduce((s,d)=>s+(Number(d.valor)||0),0);
+  linha('Líquido do mês (comissões + extras − descontos − despesas)',fmt(totalCom+totExtPdf-descPdf-depPdf),true);
   y+=3;
 
   // Rodapé
@@ -1412,347 +1454,347 @@ function renderDashUltimos(){
 // As demais são máximas autorais, marcadas como 'Reflexão do dia' — nunca atribuídas a terceiros.
 const FRASES_DIA=[
   {t:'Você tem poder sobre a sua mente, não sobre os acontecimentos. Perceba isso e encontrará força.',a:'Marco Aurélio'},
-  {t:'Follow-up não é insistência: é cuidado com quem confiou em você.',a:'Reflexão do dia'},
+  {t:'Ninguém vai te entregar o mês pronto. Vai lá e constrói.',a:'Reflexão do dia'},
   {t:'O obstáculo à ação avança a ação. O que está no caminho vira o caminho.',a:'Marco Aurélio'},
-  {t:'O cliente esquece o que você disse, mas lembra como você o tratou.',a:'Reflexão do dia'},
+  {t:'Enquanto você pensa, o concorrente já ligou pro seu cliente.',a:'Reflexão do dia'},
   {t:'A alma se tinge da cor dos seus pensamentos.',a:'Marco Aurélio'},
-  {t:'Preço se discute; confiança se conquista.',a:'Reflexão do dia'},
-  {t:'Não venda o que o cliente não precisa; a venda certa volta, a errada cobra juros.',a:'Reflexão do dia'},
+  {t:'Meta não se deseja. Se persegue.',a:'Reflexão do dia'},
+  {t:'O mercado não perdoa quem espera a segunda-feira.',a:'Reflexão do dia'},
   {t:'Que nada seja feito por impulso, mas tudo segundo a razão.',a:'Marco Aurélio'},
-  {t:'Quem responde rápido ganha a chance; quem responde bem ganha o cliente.',a:'Reflexão do dia'},
-  {t:'Todo processo travado tem um nome e um telefone esperando resposta.',a:'Reflexão do dia'},
+  {t:'Quem não prospecta hoje mendiga amanhã.',a:'Reflexão do dia'},
+  {t:'Resultado não negocia com desculpa.',a:'Reflexão do dia'},
   {t:'Perde-se mais tempo hesitando do que executando.',a:'Marco Aurélio'},
-  {t:'Anote. Memória é o pior CRM que existe.',a:'Reflexão do dia'},
-  {t:'Cliente bem atendido traz outro; cliente mal atendido conta para dez.',a:'Reflexão do dia'},
+  {t:'Seu funil está vazio? O problema é o espelho, não o mercado.',a:'Reflexão do dia'},
+  {t:'Trabalhe calado. Deixe o número gritar.',a:'Reflexão do dia'},
   {t:'Faça cada ato da vida como se fosse o último.',a:'Marco Aurélio'},
-  {t:'Um \'não\' honesto vale mais que um \'talvez\' que enrola.',a:'Reflexão do dia'},
-  {t:'Menos promessa, mais entrega.',a:'Reflexão do dia'},
+  {t:'Não existe sorte no fechamento: existe quem ligou primeiro.',a:'Reflexão do dia'},
+  {t:'O cliente não some. Você que parou de aparecer.',a:'Reflexão do dia'},
   {t:'Se algo está ao seu alcance, faça. Se não está, por que se afligir?',a:'Marco Aurélio'},
-  {t:'Clareza é gentileza: explicar bem evita o retrabalho de amanhã.',a:'Reflexão do dia'},
-  {t:'Reputação leva anos para construir e uma resposta mal pensada para abalar.',a:'Reflexão do dia'},
+  {t:'Você é pago para resolver, não para explicar por que não deu.',a:'Reflexão do dia'},
+  {t:'Concorrente não tira cliente seu: você entrega de bandeja quando demora.',a:'Reflexão do dia'},
   {t:'A melhor vingança é não ser igual a quem te feriu.',a:'Marco Aurélio'},
-  {t:'Quem organiza o processo compra tempo; quem improvisa aluga estresse.',a:'Reflexão do dia'},
-  {t:'Não confunda urgência do outro com prioridade sua.',a:'Reflexão do dia'},
+  {t:'Ninguém lembra de quem quase fechou.',a:'Reflexão do dia'},
+  {t:'Preço só vira problema quando falta valor.',a:'Reflexão do dia'},
   {t:'Confine-se ao presente.',a:'Marco Aurélio'},
-  {t:'Ganhe a confiança antes de tentar ganhar o contrato.',a:'Reflexão do dia'},
-  {t:'Comemore o fechamento, mas estude a perda: ela ensina mais.',a:'Reflexão do dia'},
+  {t:'Se está confortável, você parou de crescer.',a:'Reflexão do dia'},
+  {t:'Quem manda no seu mês é a sua agenda, não o mercado.',a:'Reflexão do dia'},
   {t:'Toda nova manhã é uma chance de recomeçar.',a:'Marco Aurélio'},
-  {t:'Metas sem prazo são só desejos.',a:'Reflexão do dia'},
-  {t:'Escute o que o cliente não está dizendo.',a:'Reflexão do dia'},
+  {t:'Chore no treino, sorria na assinatura.',a:'Reflexão do dia'},
+  {t:'Comissão é consequência. Processo é a causa.',a:'Reflexão do dia'},
   {t:'Aceite o que acontece e caminhe com ele.',a:'Marco Aurélio'},
-  {t:'Trate cada processo como se fosse o seu próprio imóvel.',a:'Reflexão do dia'},
-  {t:'Não corra atrás de todo lead: corra atrás do lead certo.',a:'Reflexão do dia'},
+  {t:'Não terceirize sua meta para a economia.',a:'Reflexão do dia'},
+  {t:'O forte não reclama do juro: ele estrutura a proposta.',a:'Reflexão do dia'},
   {t:'A conduta correta é a melhor resposta às críticas.',a:'Marco Aurélio'},
-  {t:'Você não controla a aprovação, mas controla o quanto se preparou para ela.',a:'Reflexão do dia'},
-  {t:'O melhor momento para organizar o funil é antes de precisar dele.',a:'Reflexão do dia'},
+  {t:'Volume sem conversão é só cansaço organizado.',a:'Reflexão do dia'},
+  {t:'Fechar é bom. Fechar todo mês é negócio.',a:'Reflexão do dia'},
   {t:'Não perca mais tempo discutindo como deve ser um bom homem. Seja um.',a:'Marco Aurélio'},
-  {t:'Se está fácil demais, confira o que você não olhou.',a:'Reflexão do dia'},
-  {t:'Feche o dia sabendo qual é a primeira tarefa de amanhã.',a:'Reflexão do dia'},
+  {t:'Você não precisa de motivação: precisa de disciplina.',a:'Reflexão do dia'},
+  {t:'Vontade some na terça. Rotina te carrega o ano.',a:'Reflexão do dia'},
   {t:'A felicidade da sua vida depende da qualidade dos seus pensamentos.',a:'Marco Aurélio'},
-  {t:'Reclamar do mercado não muda o mercado; mudar a abordagem muda.',a:'Reflexão do dia'},
-  {t:'Confiança se constrói na etapa chata, não na assinatura.',a:'Reflexão do dia'},
+  {t:'Todo mês zera. O que fica é sua reputação.',a:'Reflexão do dia'},
+  {t:'Levante o telefone. É sempre isso.',a:'Reflexão do dia'},
   {t:'Onde há vida, há possibilidade de fazer o bem.',a:'Marco Aurélio'},
-  {t:'Não deixe para amanhã o retorno que o cliente espera hoje.',a:'Reflexão do dia'},
-  {t:'Quem entende o problema do cliente não precisa vender: precisa resolver.',a:'Reflexão do dia'},
+  {t:'Enquanto você espera resposta, ligue para outros dez.',a:'Reflexão do dia'},
+  {t:'O \'não\' te aproxima do \'sim\'. O silêncio não.',a:'Reflexão do dia'},
   {t:'Nunca deixe o futuro te perturbar. Você o enfrentará com as mesmas armas da razão.',a:'Marco Aurélio'},
-  {t:'Números não mentem, mas também não contam a história inteira.',a:'Reflexão do dia'},
-  {t:'Simplicidade vende: se precisa explicar três vezes, simplifique.',a:'Reflexão do dia'},
+  {t:'Quem depende de um cliente não tem negócio: tem sorte.',a:'Reflexão do dia'},
+  {t:'Diversifique seus bancos antes que um deles decida por você.',a:'Reflexão do dia'},
   {t:'O que não é útil à colmeia não é útil à abelha.',a:'Marco Aurélio'},
-  {t:'Estude o mercado quando estiver calmo, para agir quando estiver agitado.',a:'Reflexão do dia'},
-  {t:'Toda proposta recusada ensina algo — se você perguntar o porquê.',a:'Reflexão do dia'},
+  {t:'Um corretor parceiro bem tratado vale por uma campanha de marketing.',a:'Reflexão do dia'},
+  {t:'Sua rede é seu ativo. Cuide como cuida do carro.',a:'Reflexão do dia'},
   {t:'Seja como o promontório contra o qual as ondas quebram continuamente.',a:'Marco Aurélio'},
-  {t:'Fazer o básico bem feito, todo dia, é o que parece sorte de fora.',a:'Reflexão do dia'},
-  {t:'Disciplina é lembrar do que você quer de verdade.',a:'Reflexão do dia'},
+  {t:'Não peça indicação: mereça a ponto de virem sozinhas.',a:'Reflexão do dia'},
+  {t:'Reputação é o único juro que sempre compõe a seu favor.',a:'Reflexão do dia'},
   {t:'Nossas ações podem ser impedidas, mas nossas intenções não.',a:'Marco Aurélio'},
-  {t:'A concorrência copia seu preço, não sua reputação.',a:'Reflexão do dia'},
-  {t:'Quem cuida do detalhe pequeno é confiável no detalhe grande.',a:'Reflexão do dia'},
+  {t:'Fama de bom paga contas por anos. Fama de ruim também cobra.',a:'Reflexão do dia'},
+  {t:'Ninguém te indica por pena. Te indicam por confiança.',a:'Reflexão do dia'},
   {t:'A arte de viver é mais parecida com a luta do que com a dança.',a:'Marco Aurélio'},
-  {t:'Sua energia é limitada: gaste onde há decisão, não onde há barulho.',a:'Reflexão do dia'},
-  {t:'Constância é a vantagem competitiva mais barata que existe.',a:'Reflexão do dia'},
+  {t:'O mercado é pequeno. Sua conduta chega antes de você.',a:'Reflexão do dia'},
+  {t:'Dinheiro rápido sai caro. Sempre.',a:'Reflexão do dia'},
   {t:'Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis.',a:'Sêneca'},
-  {t:'Ambição sem paciência vira ansiedade; paciência sem ambição vira estagnação.',a:'Reflexão do dia'},
-  {t:'Prepare o difícil com antecedência e o fácil se resolve sozinho.',a:'Reflexão do dia'},
+  {t:'Prefira perder a venda a perder o nome.',a:'Reflexão do dia'},
+  {t:'Ética não é freio: é o que te mantém no jogo por décadas.',a:'Reflexão do dia'},
   {t:'Sofremos mais na imaginação do que na realidade.',a:'Sêneca'},
-  {t:'Antes de responder, respire: a primeira reação raramente é a melhor.',a:'Reflexão do dia'},
-  {t:'Quem promete rápido demais costuma entregar devagar demais.',a:'Reflexão do dia'},
+  {t:'Quem trapaceia no pequeno nunca chega no grande.',a:'Reflexão do dia'},
+  {t:'Palavra dada é dívida. Pague em dia.',a:'Reflexão do dia'},
   {t:'Enquanto adiamos, a vida passa.',a:'Sêneca'},
-  {t:'O detalhe que você ignora hoje é o problema que te procura amanhã.',a:'Reflexão do dia'},
-  {t:'Domine o ofício antes de buscar o holofote.',a:'Reflexão do dia'},
+  {t:'O que te tira do lugar é o que ninguém quer fazer.',a:'Reflexão do dia'},
+  {t:'Faça o difícil enquanto os outros discutem quem tem razão.',a:'Reflexão do dia'},
   {t:'A sorte é o que acontece quando o preparo encontra a oportunidade.',a:'Sêneca'},
-  {t:'Paciência não é lentidão; é escolher a hora em que sua ação vale mais.',a:'Reflexão do dia'},
-  {t:'Observe o que as pessoas fazem, não o que dizem.',a:'Reflexão do dia'},
+  {t:'Ninguém aplaude o processo. Só o resultado. Aguente.',a:'Reflexão do dia'},
+  {t:'Disciplina é você mandando na vontade, não o contrário.',a:'Reflexão do dia'},
   {t:'Ter é desejar menos, não acumular mais.',a:'Sêneca'},
-  {t:'Quem controla as próprias emoções lê melhor a sala do que quem grita mais alto.',a:'Reflexão do dia'},
-  {t:'Aprenda com quem já percorreu o caminho: experiência alheia é atalho barato.',a:'Reflexão do dia'},
+  {t:'Se depender de estar inspirado, você vai fechar três meses por ano.',a:'Reflexão do dia'},
+  {t:'Constância vence talento que não aparece.',a:'Reflexão do dia'},
   {t:'A vida é longa se você souber usá-la.',a:'Sêneca'},
-  {t:'O tempo revela tudo. Trabalhe pelo acumulado, não pelo dia.',a:'Reflexão do dia'},
-  {t:'Excelência é hábito silencioso; reputação é só o eco dele.',a:'Reflexão do dia'},
+  {t:'Não existe atalho. Existe quem aguentou mais tempo.',a:'Reflexão do dia'},
+  {t:'Seu maior concorrente é sua versão preguiçosa de ontem.',a:'Reflexão do dia'},
   {t:'Não é que tenhamos pouco tempo: é que perdemos muito.',a:'Sêneca'},
-  {t:'Não confunda movimento com progresso: ocupado não é o mesmo que eficaz.',a:'Reflexão do dia'},
-  {t:'Escute mais do que fala e você saberá o que ninguém contou.',a:'Reflexão do dia'},
+  {t:'Ganhe o dia antes das nove da manhã.',a:'Reflexão do dia'},
+  {t:'Quem organiza a semana no domingo domina a segunda.',a:'Reflexão do dia'},
   {t:'Quem está em toda parte não está em lugar nenhum.',a:'Sêneca'},
-  {t:'Foco é dizer não a coisas boas para poder dizer sim à certa.',a:'Reflexão do dia'},
-  {t:'A pressa entrega sua mão; a calma esconde seu jogo.',a:'Reflexão do dia'},
+  {t:'Prioridade é o que você faz primeiro, não o que você diz que importa.',a:'Reflexão do dia'},
+  {t:'Agenda cheia não é sinal de sucesso: é sinal de foco ruim.',a:'Reflexão do dia'},
   {t:'Nenhum vento é favorável a quem não sabe para onde vai.',a:'Sêneca'},
-  {t:'Faça o trabalho que ninguém vê e colha o resultado que todos veem.',a:'Reflexão do dia'},
-  {t:'Sua palavra cumprida vale mais que qualquer argumento.',a:'Reflexão do dia'},
+  {t:'Aprenda a dizer não. Seu tempo é seu estoque.',a:'Reflexão do dia'},
+  {t:'Ocupado é fácil. Eficaz é raro.',a:'Reflexão do dia'},
   {t:'A dificuldade fortalece a mente, como o trabalho fortalece o corpo.',a:'Sêneca'},
-  {t:'Julgue as próprias decisões pelo processo, não só pelo resultado.',a:'Reflexão do dia'},
-  {t:'Um cliente que entende o processo reclama menos e indica mais.',a:'Reflexão do dia'},
+  {t:'Não confunda movimento com progresso.',a:'Reflexão do dia'},
+  {t:'Se você não mede, você acha. E achismo quebra empresa.',a:'Reflexão do dia'},
   {t:'Comece onde está, com o que tem. Isso já basta.',a:'Sêneca'},
-  {t:'O silêncio do cliente não é paciência: é dúvida crescendo.',a:'Reflexão do dia'},
-  {t:'Toda etapa parada custa mais caro que uma ligação difícil.',a:'Reflexão do dia'},
+  {t:'Olhe o número que dói primeiro.',a:'Reflexão do dia'},
+  {t:'Dado ruim não é derrota: é mapa.',a:'Reflexão do dia'},
   {t:'Enquanto ensinamos, aprendemos.',a:'Sêneca'},
-  {t:'Documentação completa hoje é aprovação rápida amanhã.',a:'Reflexão do dia'},
-  {t:'Quem antecipa o problema vira consultor; quem reage vira desculpa.',a:'Reflexão do dia'},
+  {t:'Quem foge do relatório foge do próprio negócio.',a:'Reflexão do dia'},
+  {t:'Analise a perda sem se defender. Aí sim você aprende.',a:'Reflexão do dia'},
   {t:'A verdadeira felicidade é não depender do futuro.',a:'Sêneca'},
-  {t:'Prometa o prazo que você cumpre no pior cenário, não no melhor.',a:'Reflexão do dia'},
-  {t:'Cada processo tem uma pessoa ansiosa do outro lado. Lembre-se dela.',a:'Reflexão do dia'},
+  {t:'Cliente perdido tem nome, motivo e lição. Vá buscar os três.',a:'Reflexão do dia'},
+  {t:'Funil limpo vale mais que funil cheio.',a:'Reflexão do dia'},
   {t:'Não há vento favorável para quem não sabe aonde ir.',a:'Sêneca'},
-  {t:'Não deixe a rotina te fazer esquecer que ali é o sonho de alguém.',a:'Reflexão do dia'},
-  {t:'Cliente informado é cliente calmo.',a:'Reflexão do dia'},
+  {t:'Lead parado há trinta dias não é esperança: é peso.',a:'Reflexão do dia'},
+  {t:'Decida. Indecisão custa mais caro que erro.',a:'Reflexão do dia'},
   {t:'O tempo descobre a verdade.',a:'Sêneca'},
-  {t:'Vender é ajudar alguém a decidir com segurança.',a:'Reflexão do dia'},
-  {t:'Se você não sabe a resposta, diga isso e volte com ela.',a:'Reflexão do dia'},
+  {t:'Erre rápido, corrija rápido, siga.',a:'Reflexão do dia'},
+  {t:'O perfeccionismo é medo com terno.',a:'Reflexão do dia'},
   {t:'Associe-se a quem te torna melhor.',a:'Sêneca'},
-  {t:'Trabalhe para ser indicado, não para ser lembrado só na necessidade.',a:'Reflexão do dia'},
-  {t:'Uma boa pergunta vale mais que dez argumentos.',a:'Reflexão do dia'},
+  {t:'Feito hoje vence perfeito nunca.',a:'Reflexão do dia'},
+  {t:'Comece pequeno, mas comece antes do concorrente.',a:'Reflexão do dia'},
   {t:'A pressa é inimiga de tudo que se quer bem feito.',a:'Sêneca'},
-  {t:'A meta não é fechar o mês: é fechar o mês sem queimar ninguém.',a:'Reflexão do dia'},
-  {t:'Cuide do funil como cuida do jardim: o que não se rega, seca.',a:'Reflexão do dia'},
+  {t:'Quem espera o cenário ideal assiste ao jogo.',a:'Reflexão do dia'},
+  {t:'Crise separa quem tem processo de quem tinha sorte.',a:'Reflexão do dia'},
   {t:'Todo começo é consequência; todo começo termina algo.',a:'Sêneca'},
-  {t:'Sua taxa de conversão é a média das suas desculpas.',a:'Reflexão do dia'},
-  {t:'Quem controla o processo dorme melhor que quem controla a promessa.',a:'Reflexão do dia'},
+  {t:'Mercado ruim é quando o preparado come a fatia do despreparado.',a:'Reflexão do dia'},
+  {t:'Juro alto não fecha negócio. Corretor despreparado fecha.',a:'Reflexão do dia'},
   {t:'Grande fortuna é grande escravidão.',a:'Sêneca'},
-  {t:'Prazo prometido é dívida assumida.',a:'Reflexão do dia'},
-  {t:'Um cliente perdido com respeito volta; um perdido com descaso, nunca.',a:'Reflexão do dia'},
+  {t:'Aprenda o produto até dormir sabendo. Confiança se nota na voz.',a:'Reflexão do dia'},
+  {t:'Quem domina o assunto não precisa insistir.',a:'Reflexão do dia'},
   {t:'Errar é humano; persistir no erro, insensato.',a:'Sêneca'},
-  {t:'Antes de culpar o banco, revise seu checklist.',a:'Reflexão do dia'},
-  {t:'O bom corretor não empurra: ele encaixa.',a:'Reflexão do dia'},
+  {t:'Estude enquanto o concorrente reclama.',a:'Reflexão do dia'},
+  {t:'Conhecimento é a única vantagem que ninguém te toma.',a:'Reflexão do dia'},
   {t:'Não são os fatos que perturbam os homens, mas as opiniões que eles têm sobre os fatos.',a:'Epicteto'},
-  {t:'Detalhe conferido duas vezes economiza semana inteira.',a:'Reflexão do dia'},
-  {t:'Explique o custo antes de ele virar surpresa.',a:'Reflexão do dia'},
+  {t:'Você não vende taxa: vende segurança de que vai dar certo.',a:'Reflexão do dia'},
+  {t:'O cliente compra você antes de comprar a proposta.',a:'Reflexão do dia'},
   {t:'Comece já a ser quem você quer se tornar.',a:'Epicteto'},
-  {t:'Simular é fácil; conduzir até a chave na mão é o serviço.',a:'Reflexão do dia'},
-  {t:'Todo processo é feito de espera. Sua função é encurtá-la.',a:'Reflexão do dia'},
+  {t:'Ninguém assina com quem transmite dúvida.',a:'Reflexão do dia'},
+  {t:'Sua voz no telefone decide metade da venda.',a:'Reflexão do dia'},
   {t:'Nenhum homem é livre se não for senhor de si mesmo.',a:'Epicteto'},
-  {t:'Quem tem o histórico organizado nunca começa do zero.',a:'Reflexão do dia'},
-  {t:'Não prometa aprovação: prometa dedicação.',a:'Reflexão do dia'},
+  {t:'Responda rápido. Velocidade é respeito.',a:'Reflexão do dia'},
+  {t:'Retorno em cinco minutos vale mais que discurso em uma hora.',a:'Reflexão do dia'},
   {t:'Se quiser progredir, aceite parecer tolo no começo.',a:'Epicteto'},
-  {t:'Um retorno rápido vale mais que um discurso ensaiado.',a:'Reflexão do dia'},
-  {t:'Cliente não compra taxa: compra tranquilidade.',a:'Reflexão do dia'},
+  {t:'O cliente aguenta demora. Não aguenta silêncio.',a:'Reflexão do dia'},
+  {t:'Notícia ruim se dá rápido e de frente.',a:'Reflexão do dia'},
   {t:'Não explique sua filosofia. Incorpore-a.',a:'Epicteto'},
-  {t:'A melhor propaganda é um processo que correu bem.',a:'Reflexão do dia'},
-  {t:'Falar difícil não impressiona: confunde.',a:'Reflexão do dia'},
+  {t:'Quem some no problema não aparece no próximo negócio.',a:'Reflexão do dia'},
+  {t:'Esteja presente na etapa chata: é lá que se ganha confiança.',a:'Reflexão do dia'},
   {t:'A dificuldade mostra o que as pessoas são.',a:'Epicteto'},
-  {t:'Faça a conta antes de dar a esperança.',a:'Reflexão do dia'},
-  {t:'Organize hoje o que seu eu de amanhã vai agradecer.',a:'Reflexão do dia'},
+  {t:'Follow-up é o trabalho. O resto é consequência.',a:'Reflexão do dia'},
+  {t:'Ninguém fecha na primeira. Fecha na quinta.',a:'Reflexão do dia'},
   {t:'Primeiro diga a si mesmo o que você quer ser; depois faça o que precisa ser feito.',a:'Epicteto'},
-  {t:'Cada \'estou vendo isso\' sem retorno custa um pouco da sua credibilidade.',a:'Reflexão do dia'},
-  {t:'Não deixe o lead morrer de espera: ligue.',a:'Reflexão do dia'},
+  {t:'Insistir com propósito é profissionalismo. Sumir é amadorismo.',a:'Reflexão do dia'},
+  {t:'Anote tudo. Confiar na memória é jogar dinheiro fora.',a:'Reflexão do dia'},
   {t:'Temos duas orelhas e uma boca para ouvir o dobro do que falamos.',a:'Epicteto'},
-  {t:'Você é lembrado pelo pior atendimento, não pelo melhor.',a:'Reflexão do dia'},
-  {t:'Se o processo trava sempre no mesmo ponto, o problema não é o cliente.',a:'Reflexão do dia'},
+  {t:'Sistema serve para o seu dia ruim, não para o bom.',a:'Reflexão do dia'},
+  {t:'Padronize o repetitivo. Guarde sua energia para o humano.',a:'Reflexão do dia'},
   {t:'Riqueza não é ter muitos bens, mas ter poucas necessidades.',a:'Epicteto'},
-  {t:'Bom atendimento não é dizer sim: é ser claro.',a:'Reflexão do dia'},
-  {t:'O que você registra hoje é o que você prova amanhã.',a:'Reflexão do dia'},
+  {t:'Processo protege você de si mesmo.',a:'Reflexão do dia'},
+  {t:'O que não está registrado não aconteceu.',a:'Reflexão do dia'},
   {t:'Não deseje que as coisas sejam como você quer; queira-as como são, e viverá em paz.',a:'Epicteto'},
-  {t:'Confiança é construída em minutos de atenção, não em anos de contato.',a:'Reflexão do dia'},
-  {t:'Ninguém se lembra do desconto; todos se lembram do descaso.',a:'Reflexão do dia'},
+  {t:'Automatize a tarefa. Nunca o cuidado.',a:'Reflexão do dia'},
+  {t:'Ferramenta não decide. Você decide.',a:'Reflexão do dia'},
   {t:'Ninguém pode te ofender sem a sua permissão.',a:'Epicteto'},
-  {t:'Trabalho bem feito é o marketing mais barato que existe.',a:'Reflexão do dia'},
-  {t:'Empatia não atrasa a venda: ela a garante.',a:'Reflexão do dia'},
+  {t:'Organização é dinheiro parado esperando ser cobrado.',a:'Reflexão do dia'},
+  {t:'Cada pendência esquecida é uma comissão adiada.',a:'Reflexão do dia'},
   {t:'A ansiedade nasce de querer controlar o que não é seu.',a:'Epicteto'},
-  {t:'Antes de pedir indicação, mereça a indicação.',a:'Reflexão do dia'},
-  {t:'Quem cuida do cliente depois da assinatura tem o próximo garantido.',a:'Reflexão do dia'},
+  {t:'Documentação completa hoje é assinatura rápida amanhã.',a:'Reflexão do dia'},
+  {t:'Confira duas vezes. Retrabalho é o imposto da pressa.',a:'Reflexão do dia'},
   {t:'Grandes negócios exigem tempo e paciência; frutos verdes não se colhem.',a:'Epicteto'},
-  {t:'Faça o simples com excelência e o complexo se resolve.',a:'Reflexão do dia'},
-  {t:'Aprovação é consequência de preparo, não de sorte.',a:'Reflexão do dia'},
+  {t:'Antecipe o problema e você vira consultor. Reaja e vira desculpa.',a:'Reflexão do dia'},
+  {t:'Prometa o prazo do pior cenário. Entregue antes.',a:'Reflexão do dia'},
   {t:'Só o instruído é livre.',a:'Epicteto'},
-  {t:'Se você não acompanhar, ninguém vai.',a:'Reflexão do dia'},
-  {t:'Um processo transparente vale mais que um discurso brilhante.',a:'Reflexão do dia'},
+  {t:'Cliente informado não liga cobrando.',a:'Reflexão do dia'},
+  {t:'Explique o porquê e ninguém cobra o quando.',a:'Reflexão do dia'},
   {t:'É impossível aprender aquilo que se pensa já saber.',a:'Epicteto'},
-  {t:'O tempo do cliente é o ativo mais caro da negociação.',a:'Reflexão do dia'},
-  {t:'Boas perguntas encurtam processos.',a:'Reflexão do dia'},
+  {t:'Clareza é gentileza. E vende.',a:'Reflexão do dia'},
+  {t:'Se precisa explicar três vezes, o problema é seu.',a:'Reflexão do dia'},
   {t:'Circunstâncias não fazem o homem; elas o revelam a si mesmo.',a:'Epicteto'},
-  {t:'Você não vende financiamento: vende a chave de uma casa.',a:'Reflexão do dia'},
-  {t:'O nome na porta é seu; o cuidado precisa ser também.',a:'Reflexão do dia'},
+  {t:'Falar difícil não impressiona. Confunde e afasta.',a:'Reflexão do dia'},
+  {t:'Simplicidade fecha contrato.',a:'Reflexão do dia'},
   {t:'Exija de si mesmo o que os outros não exigem.',a:'Epicteto'},
-  {t:'Não terceirize a relação com quem confiou em você.',a:'Reflexão do dia'},
-  {t:'Cliente satisfeito é o único vendedor que não cobra comissão.',a:'Reflexão do dia'},
+  {t:'Uma boa pergunta vale mais que dez argumentos.',a:'Reflexão do dia'},
+  {t:'Escute. A resposta que você precisa está na fala dele.',a:'Reflexão do dia'},
   {t:'Faça o melhor com o que está sob seu controle e aceite o resto.',a:'Epicteto'},
-  {t:'Antes de ligar, saiba o que você vai resolver.',a:'Reflexão do dia'},
-  {t:'Cada follow-up é uma chance de provar que você é diferente.',a:'Reflexão do dia'},
+  {t:'Quem fala demais entrega o jogo.',a:'Reflexão do dia'},
+  {t:'Silêncio na negociação é ferramenta, não vazio.',a:'Reflexão do dia'},
   {t:'O que planeja com cuidado tem lucro certo; quem se apressa acaba na pobreza.',a:'Provérbios 21:5'},
-  {t:'Quem organiza o dia domina a semana.',a:'Reflexão do dia'},
-  {t:'Uma pendência escondida sempre reaparece maior.',a:'Reflexão do dia'},
+  {t:'Nunca negocie com pressa aparente.',a:'Reflexão do dia'},
+  {t:'Quem tem opção negocia melhor. Tenha sempre outra mesa.',a:'Reflexão do dia'},
   {t:'Melhor é o fim das coisas do que o seu começo; melhor é o paciente do que o arrogante.',a:'Eclesiastes 7:8'},
-  {t:'Confiança perdida custa mais que negócio perdido.',a:'Reflexão do dia'},
-  {t:'Trabalhe como se cada cliente fosse escrever sua próxima avaliação.',a:'Reflexão do dia'},
+  {t:'Não implore pelo negócio. Construa para que ele te queira.',a:'Reflexão do dia'},
+  {t:'Desconto pedido rápido demais foi mal apresentado.',a:'Reflexão do dia'},
   {t:'Confie os seus trabalhos ao Senhor, e os seus planos serão bem-sucedidos.',a:'Provérbios 16:3'},
-  {t:'Nada substitui a ligação que você não fez.',a:'Reflexão do dia'},
-  {t:'O bom profissional resolve; o excelente antecipa.',a:'Reflexão do dia'},
+  {t:'Você treina o cliente a te desrespeitar quando cede sem critério.',a:'Reflexão do dia'},
+  {t:'Cobre o que vale. Barato atrai quem não valoriza.',a:'Reflexão do dia'},
   {t:'O ferro afia o ferro; assim, um homem afia o outro.',a:'Provérbios 27:17'},
-  {t:'Registre a promessa que você fez: sua palavra tem data.',a:'Reflexão do dia'},
-  {t:'Um cliente bem conduzido não pergunta o preço duas vezes.',a:'Reflexão do dia'},
+  {t:'Cliente que só quer preço vai embora por dez reais.',a:'Reflexão do dia'},
+  {t:'Escolha seus clientes: eles definem sua rotina e seu humor.',a:'Reflexão do dia'},
   {t:'Quem anda com sábios será sábio.',a:'Provérbios 13:20'},
-  {t:'Se o cliente precisa te cobrar, você já falhou um pouco.',a:'Reflexão do dia'},
-  {t:'Faça o difícil primeiro: o resto do dia fica leve.',a:'Reflexão do dia'},
+  {t:'Nem todo dinheiro vale o desgaste.',a:'Reflexão do dia'},
+  {t:'Dizer não protege quem já disse sim.',a:'Reflexão do dia'},
   {t:'Melhor é o pouco com justiça do que muito lucro com injustiça.',a:'Provérbios 16:8'},
-  {t:'A rotina que te entedia é a mesma que te sustenta.',a:'Reflexão do dia'},
-  {t:'Não confunda ser acessível com ser disponível o tempo todo.',a:'Reflexão do dia'},
+  {t:'Foco é abrir mão de coisa boa pela coisa certa.',a:'Reflexão do dia'},
+  {t:'Você não precisa de mais leads. Precisa de melhores.',a:'Reflexão do dia'},
   {t:'Ouça o conselho e aceite a correção, e no final você será sábio.',a:'Provérbios 19:20'},
-  {t:'Escolha bem seus clientes: eles definem sua rotina.',a:'Reflexão do dia'},
-  {t:'Quem sabe dizer não protege quem já disse sim.',a:'Reflexão do dia'},
+  {t:'Qualidade de lead é decisão, não sorte.',a:'Reflexão do dia'},
+  {t:'Onde você investe atenção, o resultado cresce.',a:'Reflexão do dia'},
   {t:'O que é justo caminha em integridade; felizes são seus filhos depois dele.',a:'Provérbios 20:7'},
-  {t:'Meta clara transforma esforço em direção.',a:'Reflexão do dia'},
-  {t:'O funil não mente: ele só mostra o que você evitou olhar.',a:'Reflexão do dia'},
+  {t:'Energia gasta em barulho é energia roubada da decisão.',a:'Reflexão do dia'},
+  {t:'Reclamar do mercado nunca mudou um mercado.',a:'Reflexão do dia'},
   {t:'Uma boa reputação vale mais que grandes riquezas.',a:'Provérbios 22:1'},
-  {t:'Prospectar no mês bom evita desespero no mês ruim.',a:'Reflexão do dia'},
-  {t:'Sua agenda revela suas prioridades reais.',a:'Reflexão do dia'},
+  {t:'Mude a abordagem antes de culpar o cenário.',a:'Reflexão do dia'},
+  {t:'O jogo é longo. Jogue como quem vai ficar.',a:'Reflexão do dia'},
   {t:'Não se gabe do dia de amanhã, pois você não sabe o que ele trará.',a:'Provérbios 27:1'},
-  {t:'Reserve tempo para pensar, não só para executar.',a:'Reflexão do dia'},
-  {t:'Excelência é o que você faz quando ninguém está cobrando.',a:'Reflexão do dia'},
+  {t:'Construa para dez anos, execute como se fosse hoje.',a:'Reflexão do dia'},
+  {t:'Um por cento melhor por dia vira outro homem no fim do ano.',a:'Reflexão do dia'},
   {t:'O trabalho diligente traz fartura; a pressa por enriquecer traz perdas.',a:'Provérbios 21:5'},
-  {t:'Um bom processo protege o cliente das suas falhas.',a:'Reflexão do dia'},
-  {t:'Não improvise no que você pode padronizar.',a:'Reflexão do dia'},
+  {t:'Grandes números são pequenos acertos empilhados.',a:'Reflexão do dia'},
+  {t:'Ninguém vê os anos de base. Só a explosão.',a:'Reflexão do dia'},
   {t:'A resposta branda desvia o furor.',a:'Provérbios 15:1'},
-  {t:'Todo atalho cobra pedágio depois.',a:'Reflexão do dia'},
-  {t:'Consistência ganha do talento quando o talento não aparece.',a:'Reflexão do dia'},
-  {t:'Tudo tem o seu tempo determinado.',a:'Eclesiastes 3:1'},
-  {t:'Faça hoje a ligação que você está adiando.',a:'Reflexão do dia'},
-  {t:'O cliente lembra quem apareceu na dificuldade.',a:'Reflexão do dia'},
-  {t:'Onde não há conselho, os planos falham; com muitos conselheiros, eles se realizam.',a:'Provérbios 15:22'},
-  {t:'Erro admitido rápido custa barato.',a:'Reflexão do dia'},
-  {t:'Não deixe o orgulho atrapalhar a correção.',a:'Reflexão do dia'},
-  {t:'Quem guarda a sua boca guarda a sua vida.',a:'Provérbios 13:3'},
-  {t:'Quem escuta bem negocia melhor.',a:'Reflexão do dia'},
-  {t:'A calma é vantagem competitiva.',a:'Reflexão do dia'},
-  {t:'Toda batalha é vencida antes de ser travada.',a:'Sun Tzu'},
-  {t:'Antes de mudar a estratégia, cheque a execução.',a:'Reflexão do dia'},
-  {t:'Faça as pazes com o processo lento: ele é parte do jogo.',a:'Reflexão do dia'},
-  {t:'Oportunidades se multiplicam à medida que são agarradas.',a:'Sun Tzu'},
-  {t:'Bom senso vale mais que script.',a:'Reflexão do dia'},
-  {t:'Quem trata bem o corretor parceiro ganha o próximo cliente dele.',a:'Reflexão do dia'},
-  {t:'Conheça o inimigo e a si mesmo, e não temerá cem batalhas.',a:'Sun Tzu'},
-  {t:'Parceria se cuida com transparência, não com promessa.',a:'Reflexão do dia'},
-  {t:'Quem indica você está apostando a reputação dele. Honre isso.',a:'Reflexão do dia'},
-  {t:'No meio do caos, há também oportunidade.',a:'Sun Tzu'},
-  {t:'Trate o corretor como cliente: ele também escolhe com quem trabalhar.',a:'Reflexão do dia'},
-  {t:'O que é combinado não é caro.',a:'Reflexão do dia'},
-  {t:'A suprema arte da guerra é vencer sem lutar.',a:'Sun Tzu'},
-  {t:'Comissão justa mantém parceria longa.',a:'Reflexão do dia'},
-  {t:'Divida a informação: parceiro no escuro vira parceiro perdido.',a:'Reflexão do dia'},
-  {t:'Planejamento sem ação é inútil; ação sem planejamento é fatal.',a:'Sun Tzu'},
-  {t:'Networking não é coletar contatos: é cultivar confiança.',a:'Reflexão do dia'},
-  {t:'Quem some depois do fechamento não volta a ser chamado.',a:'Reflexão do dia'},
-  {t:'Estratégia sem tática é o caminho mais lento para a vitória.',a:'Sun Tzu'},
-  {t:'Sua rede vale o quanto você cuidou dela.',a:'Reflexão do dia'},
-  {t:'O mercado é pequeno: sua conduta chega antes de você.',a:'Reflexão do dia'},
-  {t:'Quem se conhece e conhece o terreno vence sempre.',a:'Sun Tzu'},
-  {t:'Ajude sem esperar retorno; o retorno chega sozinho.',a:'Reflexão do dia'},
-  {t:'Ser confiável é mais raro que ser bom.',a:'Reflexão do dia'},
-  {t:'Falhar em se preparar é se preparar para falhar.',a:'Benjamin Franklin'},
-  {t:'Fama se constrói devagar e se perde rápido.',a:'Reflexão do dia'},
-  {t:'Cada entrega é um depósito na sua reputação.',a:'Reflexão do dia'},
-  {t:'Tempo é dinheiro.',a:'Benjamin Franklin'},
-  {t:'Não prometa o que depende de terceiros sem avisar que depende.',a:'Reflexão do dia'},
-  {t:'Transparência sobre o prazo evita ansiedade sobre o resultado.',a:'Reflexão do dia'},
-  {t:'Um investimento em conhecimento paga os melhores juros.',a:'Benjamin Franklin'},
-  {t:'Cliente entende demora; não entende silêncio.',a:'Reflexão do dia'},
-  {t:'Antecipe a má notícia: ela piora com o tempo.',a:'Reflexão do dia'},
-  {t:'Não deixe para amanhã o que pode fazer hoje.',a:'Benjamin Franklin'},
-  {t:'Dar notícia ruim rápido é sinal de respeito.',a:'Reflexão do dia'},
-  {t:'Quem explica o \'porquê\' reduz a cobrança do \'quando\'.',a:'Reflexão do dia'},
-  {t:'Bem feito é melhor que bem dito.',a:'Benjamin Franklin'},
-  {t:'Detalhe hoje, tranquilidade amanhã.',a:'Reflexão do dia'},
-  {t:'A confiança do cliente é emprestada: devolva com juros de cuidado.',a:'Reflexão do dia'},
-  {t:'Cuidado com as pequenas despesas: um pequeno vazamento afunda um grande navio.',a:'Benjamin Franklin'},
-  {t:'Trabalhe para não ser necessário no problema, mas lembrado na solução.',a:'Reflexão do dia'},
-  {t:'Um dia organizado vale por três improvisados.',a:'Reflexão do dia'},
-  {t:'Diga-me e eu esqueço; ensine-me e eu lembro; envolva-me e eu aprendo.',a:'Benjamin Franklin'},
-  {t:'Quem mede melhora; quem não mede, adivinha.',a:'Reflexão do dia'},
-  {t:'Não tenha medo do número ruim: tenha medo de não olhá-lo.',a:'Reflexão do dia'},
-  {t:'A honestidade é a melhor política.',a:'Benjamin Franklin'},
-  {t:'Dados mostram onde doer; coragem mostra o que mudar.',a:'Reflexão do dia'},
-  {t:'Olhe o funil semanalmente: mensal já é tarde.',a:'Reflexão do dia'},
-  {t:'Energia e persistência conquistam todas as coisas.',a:'Benjamin Franklin'},
-  {t:'Perder é dado, não destino.',a:'Reflexão do dia'},
-  {t:'Analise a perda sem se defender e você aprende dobrado.',a:'Reflexão do dia'},
-  {t:'Não importa quão devagar você vá, desde que não pare.',a:'Confúcio'},
-  {t:'Melhor um cliente bem atendido que três mal conduzidos.',a:'Reflexão do dia'},
-  {t:'Qualidade do lead vale mais que quantidade.',a:'Reflexão do dia'},
-  {t:'O homem que move montanhas começa carregando pequenas pedras.',a:'Confúcio'},
-  {t:'Sua carteira é jardim, não estoque.',a:'Reflexão do dia'},
-  {t:'Antes de buscar novos leads, cuide dos parados.',a:'Reflexão do dia'},
-  {t:'Escolha um trabalho que ame e não terá que trabalhar um dia sequer.',a:'Confúcio'},
-  {t:'O que está no funil há meses precisa de decisão, não de esperança.',a:'Reflexão do dia'},
-  {t:'Limpe o funil: clareza vale mais que volume.',a:'Reflexão do dia'},
-  {t:'A vida é realmente simples, mas insistimos em complicá-la.',a:'Confúcio'},
-  {t:'Se você não sabe o próximo passo do cliente, ele também não sabe.',a:'Reflexão do dia'},
-  {t:'Cada etapa deve terminar com uma data marcada.',a:'Reflexão do dia'},
-  {t:'Quando for evidente que as metas não serão alcançadas, ajuste as ações.',a:'Confúcio'},
-  {t:'Reunião sem próximo passo é conversa.',a:'Reflexão do dia'},
-  {t:'Tarefa sem dono não acontece.',a:'Reflexão do dia'},
-  {t:'Nossa maior glória não é nunca cair, mas levantar toda vez que caímos.',a:'Confúcio'},
-  {t:'Prazo sem lembrete é promessa esquecida.',a:'Reflexão do dia'},
-  {t:'Sistema bom é o que você usa, não o que você admira.',a:'Reflexão do dia'},
-  {t:'Antes de sair para se vingar, cave duas covas.',a:'Confúcio'},
-  {t:'Registre agora: depois vira nunca.',a:'Reflexão do dia'},
-  {t:'Processo existe para proteger seu dia ruim.',a:'Reflexão do dia'},
-  {t:'Estudar sem pensar é inútil; pensar sem estudar é perigoso.',a:'Confúcio'},
-  {t:'Padronize o repetitivo, personalize o humano.',a:'Reflexão do dia'},
-  {t:'Automatize a tarefa, nunca o cuidado.',a:'Reflexão do dia'},
-  {t:'O homem superior é modesto no falar e excede no agir.',a:'Confúcio'},
-  {t:'Tecnologia acelera o bom atendimento e escancara o ruim.',a:'Reflexão do dia'},
-  {t:'A ferramenta não salva quem não decide.',a:'Reflexão do dia'},
-  {t:'Somos o que repetidamente fazemos. A excelência não é um ato, mas um hábito.',a:'Aristóteles'},
-  {t:'Comece pequeno, mas comece hoje.',a:'Reflexão do dia'},
-  {t:'Melhor feito que perfeito parado.',a:'Reflexão do dia'},
-  {t:'A paciência é amarga, mas seu fruto é doce.',a:'Aristóteles'},
-  {t:'O plano perfeito na gaveta perde do plano razoável em execução.',a:'Reflexão do dia'},
-  {t:'Revise o que funcionou: repetir acerto é estratégia.',a:'Reflexão do dia'},
-  {t:'Conhecer a si mesmo é o começo de toda sabedoria.',a:'Aristóteles'},
-  {t:'Sucesso deixa pistas; fracasso também.',a:'Reflexão do dia'},
-  {t:'Não mude tudo de uma vez: você não saberá o que funcionou.',a:'Reflexão do dia'},
-  {t:'A qualidade não é um ato, é um hábito.',a:'Aristóteles'},
-  {t:'Um passo por dia constrói um ano.',a:'Reflexão do dia'},
-  {t:'Não se compare ao topo dos outros estando na base do seu processo.',a:'Reflexão do dia'},
-  {t:'O todo é maior que a soma das partes.',a:'Aristóteles'},
-  {t:'Sua única concorrência real é o seu mês anterior.',a:'Reflexão do dia'},
-  {t:'Melhore 1% e deixe o tempo multiplicar.',a:'Reflexão do dia'},
-  {t:'Educar a mente sem educar o coração não é educação alguma.',a:'Aristóteles'},
-  {t:'Grandes resultados são pequenos acertos acumulados.',a:'Reflexão do dia'},
+  {t:'Aguente o tédio da rotina: é ele que paga o extraordinário.',a:'Reflexão do dia'},
   {t:'Dias ruins fazem parte do gráfico que sobe.',a:'Reflexão do dia'},
-  {t:'A simplicidade é o último grau de sofisticação.',a:'Leonardo da Vinci'},
-  {t:'Persistência é talento disfarçado.',a:'Reflexão do dia'},
-  {t:'Quem aguenta o tédio da rotina colhe o extraordinário.',a:'Reflexão do dia'},
-  {t:'Saber não é suficiente; devemos aplicar. Querer não é suficiente; devemos fazer.',a:'Leonardo da Vinci'},
-  {t:'Nada muda até você mudar a agenda.',a:'Reflexão do dia'},
-  {t:'Comece pelo que está sob seu controle.',a:'Reflexão do dia'},
-  {t:'Obstáculos não me dobram; toda obstinação é destruída pela firmeza.',a:'Leonardo da Vinci'},
-  {t:'O resto é ruído.',a:'Reflexão do dia'},
-  {t:'Trabalhe com quem você teria orgulho de apresentar à sua família.',a:'Reflexão do dia'},
-  {t:'O tempo permanece o suficiente para quem o usa.',a:'Leonardo da Vinci'},
-  {t:'Reputação é a única garantia que nenhum banco financia.',a:'Reflexão do dia'},
+  {t:'Tudo tem o seu tempo determinado.',a:'Eclesiastes 3:1'},
+  {t:'Perder faz parte. Desistir é escolha.',a:'Reflexão do dia'},
+  {t:'Levante. O mercado não espera sua recuperação.',a:'Reflexão do dia'},
+  {t:'Onde não há conselho, os planos falham; com muitos conselheiros, eles se realizam.',a:'Provérbios 15:22'},
+  {t:'Você não controla a aprovação. Controla o preparo.',a:'Reflexão do dia'},
+  {t:'Faça sua parte tão bem que a culpa nunca seja sua.',a:'Reflexão do dia'},
+  {t:'Quem guarda a sua boca guarda a sua vida.',a:'Provérbios 13:3'},
+  {t:'Ninguém segura quem trabalha calado e entrega alto.',a:'Reflexão do dia'},
+  {t:'Não anuncie o plano. Mostre o resultado.',a:'Reflexão do dia'},
+  {t:'Toda batalha é vencida antes de ser travada.',a:'Sun Tzu'},
+  {t:'Fale menos do que faz.',a:'Reflexão do dia'},
+  {t:'Deixe seu histórico argumentar por você.',a:'Reflexão do dia'},
+  {t:'Oportunidades se multiplicam à medida que são agarradas.',a:'Sun Tzu'},
+  {t:'Prometa pouco. Entregue muito. Repita por anos.',a:'Reflexão do dia'},
+  {t:'Excelência é o que você faz quando ninguém cobra.',a:'Reflexão do dia'},
+  {t:'Conheça o inimigo e a si mesmo, e não temerá cem batalhas.',a:'Sun Tzu'},
+  {t:'O detalhe que você ignora hoje te procura amanhã.',a:'Reflexão do dia'},
+  {t:'Cuide do pequeno: o grande é feito dele.',a:'Reflexão do dia'},
+  {t:'No meio do caos, há também oportunidade.',a:'Sun Tzu'},
+  {t:'Nada substitui a ligação que você não fez.',a:'Reflexão do dia'},
+  {t:'Feche o dia sabendo a primeira tarefa de amanhã.',a:'Reflexão do dia'},
+  {t:'A suprema arte da guerra é vencer sem lutar.',a:'Sun Tzu'},
+  {t:'Sua agenda revela sua verdadeira prioridade.',a:'Reflexão do dia'},
+  {t:'O que você adia hoje vira urgência cara amanhã.',a:'Reflexão do dia'},
+  {t:'Planejamento sem ação é inútil; ação sem planejamento é fatal.',a:'Sun Tzu'},
+  {t:'Comece pelo mais difícil. O resto vira descanso.',a:'Reflexão do dia'},
+  {t:'Trabalhe para não precisar prometer.',a:'Reflexão do dia'},
+  {t:'Estratégia sem tática é o caminho mais lento para a vitória.',a:'Sun Tzu'},
+  {t:'Reputação não se compra. Se acumula.',a:'Reflexão do dia'},
+  {t:'Seu nome está em cada processo. Aja como tal.',a:'Reflexão do dia'},
+  {t:'Quem se conhece e conhece o terreno vence sempre.',a:'Sun Tzu'},
+  {t:'A casa que você financia é o sonho de trinta anos de alguém.',a:'Reflexão do dia'},
+  {t:'Nunca deixe a rotina te fazer esquecer o peso do que você faz.',a:'Reflexão do dia'},
+  {t:'Falhar em se preparar é se preparar para falhar.',a:'Benjamin Franklin'},
+  {t:'Do outro lado tem alguém ansioso. Lembre-se disso.',a:'Reflexão do dia'},
+  {t:'Vender é ajudar alguém a decidir com segurança.',a:'Reflexão do dia'},
+  {t:'Tempo é dinheiro.',a:'Benjamin Franklin'},
+  {t:'Você não empurra: você encaixa.',a:'Reflexão do dia'},
+  {t:'O bom resolve. O excelente antecipa.',a:'Reflexão do dia'},
+  {t:'Um investimento em conhecimento paga os melhores juros.',a:'Benjamin Franklin'},
+  {t:'Confiança se constrói em minutos de atenção.',a:'Reflexão do dia'},
+  {t:'Ninguém lembra do desconto. Todos lembram do descaso.',a:'Reflexão do dia'},
+  {t:'Não deixe para amanhã o que pode fazer hoje.',a:'Benjamin Franklin'},
+  {t:'Trabalho bem feito é o marketing mais barato do mundo.',a:'Reflexão do dia'},
+  {t:'Cliente satisfeito é vendedor que não cobra comissão.',a:'Reflexão do dia'},
+  {t:'Bem feito é melhor que bem dito.',a:'Benjamin Franklin'},
+  {t:'Sua melhor propaganda é um processo que correu liso.',a:'Reflexão do dia'},
+  {t:'Empatia não atrasa a venda: garante a próxima.',a:'Reflexão do dia'},
+  {t:'Cuidado com as pequenas despesas: um pequeno vazamento afunda um grande navio.',a:'Benjamin Franklin'},
+  {t:'Cuide do cliente depois da assinatura e ganhe o próximo.',a:'Reflexão do dia'},
+  {t:'Some depois do fechamento e nunca mais é chamado.',a:'Reflexão do dia'},
+  {t:'Diga-me e eu esqueço; ensine-me e eu lembro; envolva-me e eu aprendo.',a:'Benjamin Franklin'},
+  {t:'Ajude sem cobrar. O retorno vem sozinho e maior.',a:'Reflexão do dia'},
+  {t:'Ser confiável é mais raro que ser bom.',a:'Reflexão do dia'},
+  {t:'A honestidade é a melhor política.',a:'Benjamin Franklin'},
+  {t:'Fama se constrói devagar e se perde num dia.',a:'Reflexão do dia'},
+  {t:'Cada entrega é um depósito. Cada descuido, um saque.',a:'Reflexão do dia'},
+  {t:'Energia e persistência conquistam todas as coisas.',a:'Benjamin Franklin'},
+  {t:'Transparência sobre o prazo evita guerra sobre o resultado.',a:'Reflexão do dia'},
+  {t:'Não prometa o que depende de terceiro sem avisar.',a:'Reflexão do dia'},
+  {t:'Não importa quão devagar você vá, desde que não pare.',a:'Confúcio'},
+  {t:'Assuma o erro rápido: sai barato.',a:'Reflexão do dia'},
+  {t:'Orgulho atrapalha correção. Correção salva contrato.',a:'Reflexão do dia'},
+  {t:'O homem que move montanhas começa carregando pequenas pedras.',a:'Confúcio'},
+  {t:'Calma é vantagem competitiva.',a:'Reflexão do dia'},
+  {t:'A primeira reação raramente é a melhor. Respire.',a:'Reflexão do dia'},
+  {t:'Escolha um trabalho que ame e não terá que trabalhar um dia sequer.',a:'Confúcio'},
+  {t:'Antes de mudar a estratégia, verifique a execução.',a:'Reflexão do dia'},
+  {t:'Bom senso vale mais que script.',a:'Reflexão do dia'},
+  {t:'A vida é realmente simples, mas insistimos em complicá-la.',a:'Confúcio'},
+  {t:'Regra existe para o dia comum. Julgamento, para o difícil.',a:'Reflexão do dia'},
+  {t:'Quem entende o problema não precisa vender: resolve.',a:'Reflexão do dia'},
+  {t:'Quando for evidente que as metas não serão alcançadas, ajuste as ações.',a:'Confúcio'},
+  {t:'Pare de buscar leads novos e olhe os parados.',a:'Reflexão do dia'},
+  {t:'O que está no funil há meses precisa de decisão, não de esperança.',a:'Reflexão do dia'},
+  {t:'Nossa maior glória não é nunca cair, mas levantar toda vez que caímos.',a:'Confúcio'},
+  {t:'Cada etapa tem que terminar com data marcada.',a:'Reflexão do dia'},
+  {t:'Reunião sem próximo passo foi conversa jogada fora.',a:'Reflexão do dia'},
+  {t:'Antes de sair para se vingar, cave duas covas.',a:'Confúcio'},
+  {t:'Tarefa sem dono não acontece.',a:'Reflexão do dia'},
+  {t:'Se você não sabe o próximo passo do cliente, ele também não sabe.',a:'Reflexão do dia'},
+  {t:'Estudar sem pensar é inútil; pensar sem estudar é perigoso.',a:'Confúcio'},
+  {t:'Prazo sem lembrete é promessa esquecida.',a:'Reflexão do dia'},
+  {t:'Cobre de si o que ninguém cobra.',a:'Reflexão do dia'},
+  {t:'O homem superior é modesto no falar e excede no agir.',a:'Confúcio'},
+  {t:'Exija de você o padrão que admira nos outros.',a:'Reflexão do dia'},
+  {t:'Não espere reconhecimento: colecione resultado.',a:'Reflexão do dia'},
+  {t:'Somos o que repetidamente fazemos. A excelência não é um ato, mas um hábito.',a:'Aristóteles'},
+  {t:'O crédito vem depois. O trabalho vem agora.',a:'Reflexão do dia'},
+  {t:'Ninguém constrói império reclamando de terça-feira.',a:'Reflexão do dia'},
+  {t:'A paciência é amarga, mas seu fruto é doce.',a:'Aristóteles'},
+  {t:'Acorde antes. Trabalhe mais. Fale menos.',a:'Reflexão do dia'},
+  {t:'O mercado premia quem aparece todo dia.',a:'Reflexão do dia'},
+  {t:'Conhecer a si mesmo é o começo de toda sabedoria.',a:'Aristóteles'},
+  {t:'Presença constante vence talento esporádico.',a:'Reflexão do dia'},
+  {t:'Você não precisa ser o melhor. Precisa ser o que não falha.',a:'Reflexão do dia'},
+  {t:'A qualidade não é um ato, é um hábito.',a:'Aristóteles'},
+  {t:'Confiabilidade é a habilidade mais subestimada do mercado.',a:'Reflexão do dia'},
+  {t:'Seja o profissional que você contrataria.',a:'Reflexão do dia'},
+  {t:'O todo é maior que a soma das partes.',a:'Aristóteles'},
   {t:'Faça o certo mesmo quando ninguém vai saber.',a:'Reflexão do dia'},
+  {t:'Caráter aparece no processo chato.',a:'Reflexão do dia'},
+  {t:'Educar a mente sem educar o coração não é educação alguma.',a:'Aristóteles'},
+  {t:'Não existe negócio grande com atalho pequeno.',a:'Reflexão do dia'},
+  {t:'O curto prazo tenta. O longo prazo cobra.',a:'Reflexão do dia'},
+  {t:'A simplicidade é o último grau de sofisticação.',a:'Leonardo da Vinci'},
+  {t:'Construa devagar o que quer manter por muito tempo.',a:'Reflexão do dia'},
+  {t:'Tenha paciência estratégica e urgência operacional.',a:'Reflexão do dia'},
+  {t:'Saber não é suficiente; devemos aplicar. Querer não é suficiente; devemos fazer.',a:'Leonardo da Vinci'},
+  {t:'Pense em anos. Aja hoje.',a:'Reflexão do dia'},
+  {t:'Sua única concorrência real é o seu mês passado.',a:'Reflexão do dia'},
+  {t:'Obstáculos não me dobram; toda obstinação é destruída pela firmeza.',a:'Leonardo da Vinci'},
+  {t:'Bata seu recorde antes de olhar o do vizinho.',a:'Reflexão do dia'},
+  {t:'Compare-se com quem você era, não com quem posta.',a:'Reflexão do dia'},
+  {t:'O tempo permanece o suficiente para quem o usa.',a:'Leonardo da Vinci'},
+  {t:'O jogo é seu. Jogue.',a:'Reflexão do dia'},
+  {t:'Não espere permissão para crescer.',a:'Reflexão do dia'},
   {t:'Conhece-te a ti mesmo.',a:'Sócrates'},
-  {t:'Ética não é estratégia: é fundação.',a:'Reflexão do dia'},
-  {t:'Dinheiro rápido custa caro no longo prazo.',a:'Reflexão do dia'},
+  {t:'Ninguém vai querer seu sucesso mais que você.',a:'Reflexão do dia'},
+  {t:'Assuma o controle: o resto é desculpa organizada.',a:'Reflexão do dia'},
   {t:'A única sabedoria verdadeira está em saber que nada sabe.',a:'Sócrates'},
-  {t:'Ganhe o cliente pelo processo, não pela promessa.',a:'Reflexão do dia'},
-  {t:'Quem trapaceia o pequeno negócio perde o grande.',a:'Reflexão do dia'},
+  {t:'Trabalhe enquanto eles dormem. Feche enquanto eles reclamam.',a:'Reflexão do dia'},
+  {t:'Sua rotina de hoje é o seu resultado de dezembro.',a:'Reflexão do dia'},
   {t:'Uma vida sem exame não vale a pena ser vivida.',a:'Sócrates'},
-  {t:'O curto prazo tenta; o longo prazo cobra.',a:'Reflexão do dia'},
-  {t:'Prefira perder a venda a perder a confiança.',a:'Reflexão do dia'},
+  {t:'Grandes resultados exigem meses invisíveis.',a:'Reflexão do dia'},
+  {t:'Se fosse fácil, não pagaria bem.',a:'Reflexão do dia'},
   {t:'A jornada de mil milhas começa com um único passo.',a:'Lao Tsé'},
-  {t:'Quem cuida do processo não precisa cobrar reconhecimento.',a:'Reflexão do dia'},
-  {t:'A casa que você financia hoje é a história que alguém vai contar por 30 anos.',a:'Reflexão do dia'},
+  {t:'A dificuldade é a barreira que protege sua comissão.',a:'Reflexão do dia'},
+  {t:'Agradeça o processo difícil: ele afasta os fracos.',a:'Reflexão do dia'},
   {t:'Quem conhece os outros é sábio; quem conhece a si mesmo é iluminado.',a:'Lao Tsé'},
-  {t:'Trabalho honesto não precisa de defesa.',a:'Reflexão do dia'},
-  {t:'O melhor dia para organizar a semana foi ontem; o segundo melhor é hoje.',a:'Reflexão do dia'},
+  {t:'Você aguenta mais do que pensa. Ligue de novo.',a:'Reflexão do dia'},
+  {t:'Mais um telefonema. Sempre mais um.',a:'Reflexão do dia'},
   {t:'Dominar os outros é força; dominar a si mesmo é verdadeiro poder.',a:'Lao Tsé'},
-  {t:'Cliente não quer o melhor discurso: quer o melhor encaminhamento.',a:'Reflexão do dia'},
+  {t:'O próximo cliente não sabe que está te esperando. Vá lá.',a:'Reflexão do dia'},
   {t:'A natureza não tem pressa, e mesmo assim tudo se realiza.',a:'Lao Tsé'},
   {t:'Aquele que tem um porquê enfrenta quase qualquer como.',a:'Friedrich Nietzsche'},
   {t:'O que não me mata me fortalece.',a:'Friedrich Nietzsche'},
@@ -1944,7 +1986,8 @@ function renderPipeline(){
   COLS.forEach(col=>{
     const cc=clients.filter(c=>c.status===col.k);
     const d=document.createElement('div');d.className='pc';d.dataset.col=col.k;
-    d.innerHTML=`<div class="pch"><span class="pct">${col.l}</span><span class="pb${col.nw?' nw':''}">${cc.length}</span></div>`;
+    d.innerHTML=`<div class="pch"><span class="pct">${col.l}</span><span class="pb${col.nw?' nw':''}">${cc.length}</span></div><div class="pc-body"></div>`;
+    const body=d.querySelector('.pc-body');
     cc.forEach(c=>{
       const el=document.createElement('div');
       el.className='pk'+(c.origem==='formulario_publico'?' nc':'');
@@ -1954,19 +1997,19 @@ function renderPipeline(){
       el.onclick=()=>openClientDetail(c.id);
       el.ondragstart=e=>{e.dataTransfer.setData('cid',c.id);el.classList.add('dragging');};
       el.ondragend=()=>el.classList.remove('dragging');
-      d.appendChild(el);
+      body.appendChild(el);
     });
-    if(!cc.length){const h=document.createElement('div');h.className='pdh';h.textContent='Arraste aqui';d.appendChild(h);}
+    if(!cc.length){const h=document.createElement('div');h.className='pdh';h.textContent='Arraste aqui';body.appendChild(h);}
     d.ondragover=e=>{e.preventDefault();d.classList.add('do');};
     d.ondragleave=()=>d.classList.remove('do');
-    d.ondrop=e=>{e.preventDefault();d.classList.remove('do');const cid=e.dataTransfer.getData('cid');const cl=clients.find(x=>x.id===cid);if(cl){const oldStatus=cl.status;registrarSaidaEtapa(cl,oldStatus,col.k);cl.status=col.k;if(col.k==='pagamento'){cl.dataPagamento=new Date().toISOString();registrarComissao(cl);}cl.dataMovimentacao=new Date().toISOString();saveClients();renderAll();if(oldStatus!==col.k&&typeof onStatusChange==='function')onStatusChange(cid,col.k);}};
+    d.ondrop=e=>{e.preventDefault();d.classList.remove('do');const cid=e.dataTransfer.getData('cid');const cl=clients.find(x=>x.id===cid);if(cl){const oldStatus=cl.status;registrarSaidaEtapa(cl,oldStatus,col.k);cl.status=col.k;if(col.k==='contrato'){cl.dataComissao=cl.dataComissao||new Date().toISOString();registrarComissao(cl);}if(col.k==='pagamento'){cl.dataPagamento=new Date().toISOString();}cl.dataMovimentacao=new Date().toISOString();saveClients();renderAll();if(oldStatus!==col.k&&typeof onStatusChange==='function')onStatusChange(cid,col.k);}};
     g.appendChild(d);
   });
 }
 
 // ===== CLIENTS TABLE =====
 const SL={novo:'sn',contato:'sc2',simulacao:'ss2',analise:'sa',aprovado:'sap',checklist:'sap',engenharia:'sap',juridico:'sap',interveniente:'sap',fgts:'sap',contrato:'sap',cartorio:'sap',pagamento:'sap',finalizados:'sap',perdidos:'sn'};
-const SN={novo:'Novo Contato',contato:'Em Contato',simulacao:'Simulação',analise:'Análise',aprovado:'Aprovado'};
+const SN={novo:'Novo Contato',contato:'Em Contato',simulacao:'Simulação',analise:'Análise',aprovado:'Aprovado',checklist:'Checklist Inicial',engenharia:'Engenharia',juridico:'Análise Jurídica',interveniente:'Interveniente Quitante',fgts:'FGTS',contrato:'Emissão de Contrato',cartorio:'Cartório',pagamento:'Pagamento Vendedor',finalizados:'Finalizados',perdidos:'Perdidos'};
 function renderTbl(){
   const tb=document.getElementById('ctbody');if(!tb)return;
   // Preserva seleções atuais
@@ -1978,7 +2021,7 @@ function renderTbl(){
   tb.innerHTML=fl.map(cl=>{
     const bk=(cl.bancos||[]).map(bid=>{const b=banks.find(x=>x.id===bid);return b?`<span class="tag tgc" style="margin-right:2px">${b.nome}</span>`:''}).join('');
     const isChecked = checkedIds.has(cl.id) ? ' checked' : '';
-    return `<tr><td onclick="event.stopPropagation()"><input type="checkbox" class="sel-cli" data-id="${cl.id}" onchange="updDelBtn()"${isChecked}></td><td onclick="openClientDetail('${cl.id}')" style="cursor:pointer"><div class="fg2"><div class="av">${ini(cl.nome)}</div><div>${cl.nome}${cl.origem==='formulario_publico'?'<div style="font-size:9px;color:var(--gd)">✦ Formulário</div>':''}</div></div></td><td style="font-size:11px">${cl.telefone||'—'}</td><td>${cl.valorImovel?fmtV(cl.valorImovel):'—'}</td><td style="color:var(--gd)">${cl.valorFinanciamento?fmtV(cl.valorFinanciamento):'—'}</td><td>${bk||'<span style="color:var(--mu)">—</span>'}</td><td><span class="sb2 ${SL[cl.status]||''}">${SN[cl.status]||cl.status}</span></td><td onclick="event.stopPropagation()"><button class="btn brd bsm" onclick="delOne('${cl.id}')">✕</button></td></tr>`;
+    return `<tr><td onclick="event.stopPropagation()"><input type="checkbox" class="sel-cli" data-id="${cl.id}" onchange="updDelBtn()"${isChecked}></td><td onclick="openClientDetail('${cl.id}')" style="cursor:pointer"><div class="fg2"><div class="av">${ini(cl.nome)}</div><div>${cl.nome}${cl.origem==='formulario_publico'?'<div style="font-size:9px;color:var(--gd)">✦ Formulário</div>':''}</div></div></td><td style="font-size:11px">${cl.telefone||'—'}</td><td style="font-size:11px">${cl.refCorretor?`<span style="color:var(--gd)">${(corretores.find(co=>co.slug===cl.refCorretor)||{}).nome||cl.refCorretor}</span>`:'<span style="color:var(--mu)">Direto</span>'}</td><td>${cl.valorImovel?fmtV(cl.valorImovel):'—'}</td><td style="color:var(--gd)">${cl.valorFinanciamento?fmtV(cl.valorFinanciamento):'—'}</td><td>${bk||'<span style="color:var(--mu)">—</span>'}</td><td><span class="sb2 ${SL[cl.status]||''}">${SN[cl.status]||cl.status}</span></td><td onclick="event.stopPropagation()"><button class="btn brd bsm" onclick="delOne('${cl.id}')">✕</button></td></tr>`;
   }).join('');
 }
 
@@ -2025,7 +2068,7 @@ function toggleCDBk(bid,el){
   else{c.bancos.push(bid);el.classList.add('sel');}
   saveClients();renderAll();
 }
-function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(f==='status'&&c.status!==v)registrarSaidaEtapa(c,c.status,v);c[f]=v;if(f==='status'&&v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();registrarComissao(c);}saveClients();renderAll();}
+function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(f==='status'&&c.status!==v)registrarSaidaEtapa(c,c.status,v);c[f]=v;if(f==='status'&&v==='contrato'){c.dataComissao=c.dataComissao||new Date().toISOString();registrarComissao(c);}if(f==='status'&&v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();}saveClients();renderAll();}
 async function delClient(){
   if(!confirm('Excluir este cliente?'))return;
   const id=editClientId;
@@ -2100,7 +2143,7 @@ function renderBankDash(){
   if(mesSel!=='all')lista=lista.filter(x=>x.mes===parseInt(mesSel));
   if(anoSel!=='all')lista=lista.filter(x=>x.ano===parseInt(anoSel));
   if(!lista.length){
-    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:18px">Nenhum financiamento registrado'+(mesSel!=='all'?' neste período':'')+'.<br><span style="font-size:10px">Contabiliza quando o cliente entra em Pagamento Vendedor.</span></div>';
+    el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:18px">Nenhum financiamento registrado'+(mesSel!=='all'?' neste período':'')+'.<br><span style="font-size:10px">Contabiliza quando o cliente entra em Emissão de Contrato.</span></div>';
     return;
   }
   const counts={}, valores={};
@@ -2538,14 +2581,18 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function toggleSB(){document.getElementById('sbo').classList.toggle('open');document.getElementById('sidebar').classList.toggle('open');}
 function closeSB(){document.getElementById('sbo').classList.remove('open');document.getElementById('sidebar').classList.remove('open');}
-function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(p==='resumo'){initResumoSelects();renderResumo();}if(p==='marketing'){loadArquivados().then(renderMarketing);}if(window.innerWidth<=768)closeSB();}
+function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(p==='resumo'){initResumoSelects();loadArquivados().then(renderResumo);}if(p==='marketing'){loadArquivados().then(renderMarketing);}if(p==='corretores'){loadArquivados().then(renderCorretores);}if(window.innerWidth<=768)closeSB();}
 
 
 // ===== FINANCEIRO =====
-let finData={receitas:[],descontos:[],despesas:[]};
+let finData={receitas:[],descontos:[],despesas:[],extras:[]};
 
 async function loadFin(){
   try{const r=localStorage.getItem('nexa_fin');if(r)finData=JSON.parse(r);}catch(e){}
+  // Compatibilidade: dados antigos não tinham 'extras'
+  if(!finData.extras)finData.extras=[];
+  if(!finData.despesas)finData.despesas=[];
+  if(!finData.descontos)finData.descontos=[];
   renderFin();
 }
 async function saveFin(){try{localStorage.setItem('nexa_fin',JSON.stringify(finData));}catch(e){}}
@@ -2556,7 +2603,7 @@ function getFinAno(){return parseInt(document.getElementById('fin-ano')?.value||
 
 
 // ============================================
-// COMISSÕES — snapshot ao entrar em Pagamento Vendedor
+// COMISSÕES — snapshot ao entrar em Emissão de Contrato
 // Registra uma cópia. Não some se o cliente avançar de etapa ou for arquivado.
 // ============================================
 let comissoes=[];
@@ -2586,6 +2633,22 @@ function saveComissoesLocal(){
 }
 
 // Registra a comissão do cliente (idempotente: se já existe, não duplica)
+
+// Previsão de recebimento: último dia útil do mês seguinte ao da emissão do contrato.
+// Considera sábado/domingo. Feriado nacional que caia no último dia útil não é tratado (raro).
+function ultimoDiaUtilMesSeguinte(dataEmissao){
+  const d=new Date(dataEmissao);
+  if(isNaN(d))return null;
+  let u=new Date(d.getFullYear(), d.getMonth()+2, 0);
+  while(u.getDay()===0||u.getDay()===6)u.setDate(u.getDate()-1);
+  return u;
+}
+function dataISO(d){
+  if(!d)return '';
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+
 async function registrarComissao(cl){
   if(!cl)return;
   if(comissoes.some(x=>x.id===cl.id))return; // já registrada
@@ -2599,7 +2662,7 @@ async function registrarComissao(cl){
     comissao_pct:pct,
     comissao_valor:(Number(cl.valorFinanciamento)||0)*pct/100,
     data_registro:agora.toISOString(),
-    data_recebimento:null,
+    data_recebimento:dataISO(ultimoDiaUtilMesSeguinte(agora)),
     mes:agora.getMonth(), ano:agora.getFullYear()
   };
   comissoes.unshift(row);
@@ -2619,19 +2682,27 @@ async function excluirComissao(id){
 
 // Remove comissões cujo cliente não existe mais (limpeza de testes antigos)
 async function limparComissoesOrfas(){
+  if(typeof loadArquivados==='function')await loadArquivados();
   const idsVivos=new Set(clients.map(c=>c.id));
+  (arquivados||[]).forEach(a=>idsVivos.add(a.id));
   const orfas=comissoes.filter(x=>!idsVivos.has(x.cliente_id||x.id));
-  if(!orfas.length){alert('Nenhuma comissão órfã encontrada. Tudo certo!');return;}
-  if(!confirm('Encontrei '+orfas.length+' comissão(ões) de clientes que não existem mais (provavelmente de testes).\n\nRemover do Financeiro e do Resumo?\n\nNenhum cliente ativo será afetado.'))return;
+  const histOrf=historicoEtapas.filter(h=>!idsVivos.has(h.cliente_id));
+  if(!orfas.length&&!histOrf.length){alert('Nenhum resíduo órfão encontrado. Tudo certo!');return;}
+  if(!confirm('Encontrei resíduos de clientes que não existem mais (provavelmente de testes):\n\n• '+orfas.length+' comissão(ões)\n• '+histOrf.length+' registro(s) de etapa (os "travados" do resumo)\n\nRemover tudo?\n\nNenhum cliente ativo será afetado.'))return;
   const ids=orfas.map(x=>x.id);
   comissoes=comissoes.filter(x=>!ids.includes(x.id));
   saveComissoesLocal();
   if(supa){for(const id of ids){try{await supa.from('comissoes').delete().eq('id',id);}catch(e){console.warn(e);}}}
-  // histórico órfão também
+  // histórico órfão também (local + nuvem)
+  const histOrfao=historicoEtapas.filter(h=>!idsVivos.has(h.cliente_id));
   historicoEtapas=historicoEtapas.filter(h=>idsVivos.has(h.cliente_id));
   saveHistLocal();
+  if(supa){
+    const idsHist=[...new Set(histOrfao.map(h=>h.cliente_id))];
+    for(const cid of idsHist){try{await supa.from('historico_etapas').delete().eq('cliente_id',cid);}catch(e){console.warn(e);}}
+  }
   renderFin();if(typeof renderResumo==='function')renderResumo();if(typeof renderBankDash==='function')renderBankDash();
-  alert('✅ '+ids.length+' comissão(ões) órfã(s) removida(s).');
+  alert('✅ Resíduos removidos: '+ids.length+' comissão(ões) e '+histOrfao.length+' registro(s) de etapa.');
 }
 
 async function limparComissoes(){
@@ -2661,18 +2732,44 @@ async function initComissoes(){
   const remoto=await supaLoadComissoes();
   if(remoto!==null){comissoes=remoto;saveComissoesLocal();}
   // Quem já está em Pagamento Vendedor mas ainda não tem comissão registrada
-  const emPagamento=clients.filter(c=>c.status==='pagamento');
-  for(const cl of emPagamento){
+  // Da Emissão de Contrato em diante já tem comissão registrada
+  const APOS_CONTRATO=['contrato','cartorio','pagamento','finalizados'];
+  const elegiveis=clients.filter(c=>APOS_CONTRATO.includes(c.status));
+  for(const cl of elegiveis){
     if(!comissoes.some(x=>x.id===cl.id))await registrarComissao(cl);
   }
-  // Limpa comissões órfãs (cliente foi excluído): não deve contar em lugar nenhum
-  const idsVivos=new Set(clients.map(c=>c.id));
-  const orfas=comissoes.filter(x=>!idsVivos.has(x.cliente_id||x.id) && _idsExcluidos.has(x.cliente_id||x.id));
-  if(orfas.length){
-    const ids=orfas.map(x=>x.id);
-    comissoes=comissoes.filter(x=>!ids.includes(x.id));
-    saveComissoesLocal();
-    for(const id of ids){try{await supa.from('comissoes').delete().eq('id',id);}catch(e){}}
+  // Preenche a previsão de recebimento nas comissões antigas que estavam sem data
+  for(const cm of comissoes){
+    const calc=cm.data_registro?dataISO(ultimoDiaUtilMesSeguinte(cm.data_registro)):null;
+    if(calc&&cm.data_recebimento!==calc){
+      cm.data_recebimento=calc;
+      await supaSaveComissao(cm);
+    }
+  }
+  saveComissoesLocal();
+  // Limpa resíduos de clientes excluídos (comissão + histórico), para não contar em lugar nenhum.
+  // Só roda se os clientes carregaram E o Supabase respondeu (evita apagar por falha de rede).
+  if(clients.length && SUPA_ONLINE){
+    // Arquivados são válidos: comissão/histórico deles FICAM (snapshot prometido)
+    if(typeof loadArquivados==='function')await loadArquivados();
+    const idsVivos=new Set(clients.map(c=>c.id));
+    (arquivados||[]).forEach(a=>idsVivos.add(a.id));
+    const orfas=comissoes.filter(x=>!idsVivos.has(x.cliente_id||x.id));
+    if(orfas.length){
+      const ids=orfas.map(x=>x.id);
+      comissoes=comissoes.filter(x=>!ids.includes(x.id));
+      saveComissoesLocal();
+      if(supa)for(const id of ids){try{await supa.from('comissoes').delete().eq('id',id);}catch(e){}}
+      console.log('Comissões órfãs removidas:',ids.length);
+    }
+    const hOrf=historicoEtapas.filter(h=>!idsVivos.has(h.cliente_id));
+    if(hOrf.length){
+      historicoEtapas=historicoEtapas.filter(h=>idsVivos.has(h.cliente_id));
+      saveHistLocal();
+      if(supa){const cids=[...new Set(hOrf.map(h=>h.cliente_id))];
+        for(const cid of cids){try{await supa.from('historico_etapas').delete().eq('cliente_id',cid);}catch(e){}}}
+      console.log('Histórico órfão removido:',hOrf.length);
+    }
   }
   if(typeof renderFin==='function')renderFin();
 }
@@ -2728,7 +2825,11 @@ function statsEtapas(){
   const porEtapa={};
   // Finalizados/Perdidos são destinos finais, não gargalos: não entram na análise
   const IGNORAR=['finalizados','perdidos'];
-  historicoEtapas.filter(h=>!IGNORAR.includes(h.etapa)).forEach(h=>{
+  // Conta clientes do pipeline E arquivados (fecharam de verdade). Só EXCLUÍDO fica de fora.
+  const vivos=new Set(clients.map(c=>c.id));
+  (arquivados||[]).forEach(a=>vivos.add(a.id));
+  const etapasReais=new Set(COLS.map(x=>x.k));
+  historicoEtapas.filter(h=>!IGNORAR.includes(h.etapa)&&vivos.has(h.cliente_id)&&etapasReais.has(h.etapa)).forEach(h=>{
     if(!porEtapa[h.etapa])porEtapa[h.etapa]={total:0,n:0,max:0,maxCliente:''};
     const e=porEtapa[h.etapa];
     e.total+=Number(h.dias_na_etapa)||0; e.n++;
@@ -2756,13 +2857,17 @@ function paradosAgora(){
 function calcMetricas(mes,ano){
   const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
   const novos=clients.filter(c=>noMes(c.dataCadastro));
-  const fechadosMes=clients.filter(c=>(c.status==='pagamento'||c.status==='finalizados')&&(noMes(c.dataPagamento)||noMes(c.dataMovimentacao)));
+  // Fechados = Finalizados no mês + os que foram arquivados dentro do mês (estão no Marketing)
+  const fechadosPipe=clients.filter(c=>c.status==='finalizados'&&(noMes(c.dataPagamento)||noMes(c.dataMovimentacao)));
+  const fechadosArq=(arquivados||[]).filter(a=>noMes(a.data_arquivamento)||noMes(a.data_pagamento)).map(rowToCli);
+  const idsPipe=new Set(fechadosPipe.map(c=>c.id));
+  const fechadosMes=fechadosPipe.concat(fechadosArq.filter(a=>!idsPipe.has(a.id)));
   const perdidos=clients.filter(c=>c.status==='perdidos'&&(noMes(c.dataMovimentacao)||noMes(c.dataCadastro)));
   const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes&&new Date(a.data+'T12:00:00').getFullYear()===ano);
   const comMes=comissoes.filter(x=>x.mes===mes&&x.ano===ano);
   const totalCom=comMes.reduce((s,x)=>s+(Number(x.comissao_valor)||0),0);
   const volume=fechadosMes.reduce((s,c)=>s+(Number(c.valorFinanciamento)||0),0);
-  const ativos=clients.filter(c=>!['pagamento','finalizados','perdidos'].includes(c.status)).length;
+  const ativos=clients.filter(c=>!['finalizados','perdidos'].includes(c.status)).length;
 
   // Tempo médio do cadastro até o fechamento
   const ciclos=fechadosMes.map(c=>{
@@ -2873,7 +2978,8 @@ function renderResumo(){
 
   // corretores
   html+=`<div class="card" style="margin-bottom:18px">
-    <div class="ct">🤝 Desempenho por corretor — quem traz volume x quem traz lead que fecha</div>
+    <div class="ct">🤝 Desempenho por corretor — apenas os leads deste mês</div>
+    <div style="font-size:10px;color:var(--mu);margin-bottom:4px">Conta só clientes cadastrados no mês selecionado. O total histórico de cada corretor fica na aba Corretores.</div>
     ${d.corretorStats.length?`<table style="width:100%;border-collapse:collapse;margin-top:10px">
       <thead><tr>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd)">ORIGEM</th>
@@ -2899,6 +3005,12 @@ function renderResumo(){
   const st=statsEtapas();
   html+=`<div class="card">
     <div class="ct">🚧 Onde o processo trava</div>
+    <div style="font-size:10.5px;color:var(--mu);margin-bottom:14px;line-height:1.7">
+      Mede o <b style="color:rgba(255,255,255,.78)">tempo médio que os clientes ficam parados em cada etapa</b> antes de avançar — quanto maior a barra, mais o processo emperra ali.
+      Ex.: "Engenharia (3x) · 12 dias" = três clientes saíram da Engenharia, demorando em média 12 dias.
+      <span style="color:#f87171">Vermelho = média acima de 15 dias</span>.
+      Clientes excluídos não contam; arquivados (que fecharam) contam. O registro começou em julho/2026 — etapas vão aparecendo conforme os clientes se movem.
+    </div>
     ${st.length?st.slice(0,6).map(e=>{
       const alerta=e.media>=15;
       return `<div style="margin-bottom:11px">
@@ -3056,7 +3168,7 @@ function renderFin(){
   const m2=getFinMes(), y2=getFinAno();
   const lista=comissoes.filter(x=>x.mes===m2&&x.ano===y2);
   if(!lista.length){
-    recEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhuma comissão registrada neste mês.<br><span style="font-size:10px">As comissões são registradas quando o cliente entra em Pagamento Vendedor.</span></div>';
+    recEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:16px">Nenhuma comissão registrada neste mês.<br><span style="font-size:10px">As comissões são registradas quando o cliente entra em Emissão de Contrato.</span></div>';
   } else {
     recEl.innerHTML=`<table style="width:100%;border-collapse:collapse">
       <thead><tr>
@@ -3064,7 +3176,7 @@ function renderFin(){
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd)">BANCO</th>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 10px;border-bottom:1px solid var(--bd)">FINANCIAMENTO</th>
         <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:right;padding:7px 10px;border-bottom:1px solid var(--bd)">COMISSÃO</th>
-        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd)">DATA RECEB.</th>
+        <th style="font-size:8px;letter-spacing:2px;color:var(--mu);text-align:left;padding:7px 10px;border-bottom:1px solid var(--bd)">RECEBIMENTO</th>
         <th style="width:40px;border-bottom:1px solid var(--bd)"></th>
       </tr></thead>
       <tbody>${lista.map(cm=>`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
@@ -3076,7 +3188,8 @@ function renderFin(){
             <div style="font-size:9px;color:var(--mu)">${cm.comissao_pct>0?cm.comissao_pct+'%':''}</div>
           </td>
           <td style="padding:10px">
-            <input type="date" value="${cm.data_recebimento||''}" style="font-size:11px;padding:5px 8px;width:130px" onchange="salvarDataRecebComissao('${cm.id}',this.value)">
+            <div style="font-size:12px;font-weight:600;color:var(--gd)">${cm.data_recebimento?new Date(cm.data_recebimento+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</div>
+            <div style="font-size:9px;color:var(--mu)">último dia útil do mês seguinte</div>
           </td>
           <td style="padding:10px;text-align:right">
             <button class="btn brd bsm" title="Excluir comissão (não exclui o cliente)" onclick="excluirComissao('${cm.id}')">✕</button>
@@ -3098,6 +3211,17 @@ function renderFin(){
     <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--rd);font-weight:600;font-size:12px">-${fmtV(val)}</span>
     <button class="btn brd" style="padding:3px 8px;font-size:9px" onclick="delDesconto(${finData.descontos.indexOf(d)})">✕</button></div></div>`;
   }).join('');
+  // Receitas Extras
+  const extEl=document.getElementById('fin-ext-list');
+  const exts=(finData.extras||[]).filter(d=>d.mes===m&&d.ano===y);
+  if(extEl){
+    if(!exts.length)extEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:12px">Nenhuma receita extra</div>';
+    else extEl.innerHTML=exts.map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="font-size:12px;font-weight:600">${d.nome}</div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gr);font-weight:600;font-size:12px">+${fmtV(d.valor)}</span>
+      <button class="btn brd" style="padding:3px 8px;font-size:9px" onclick="delExtra(${finData.extras.indexOf(d)})">✕</button></div></div>`).join('');
+  }
+
   // Despesas
   const depEl=document.getElementById('fin-desp-list');
   const deps=finData.despesas.filter(d=>d.mes===m&&d.ano===y);
@@ -3109,9 +3233,11 @@ function renderFin(){
   // Totais
   const totalDesc=descs.reduce((s,d)=>s+(d.pct?totalBruto*d.pct/100:d.valor),0);
   const totalDep=deps.reduce((s,d)=>s+d.valor,0);
-  const liq=totalBruto-totalDesc-totalDep;
+  const totalExt=exts.reduce((s,d)=>s+d.valor,0);
+  const liq=totalBruto+totalExt-totalDesc-totalDep;
   const fv2=el=>document.getElementById(el);
   if(fv2('fin-bruto'))fv2('fin-bruto').textContent=fmtV(totalBruto2);
+  if(fv2('fin-ext'))fv2('fin-ext').textContent=fmtV(totalExt);
   if(fv2('fin-desc'))fv2('fin-desc').textContent=fmtV(totalDesc);
   if(fv2('fin-desp'))fv2('fin-desp').textContent=fmtV(totalDep);
   if(fv2('fin-liq'))fv2('fin-liq').textContent=fmtV(liq);
@@ -3152,6 +3278,34 @@ function addDesconto(){
   saveFin();renderFin();
 }
 function delDesconto(i){finData.descontos.splice(i,1);saveFin();renderFin();}
+
+
+// ===== RECEITAS EXTRAS (serviços por fora, valor fixo) =====
+const EXTRAS_PADRAO=['Declaração do contador','Vistoria / regularização de imóvel','Assessoria documental','Despachante'];
+function addExtra(){
+  const sel=document.getElementById('fin-ext-sel');
+  const manual=document.getElementById('fin-ext-nome');
+  const nm=(sel&&sel.value==='__outro')?manual.value.trim():(sel?sel.value:'');
+  const vl=parseCur(document.getElementById('fin-ext-val').value);
+  if(!nm){alert('Escolha um serviço ou escreva o nome.');return;}
+  if(!vl){alert('Informe o valor.');return;}
+  finData.extras.push({nome:nm,valor:vl,mes:getFinMes(),ano:getFinAno(),data:new Date().toISOString()});
+  if(sel)sel.value='';
+  if(manual){manual.value='';manual.style.display='none';}
+  document.getElementById('fin-ext-val').value='';
+  saveFin();renderFin();
+}
+function delExtra(i){
+  if(!confirm('Excluir esta receita extra?'))return;
+  finData.extras.splice(i,1);saveFin();renderFin();
+}
+function toggleExtraManual(){
+  const sel=document.getElementById('fin-ext-sel');
+  const manual=document.getElementById('fin-ext-nome');
+  if(!sel||!manual)return;
+  manual.style.display=sel.value==='__outro'?'block':'none';
+  if(sel.value==='__outro')manual.focus();
+}
 
 function addDespesa(){
   const nm=document.getElementById('fin-dep-nome').value.trim();
@@ -3309,7 +3463,7 @@ function importData(input){
       clients=data.clients||[];
       banks=data.banks||[];
       agenda=data.agenda||[];
-      finData=data.finData||{receitas:[],descontos:[],despesas:[]};
+      finData=data.finData||{receitas:[],descontos:[],despesas:[],extras:[]};
       await saveClients();await saveBanks();await saveAgenda2();await saveFin();
       renderAll();loadFin();
       alert('✓ Dados importados com sucesso!');
@@ -3549,21 +3703,29 @@ function delCorretor(id){
   renderCorretores();
 }
 
+
+// Indicados = pipeline + arquivados (arquivar não pode diminuir o total do corretor)
+function todosIndicados(){
+  const arr=clients.filter(c=>c.refCorretor).map(c=>({ref:c.refCorretor}));
+  (arquivados||[]).forEach(a=>{if(a.ref_corretor)arr.push({ref:a.ref_corretor});});
+  return arr;
+}
+
 function renderCorretores(){
   const el=document.getElementById('corretores-list');
   if(!el)return;
   const BASE='https://nexacapital.github.io/matheus.dias/nexa-cadastro-cliente.html';
 
   // Update stats
-  const totalIndicados=clients.filter(c=>c.refCorretor).length;
+  const totalIndicados=todosIndicados().length;
   if(document.getElementById('cor-total'))document.getElementById('cor-total').textContent=corretores.length;
   if(document.getElementById('cor-clientes'))document.getElementById('cor-clientes').textContent=totalIndicados;
   if(document.getElementById('cor-melhor')){
     const counts={};
-    clients.filter(c=>c.refCorretor).forEach(c=>{counts[c.refCorretor]=(counts[c.refCorretor]||0)+1;});
+    todosIndicados().forEach(x=>{counts[x.ref]=(counts[x.ref]||0)+1;});
     const best=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
     const bestCor=best?corretores.find(c=>c.slug===best[0]):null;
-    document.getElementById('cor-melhor').textContent=bestCor?bestCor.nome+'  ('+best[1]+')':'—';
+    document.getElementById('cor-melhor').textContent=bestCor?bestCor.nome+'  ('+best[1]+' no total)':'—';
   }
 
   if(!corretores.length){
@@ -3580,7 +3742,7 @@ function renderCorretores(){
     </tr></thead>
     <tbody>${corretores.map(cor=>{
       const link=BASE+'?ref='+cor.slug;
-      const total=clients.filter(c=>c.refCorretor===cor.slug).length;
+      const total=clients.filter(c=>c.refCorretor===cor.slug).length+(arquivados||[]).filter(a=>a.ref_corretor===cor.slug).length;
       return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
         <td style="padding:12px"><div style="font-weight:600;font-size:12px">${cor.nome}</div><div style="font-size:9px;color:var(--mu)">${cor.slug}</div></td>
         <td style="padding:12px;font-size:11px;color:var(--mu)">${cor.telefone||'—'}</td>
@@ -3687,8 +3849,8 @@ const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.va
   // Migração dos dados locais para o Supabase (só na 1ª vez)
   await migrarParaSupabase();
   // Comissões: carrega e registra as pendentes
-  await initComissoes();
   await initHistorico();
+  await initComissoes();
   // Realtime: escuta mudanças na tabela clientes
   if(supa){
     try{
