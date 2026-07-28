@@ -720,6 +720,7 @@ checkAuth();
       </div>
       <div class="fg" style="margin-top:10px"><label>Renda Familiar <span class="rq">*</span></label><input type="text" id="nc-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"><div class="fe" id="e-nc-renda">Obrigatório</div></div>
       <div class="fg" style="margin-top:10px"><label>Intenção de Compra</label><select id="nc-prazo"><option value="">Selecione (opcional)</option><option value="0-30 dias">0 a 30 dias</option><option value="1-3 meses">1 a 3 meses</option><option value="3-6 meses">3 a 6 meses</option><option value="6 meses+">6 meses ou mais</option></select></div>
+      <div class="fg" style="margin-top:6px"><label>Financiar documentação?</label><select id="nc-docfin" onchange="chkLim()"><option value="nao">Não</option><option value="sim">Sim (documentação = 5% do imóvel)</option></select><div id="nc-docinfo" style="display:none;font-size:10px;color:var(--gd);margin-top:5px;line-height:1.5">Documentação: <span id="nc-docval" style="font-weight:700"></span> · o financiamento fica limitado a 75% do imóvel (75% + 5% = 80%).</div></div>
       <div id="nc-lwarn" style="font-size:10px;color:var(--rd);display:none;margin-bottom:8px">⚠️ Financiamento máximo é 80% do imóvel.</div>
       <div class="ct" style="margin-top:14px">Bancos para Simulação</div>
       <div class="bchips" id="nc-bchips"></div>
@@ -2091,12 +2092,25 @@ function openNewClient(){
   document.getElementById('nc-nasc').value='';document.getElementById('nc-cjnasc').value='';
   document.getElementById('nc-ec').value='';document.getElementById('nc-cj').style.display='none';
   document.getElementById('nc-lwarn').style.display='none';
+  const _df=document.getElementById('nc-docfin');if(_df)_df.value='nao';
+  const _di=document.getElementById('nc-docinfo');if(_di)_di.style.display='none';
   // bank chips
   document.getElementById('nc-bchips').innerHTML=banks.map(b=>`<div class="bchip" data-bid="${b.id}" onclick="this.classList.toggle('sel')">${b.nome}</div>`).join('');
   openModal('mo-nc');
 }
 function toggleConj(){const v=document.getElementById('nc-ec').value;document.getElementById('nc-cj').style.display=(v==='casado'||v==='uniao')?'block':'none';}
-function chkLim(){const iv=parseCur(document.getElementById('nc-iv').value);const fv=parseCur(document.getElementById('nc-fv').value);document.getElementById('nc-lwarn').style.display=(iv>0&&fv>iv*.8)?'block':'none';}
+function chkLim(){
+  const iv=parseCur(document.getElementById('nc-iv').value);
+  const fv=parseCur(document.getElementById('nc-fv').value);
+  const doc=(document.getElementById('nc-docfin')||{}).value==='sim';
+  const pct=doc?0.75:0.80;
+  const info=document.getElementById('nc-docinfo');
+  const dv=document.getElementById('nc-docval');
+  if(info)info.style.display=doc?'block':'none';
+  if(doc&&dv&&iv>0)dv.textContent=(iv*0.05).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const w=document.getElementById('nc-lwarn');
+  if(w){w.textContent=doc?'⚠️ Com documentação, o financiamento é no máximo 75% do imóvel (75% + 5% = 80%).':'⚠️ Financiamento máximo é 80% do imóvel.';w.style.display=(iv>0&&fv>iv*pct)?'block':'none';}
+}
 function saveNewClient(){
   const nm=document.getElementById('nc-nm').value.trim();
   const tl=document.getElementById('nc-tel').value.trim();
@@ -2107,10 +2121,11 @@ function saveNewClient(){
   if(!tl){showFe('nc-tel',true);ok=false;}else showFe('nc-tel',false);
   const renda=parseCur(document.getElementById('nc-renda').value);
   if(!renda){showFe('nc-renda',true);ok=false;}else showFe('nc-renda',false);
-  if(iv>0&&fv>iv*.8){chkLim();ok=false;}
+  const _ncdoc=(document.getElementById('nc-docfin')||{}).value==='sim';const _ncpct=_ncdoc?0.75:0.80;
+  if(iv>0&&fv>iv*_ncpct){chkLim();ok=false;}
   if(!ok)return;
   const selBanks=[...document.querySelectorAll('#nc-bchips .bchip.sel')].map(el=>el.dataset.bid);
-  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),prazoIntencao:document.getElementById('nc-prazo').value||'',obs:document.getElementById('nc-obs').value,status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
+  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),prazoIntencao:document.getElementById('nc-prazo').value||'',obs:(function(){const base=document.getElementById('nc-obs').value||'';const d=_ncdoc?('Financia documentação: SIM (~5% do imóvel = '+(iv*0.05).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+')'):'Financia documentação: Não';return base?(base+' | '+d):d;})(),status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
   clients.unshift(c);closeModal('mo-nc');saveClients();renderAll();
 }
 

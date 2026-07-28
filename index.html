@@ -323,9 +323,9 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
     <div class="tagc">DEPOIMENTOS</div>
     <h2 style="text-align:center">O que dizem nossos <em>clientes</em></h2>
     <div class="deps" id="deps">
-      <div class="dep active"><div class="dep-s">★★★★★</div><p>"O Matheus foi incrível! Conseguiu aprovação em tempo recorde com uma taxa que eu não acreditei. Recomendo de olhos fechados!"</p><div class="dep-a">CARLOS F.</div><div class="dep-c">São Paulo, SP</div></div>
+      <div class="dep active"><div class="dep-s">★★★★★</div><p>"Atendimento excelente do Matheus, conseguiu aprovação em tempo recorde com uma taxa que eu não acreditei. Recomendo de olhos fechados!"</p><div class="dep-a">CARLOS F.</div><div class="dep-c">Limeira, SP</div></div>
       <div class="dep active"><div class="dep-s">★★★★★</div><p>"Processo super transparente. Ele cuidou de tudo e eu só precisei assinar. Minha casa dos sonhos finalmente realizada!"</p><div class="dep-a">ANA PAULA L.</div><div class="dep-c">Campinas, SP</div></div>
-      <div class="dep active"><div class="dep-s">★★★★★</div><p>"Já tinha tentado em outros lugares. Com o Matheus foi diferente — profissional, rápido e resultado garantido!"</p><div class="dep-a">THIAGO R.</div><div class="dep-c">São Paulo, SP</div></div>
+      <div class="dep active"><div class="dep-s">★★★★★</div><p>"Já tinha tentado em outros lugares, com o Matheus foi diferente: profissional, rápido e resultado garantido!"</p><div class="dep-a">THIAGO R.</div><div class="dep-c">Limeira, SP</div></div>
     </div>
   </div>
 </section>
@@ -373,6 +373,8 @@ try{ supaLP=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch(e){}
                 <div class="fg"><label>VALOR DO IMÓVEL *</label><input type="text" id="lfi" required placeholder="R$ 500.000,00" oninput="fL(this);calcLimite()" onblur="fLblur(this);calcLimite()"></div>
                 <div class="fg"><label>VALOR DO FINANCIAMENTO *</label><input type="text" id="lff" required placeholder="R$ 400.000,00" oninput="fL(this);calcLimite()" onblur="fLblur(this);calcLimite()"></div>
               </div>
+              <div class="fg" style="margin-bottom:8px"><label>FINANCIAR DOCUMENTAÇÃO? *</label><select id="lfdoc" required onchange="calcLimite()"><option value="nao">Não</option><option value="sim">Sim (documentação = 5% do imóvel)</option></select></div>
+              <div id="doc-box" style="display:none;font-size:11px;color:rgba(255,255,255,0.6);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:10px 12px;margin-bottom:8px">Documentação (5% do imóvel): <span id="doc-val" style="color:#c9a84c;font-weight:700"></span> — com ela, o financiamento fica limitado a 75% do imóvel.</div>
               <div id="limite-box" style="display:none;font-size:11px;color:rgba(255,255,255,0.6);background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:10px 12px;margin-bottom:8px">Limite máximo de financiamento: <span id="limite-val" style="color:#c9a84c;font-weight:700"></span></div>
               <div id="limite-warn" style="display:none;font-size:11px;color:#f87171;margin-bottom:8px">⚠️ O valor do financiamento ultrapassa o limite de 80% do imóvel.</div>
               <div class="fg"><label>RENDA FAMILIAR *</label><input type="text" id="lfr" required placeholder="R$ 8.000,00" oninput="fL(this)" onblur="fLblur(this)"></div>
@@ -413,13 +415,21 @@ function calcLimite(){
   const fv=pL(document.getElementById('lff').value);
   const box=document.getElementById('limite-box');
   const warn=document.getElementById('limite-warn');
+  const doc=(document.getElementById('lfdoc')||{}).value==='sim';
+  const pct=doc?0.75:0.80;
+  const dbox=document.getElementById('doc-box');
+  const dval=document.getElementById('doc-val');
+  if(dbox)dbox.style.display=(doc&&iv>0)?'block':'none';
+  if(doc&&dval&&iv>0)dval.textContent='R$ '+(iv*0.05).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   if(iv>0){
     box.style.display='block';
-    const limite=iv*0.8;
-    document.getElementById('limite-val').textContent='R$ '+limite.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const limite=iv*pct;
+    document.getElementById('limite-val').textContent='R$ '+limite.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+(doc?' (75%)':'');
+    if(warn)warn.textContent=doc?'O valor do financiamento ultrapassa 75% do imóvel (os outros 5% são a documentação).':'O valor do financiamento ultrapassa o limite de 80% do imóvel.';
     warn.style.display=(fv>limite)?'block':'none';
   }else{
     box.style.display='none';warn.style.display='none';
+    if(dbox)dbox.style.display='none';
   }
 }
 function fC(el){let v=el.value.replace(/[^0-9]/g,'').slice(0,11);if(v.length>9)v=v.replace(/([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})/,'$1.$2.$3-$4');else if(v.length>6)v=v.replace(/([0-9]{3})([0-9]{3})([0-9]+)/,'$1.$2.$3');else if(v.length>3)v=v.replace(/([0-9]{3})([0-9]+)/,'$1.$2');el.value=v;}
@@ -474,7 +484,8 @@ function sF(e){
   if(!iv){alert('Informe o valor do imóvel.');return;}
   const fv=pL(document.getElementById('lff').value);
   if(!fv){alert('Informe o valor do financiamento.');return;}
-  if(fv>iv*0.8){alert('O valor do financiamento não pode ultrapassar 80% do imóvel.');return;}
+  const _lfdoc=(document.getElementById('lfdoc')||{}).value==='sim';const _lpct=_lfdoc?0.75:0.80;
+  if(fv>iv*_lpct){alert(_lfdoc?'Com documentação financiada, o valor do financiamento não pode ultrapassar 75% do imóvel (75% + 5% = 80%).':'O valor do financiamento não pode ultrapassar 80% do imóvel.');return;}
   const renda=pL(document.getElementById('lfr').value);
   if(!renda){alert('Informe a renda familiar.');return;}
   const fd=new FormData();
@@ -499,6 +510,7 @@ function sF(e){
       valor_financiamento:pL(document.getElementById('lff').value),
       renda_familiar:pL(document.getElementById('lfr').value),
       prazo_intencao:document.getElementById('lfp').value||null,
+      obs:((document.getElementById('lfdoc')||{}).value==='sim')?('Financia documentação: SIM (~5% do imóvel = R$ '+(pL(document.getElementById('lfi').value)*0.05).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+')'):'Financia documentação: Não',
       status:'novo',bancos:[],banco_escolhido:'',
       origem:'landing_page',data_cadastro:new Date().toISOString()
     }).then(({error})=>{if(error)console.warn(error);});
