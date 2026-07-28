@@ -690,7 +690,11 @@ checkAuth();
 <div class="mo" id="mo-nc">
   <div class="md">
     <div class="mh"><div><div class="mt">Novo Cliente</div><div style="font-size:11px;color:var(--mu);margin-top:3px">Preencha os dados</div></div><button class="mc" onclick="closeModal('mo-nc')">✕</button></div>
-    <div class="mb">
+    <div style="display:flex;gap:6px;padding:0 20px;margin-top:-4px;border-bottom:1px solid var(--bd)">
+      <button class="cd-tab cd-tab-on" id="cdtab-dados" onclick="cdTab('dados')" style="background:none;border:none;border-bottom:2px solid var(--gd);color:var(--gd);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">Dados</button>
+      <button class="cd-tab" id="cdtab-docs" onclick="cdTab('docs')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">📄 Documentos</button>
+    </div>
+    <div class="mb" id="cd-pane-dados">
       <div class="ct">Dados Pessoais</div>
       <div class="fr f"><div class="fg"><label>Nome Completo <span class="rq">*</span></label><input type="text" id="nc-nm" placeholder="Nome completo"><div class="fe" id="e-nc-nm">Obrigatório</div></div></div>
       <div class="fr">
@@ -765,10 +769,33 @@ checkAuth();
       <div class="ct" style="margin-top:14px">Observações</div>
       <div class="fg"><textarea id="cd-obs" placeholder="Notas..." onchange="updClient('obs',this.value)"></textarea></div>
     </div>
+    <div class="mb" id="cd-pane-docs" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div class="ct" style="margin:0">Checklist de Documentos</div>
+        <button class="btn bo bsm" onclick="abrirEditorModelos()" title="Editar a lista-base de documentos">⚙️ Editar lista-base</button>
+      </div>
+      <div style="font-size:10px;color:var(--mu);margin-bottom:12px;line-height:1.6">Marque o que o cliente já entregou. O progresso fica salvo e vai poder aparecer no portal do cliente.</div>
+      <div id="cd-checklist"></div>
+    </div>
     <div class="mf">
       <button class="btn brd" onclick="delClient()">Excluir</button>
       <button class="btn bo" onclick="closeModal('mo-cd')">Fechar</button>
       <button class="btn bg" onclick="closeModal('mo-cd')">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR LISTA-BASE DE DOCUMENTOS -->
+<div class="mo" id="mo-chkmod">
+  <div class="md">
+    <div class="mh">
+      <div><div class="mt">Lista-base de Documentos</div><div style="font-size:11px;color:var(--mu);margin-top:3px">Edite os documentos de cada fase. Vale para todos os clientes.</div></div>
+      <button class="mc" onclick="closeModal('mo-chkmod')">✕</button>
+    </div>
+    <div class="mb" id="chkmod-body"></div>
+    <div class="mf">
+      <button class="btn bo" onclick="closeModal('mo-chkmod')">Fechar</button>
+      <button class="btn bg" onclick="salvarModelos()">Salvar alterações</button>
     </div>
   </div>
 </div>
@@ -2022,9 +2049,179 @@ function renderTbl(){
 }
 
 // ===== CLIENT DETAIL =====
+
+// ============================================
+// CHECKLIST DE DOCUMENTOS (por fases, editável)
+// ============================================
+// Lista-base padrão — o Matheus edita conforme a realidade dele.
+const CHECKLIST_BASE_PADRAO={
+  id:'base', nome:'Lista-base (todos os bancos)',
+  fases:[
+    {fase:'1. Análise de Crédito (antes da aprovação)', docs:[
+      {id:'rg', nome:'RG e CPF (ou CNH)', obs:''},
+      {id:'comp_renda', nome:'Comprovante de renda (3 últimos holerites ou pró-labore)', obs:'Autônomo: extrato bancário + declaração'},
+      {id:'irpf', nome:'Declaração de Imposto de Renda + recibo', obs:''},
+      {id:'comp_end', nome:'Comprovante de endereço atualizado', obs:'Últimos 90 dias'},
+      {id:'cert_estado', nome:'Certidão de estado civil', obs:'Nascimento (solteiro) ou casamento'},
+      {id:'extrato', nome:'Extrato bancário (3 meses)', obs:''}
+    ]},
+    {fase:'2. Análise do Imóvel (após aprovação)', docs:[
+      {id:'matricula', nome:'Matrícula atualizada do imóvel', obs:'Emitida nos últimos 30 dias'},
+      {id:'iptu', nome:'IPTU do ano vigente', obs:''},
+      {id:'doc_vendedor', nome:'Documentos do vendedor (RG, CPF, estado civil)', obs:''},
+      {id:'cert_imovel', nome:'Certidão negativa de ônus do imóvel', obs:''},
+      {id:'contrato_compra', nome:'Contrato de compra e venda', obs:''}
+    ]},
+    {fase:'3. Contratação (etapa final)', docs:[
+      {id:'fgts', nome:'Autorização de uso do FGTS', obs:'Se for utilizar'},
+      {id:'cert_neg', nome:'Certidões negativas (federal, estadual, municipal)', obs:''},
+      {id:'laudo', nome:'Laudo de avaliação do imóvel', obs:'Emitido pelo banco'},
+      {id:'assinatura', nome:'Assinatura do contrato', obs:''}
+    ]}
+  ]
+};
+
+let checklistModelos={}; // {base:{...}, banco_<id>:{...}}
+let checklistCliente={};  // cache do progresso do cliente aberto
+
+async function initChecklistModelos(){
+  // carrega a lista-base (ou cria a padrão na 1ª vez)
+  if(supa){
+    try{
+      const {data,error}=await supa.from('checklist_modelos').select('*');
+      if(!error&&data){data.forEach(m=>checklistModelos[m.id]=m);}
+    }catch(e){console.warn('initChecklistModelos',e);}
+  }
+  if(!checklistModelos['base']){
+    checklistModelos['base']=CHECKLIST_BASE_PADRAO;
+    if(supa){try{await supa.from('checklist_modelos').upsert({id:'base',nome:CHECKLIST_BASE_PADRAO.nome,fases:CHECKLIST_BASE_PADRAO.fases});}catch(e){}}
+  }
+}
+
+// retorna as fases aplicáveis a um cliente (base + exceção do banco, se houver)
+function fasesDoCliente(cl){
+  const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
+  const bkId=cl&&cl.bancoEscolhido;
+  const exc=bkId&&checklistModelos['banco_'+bkId];
+  return (exc&&exc.fases&&exc.fases.length)?exc.fases:base.fases;
+}
+
+async function carregarChecklistCliente(id){
+  checklistCliente={};
+  if(supa){
+    try{
+      const {data,error}=await supa.from('checklist_cliente').select('*').eq('id',id).maybeSingle();
+      if(!error&&data&&data.itens)checklistCliente=data.itens;
+    }catch(e){console.warn('carregarChecklistCliente',e);}
+  } else {
+    try{const r=localStorage.getItem('nexa_chk_'+id);if(r)checklistCliente=JSON.parse(r);}catch(e){}
+  }
+}
+
+async function salvarChecklistCliente(id){
+  try{localStorage.setItem('nexa_chk_'+id,JSON.stringify(checklistCliente));}catch(e){}
+  if(supa){try{await supa.from('checklist_cliente').upsert({id,cliente_id:id,itens:checklistCliente,atualizado_em:new Date().toISOString()});}catch(e){console.warn(e);}}
+}
+
+function toggleDoc(docId){
+  const atual=checklistCliente[docId]&&checklistCliente[docId].entregue;
+  checklistCliente[docId]={entregue:!atual, data:!atual?new Date().toISOString():null};
+  salvarChecklistCliente(editClientId);
+  renderChecklist();
+}
+
+function renderChecklist(){
+  const el=document.getElementById('cd-checklist');
+  if(!el)return;
+  const cl=clients.find(c=>c.id===editClientId);
+  if(!cl){el.innerHTML='';return;}
+  const fases=fasesDoCliente(cl);
+  let totalDocs=0, entregues=0;
+  fases.forEach(f=>f.docs.forEach(d=>{totalDocs++;if(checklistCliente[d.id]&&checklistCliente[d.id].entregue)entregues++;}));
+  const pctGeral=totalDocs?Math.round(entregues/totalDocs*100):0;
+  let html=`<div style="background:var(--nvl);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px"><span style="color:var(--mu)">Progresso geral</span><b style="color:var(--gd)">${entregues} de ${totalDocs} · ${pctGeral}%</b></div>
+    <div style="height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pctGeral}%;background:linear-gradient(90deg,#c9a84c,#e2c77a);border-radius:4px"></div></div>
+  </div>`;
+  fases.forEach(f=>{
+    const nf=f.docs.length, ef=f.docs.filter(d=>checklistCliente[d.id]&&checklistCliente[d.id].entregue).length;
+    const completa=nf>0&&ef===nf;
+    html+=`<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:${completa?'#4ade80':'var(--gd)'}">${completa?'✓ ':''}${f.fase}</div>
+        <div style="font-size:10px;color:var(--mu)">${ef}/${nf}</div>
+      </div>`;
+    f.docs.forEach(d=>{
+      const ok=checklistCliente[d.id]&&checklistCliente[d.id].entregue;
+      html+=`<div onclick="toggleDoc('${d.id}')" style="display:flex;align-items:flex-start;gap:9px;padding:8px 10px;margin-bottom:5px;background:${ok?'rgba(74,222,128,.06)':'rgba(255,255,255,.02)'};border:1px solid ${ok?'rgba(74,222,128,.25)':'var(--bd)'};border-radius:7px;cursor:pointer;transition:all .15s">
+        <div style="width:17px;height:17px;border-radius:4px;border:2px solid ${ok?'#4ade80':'var(--mu)'};background:${ok?'#4ade80':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px">${ok?'<span style=\'color:#0d1b2a;font-size:11px;font-weight:900\'>✓</span>':''}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:500;${ok?'color:var(--mu);text-decoration:line-through':''}">${d.nome}</div>
+          ${d.obs?`<div style="font-size:9.5px;color:var(--mu);margin-top:2px">${d.obs}</div>`:''}
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  el.innerHTML=html;
+}
+
+function cdTab(qual){
+  document.getElementById('cd-pane-dados').style.display=qual==='dados'?'block':'none';
+  document.getElementById('cd-pane-docs').style.display=qual==='docs'?'block':'none';
+  const td=document.getElementById('cdtab-dados'), tc=document.getElementById('cdtab-docs');
+  if(qual==='dados'){td.style.color='var(--gd)';td.style.borderBottomColor='var(--gd)';tc.style.color='var(--mu)';tc.style.borderBottomColor='transparent';}
+  else{tc.style.color='var(--gd)';tc.style.borderBottomColor='var(--gd)';td.style.color='var(--mu)';td.style.borderBottomColor='transparent';renderChecklist();}
+}
+
+
+// ===== EDITOR DA LISTA-BASE =====
+let _modeloEdit=null;
+function abrirEditorModelos(){
+  const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
+  _modeloEdit=JSON.parse(JSON.stringify(base)); // cópia editável
+  renderEditorModelos();
+  document.getElementById('mo-chkmod').classList.add('show');
+}
+function renderEditorModelos(){
+  const el=document.getElementById('chkmod-body');
+  if(!el||!_modeloEdit)return;
+  el.innerHTML=_modeloEdit.fases.map((f,fi)=>`
+    <div style="margin-bottom:16px;border:1px solid var(--bd);border-radius:8px;padding:12px">
+      <input value="${(f.fase||'').replace(/"/g,'&quot;')}" onchange="editFaseNome(${fi},this.value)" style="width:100%;font-size:12px;font-weight:700;color:var(--gd);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:4px 0;margin-bottom:10px">
+      ${f.docs.map((d,di)=>`
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+          <div style="flex:1">
+            <input value="${(d.nome||'').replace(/"/g,'&quot;')}" onchange="editDocNome(${fi},${di},this.value)" placeholder="Nome do documento" style="width:100%;font-size:11px;padding:6px 8px">
+            <input value="${(d.obs||'').replace(/"/g,'&quot;')}" onchange="editDocObs(${fi},${di},this.value)" placeholder="Observação (opcional)" style="width:100%;font-size:10px;padding:5px 8px;margin-top:3px;color:var(--mu)">
+          </div>
+          <button class="btn brd bsm" onclick="removerDoc(${fi},${di})" title="Remover">✕</button>
+        </div>`).join('')}
+      <button class="btn bo bsm" onclick="addDoc(${fi})" style="margin-top:6px">+ Documento</button>
+    </div>`).join('')
+    +`<button class="btn bo bsm" onclick="addFase()">+ Adicionar fase</button>`;
+}
+function editFaseNome(fi,v){_modeloEdit.fases[fi].fase=v;}
+function editDocNome(fi,di,v){_modeloEdit.fases[fi].docs[di].nome=v;}
+function editDocObs(fi,di,v){_modeloEdit.fases[fi].docs[di].obs=v;}
+function removerDoc(fi,di){_modeloEdit.fases[fi].docs.splice(di,1);renderEditorModelos();}
+function addDoc(fi){_modeloEdit.fases[fi].docs.push({id:'d_'+Date.now(),nome:'',obs:''});renderEditorModelos();}
+function addFase(){_modeloEdit.fases.push({fase:'Nova fase',docs:[]});renderEditorModelos();}
+async function salvarModelos(){
+  // garante ids únicos nos docs novos
+  _modeloEdit.fases.forEach(f=>f.docs.forEach(d=>{if(!d.id)d.id='d_'+Math.random().toString(36).slice(2,8);}));
+  checklistModelos['base']=_modeloEdit;
+  if(supa){try{await supa.from('checklist_modelos').upsert({id:'base',nome:_modeloEdit.nome||'Lista-base',fases:_modeloEdit.fases,atualizado_em:new Date().toISOString()});}catch(e){alert('Erro ao salvar: '+e.message);return;}}
+  closeModal('mo-chkmod');
+  if(typeof renderChecklist==='function')renderChecklist();
+  alert('✅ Lista-base atualizada.');
+}
+
 function openClientDetail(id){
   const c=clients.find(x=>x.id===id);if(!c)return;
   editClientId=id;
+  if(typeof cdTab==='function')cdTab('dados');
+  carregarChecklistCliente(id).then(()=>{if(typeof renderChecklist==='function')renderChecklist();});
   document.getElementById('cd-nm').textContent=c.nome;
   document.getElementById('cd-info').textContent=`${c.telefone||''} · ${c.valorFinanciamento?fmtV(c.valorFinanciamento):'Valor não informado'}`;
   // Dados pessoais
@@ -3860,6 +4057,7 @@ const _now=new Date();const _ms=document.getElementById('fin-mes');if(_ms)_ms.va
   // Comissões: carrega e registra as pendentes
   await initHistorico();
   await initComissoes();
+  await initChecklistModelos();
   // Realtime: escuta mudanças na tabela clientes
   if(supa){
     try{
