@@ -690,11 +690,7 @@ checkAuth();
 <div class="mo" id="mo-nc">
   <div class="md">
     <div class="mh"><div><div class="mt">Novo Cliente</div><div style="font-size:11px;color:var(--mu);margin-top:3px">Preencha os dados</div></div><button class="mc" onclick="closeModal('mo-nc')">✕</button></div>
-    <div style="display:flex;gap:6px;padding:0 20px;margin-top:-4px;border-bottom:1px solid var(--bd)">
-      <button class="cd-tab cd-tab-on" id="cdtab-dados" onclick="cdTab('dados')" style="background:none;border:none;border-bottom:2px solid var(--gd);color:var(--gd);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">Dados</button>
-      <button class="cd-tab" id="cdtab-docs" onclick="cdTab('docs')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">📄 Documentos</button>
-    </div>
-    <div class="mb" id="cd-pane-dados">
+    <div class="mb">
       <div class="ct">Dados Pessoais</div>
       <div class="fr f"><div class="fg"><label>Nome Completo <span class="rq">*</span></label><input type="text" id="nc-nm" placeholder="Nome completo"><div class="fe" id="e-nc-nm">Obrigatório</div></div></div>
       <div class="fr">
@@ -745,7 +741,11 @@ checkAuth();
       <div><div class="mt" id="cd-nm">—</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="cd-info">—</div></div>
       <button class="mc" onclick="closeModal('mo-cd')">✕</button>
     </div>
-    <div class="mb">
+    <div style="display:flex;gap:6px;padding:0 20px;margin-top:-4px;border-bottom:1px solid var(--bd)">
+      <button class="cd-tab" id="cdtab-dados" onclick="cdTab('dados')" style="background:none;border:none;border-bottom:2px solid var(--gd);color:var(--gd);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">Dados</button>
+      <button class="cd-tab" id="cdtab-docs" onclick="cdTab('docs')" style="background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);font-size:12px;font-weight:600;padding:10px 12px;cursor:pointer">📄 Documentos</button>
+    </div>
+    <div class="mb" id="cd-pane-dados">
       <div class="ct">Dados Pessoais</div>
       <div id="cd-dados-pessoais" style="background:var(--nvl);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
       <div class="ct" style="margin-top:4px">Bancos em Simulação</div>
