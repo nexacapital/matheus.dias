@@ -2181,7 +2181,7 @@ function abrirEditorModelos(){
   const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
   _modeloEdit=JSON.parse(JSON.stringify(base)); // cópia editável
   renderEditorModelos();
-  document.getElementById('mo-chkmod').classList.add('show');
+  openModal('mo-chkmod');
 }
 function renderEditorModelos(){
   const el=document.getElementById('chkmod-body');
