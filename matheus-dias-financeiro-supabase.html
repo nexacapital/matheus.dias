@@ -330,9 +330,9 @@ const MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov'
 const SUPABASE_URL  = 'https://nfwuzqewydcwbgiznujz.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3V6cWV3eWRjd2JnaXpudWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5NzY3ODYsImV4cCI6MjA5OTU1Mjc4Nn0.3LykMgIBu9p-lvLLfdhtLua5ZtiW4q3SdE2AP0-0qpo';
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-  auth:{ persistSession:true, autoRefreshToken:true }
-});
+let sb = null;
+try{ if(window.supabase&&window.supabase.createClient){ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth:{ persistSession:true, autoRefreshToken:true } }); } }
+catch(err){ console.error('Falha ao iniciar Supabase:', err); }
 let USER = null;
 let DB = { cards:[], expenses:[], installments:[], fixed:[], invest:[], paidInvoices:[], fixedPayments:[] };
 function uid(){ return crypto.randomUUID(); }
@@ -459,12 +459,15 @@ function applyRealtime(table,pl){
   else upsertCache(DB[m.cache], m.from(pl.new));
   scheduleRender();
 }
+let _rtChannel=null;
 function initRealtime(){
-  const ch=sb.channel('rt-fin');
+  try{ if(_rtChannel){ sb.removeChannel(_rtChannel); _rtChannel=null; } }catch(e){}
+  const ch=sb.channel('rt-fin-'+Date.now());
   ['cards','expenses','installments','fixed_bills','investments','paid_invoices','fixed_payments'].forEach(t=>{
     ch.on('postgres_changes',{event:'*',schema:'public',table:t},pl=>applyRealtime(t,pl));
   });
   ch.subscribe();
+  _rtChannel=ch;
 }
 
 /* auth */
@@ -558,6 +561,7 @@ function renderDashboard(){
   const future=DB.expenses.filter(e=>e.parcelamentoId&&inScope(e.tipo)&&parseYMD(e.data)>new Date()).sort((a,b)=>a.data.localeCompare(b.data)).slice(0,5);
 
   let h=`
+  <div class="filters" style="justify-content:flex-start;margin-bottom:6px">${monthNav()}</div>
   <div class="grid g-4">
     <div class="card stat acc"><div class="lab">◉ Total do mês</div><div class="val">${money(total)}</div><div class="meta">${me.length} lançamentos</div></div>
     <div class="card stat pf"><div class="lab">Pessoa Física</div><div class="val">${money(totPF)}</div><div class="meta">PF · ${monthName(refMonth)}</div></div>
@@ -1323,19 +1327,23 @@ window.doLogout=doLogout;
 function showLogin(msg){ $('#loginScreen').classList.add('show'); if(msg)$('#loginMsg').textContent=msg; }
 function hideLogin(){ $('#loginScreen').classList.remove('show'); }
 
+let _appStarted=false;
 async function startApp(){
+  if(_appStarted) return;   // evita inicialização dupla
+  _appStarted=true;
   hideLogin();
   try{
     await loadAll();
-    initRealtime();
-    refreshCounts();
-    go('dashboard');
-    const ue=$('#userEmail'); if(ue)ue.textContent=(USER&&USER.email)||'Controle pessoal';
-    maybeOfferImport();
-  }catch(err){ showLogin('Erro ao carregar dados: '+(err.message||err)); }
+  }catch(err){ _appStarted=false; showLogin('Erro ao carregar dados: '+(err.message||err)); return; }
+  try{ initRealtime(); }catch(err){ console.error('Sincronização em tempo real indisponível:', err); }
+  refreshCounts();
+  go('dashboard');
+  const ue=$('#userEmail'); if(ue)ue.textContent=(USER&&USER.email)||'Controle pessoal';
+  maybeOfferImport();
 }
 
 async function bootstrap(){
+  if(!sb){ showLogin('Não foi possível carregar a biblioteca do Supabase. Verifique sua conexão e recarregue a página (Ctrl+F5).'); return; }
   if(SUPABASE_URL.includes('SEU-PROJETO')||SUPABASE_ANON.includes('SUA_CHAVE')){
     showLogin('⚠ Configure SUPABASE_URL e SUPABASE_ANON no topo do arquivo (linhas ~24 e 25).');
     return;
