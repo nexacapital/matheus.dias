@@ -324,8 +324,8 @@ checkAuth();
             <span style="font-size:10px;color:var(--mu)">Parados há mais de</span>
             <select id="alerta-dias" onchange="renderAlertas()" style="width:auto;font-size:11px;padding:5px 8px">
               <option value="3">3 dias</option>
-              <option value="5" selected>5 dias</option>
-              <option value="7">7 dias</option>
+              <option value="5">5 dias</option>
+              <option value="7" selected>7 dias</option>
               <option value="10">10 dias</option>
               <option value="15">15 dias</option>
             </select>
@@ -797,9 +797,9 @@ checkAuth();
       <div id="cd-checklist"></div>
     </div>
     <div class="mf">
-      <button class="btn brd" onclick="delClient()">Excluir</button>
-      <button class="btn bo" onclick="closeModal('mo-cd')">Fechar</button>
-      <button class="btn bg" onclick="closeModal('mo-cd')">Salvar</button>
+      <button class="btn bo" onclick="moverParaPerdidos()" title="Marca como Perdido, sem apagar. Fica na aba Perdidos e no Marketing.">↪ Mover p/ Perdidos</button>
+      <button class="btn brd" onclick="delClient()" title="Apaga o cliente de vez. Não dá para recuperar.">🗑 Excluir de vez</button>
+      <button class="btn bg" onclick="closeModal('mo-cd')">Fechar</button>
     </div>
   </div>
 </div>
@@ -1430,7 +1430,7 @@ async function limparVestigiosCliente(ids){
 }
 
 async function delOne(id){
-  if(!confirm('Excluir este cliente?'))return;
+  if(!confirm('⚠️ EXCLUIR DE VEZ este cliente?\n\nIsso APAGA o cliente permanentemente e NÃO tem como recuperar.\n\nSe quiser só tirar do pipeline, use "Mover p/ Perdidos".'))return;
   _deletando=true;
   _idsExcluidos.add(id);
   registerDeleted([id]);
@@ -2289,6 +2289,15 @@ function toggleCDBk(bid,el){
 }
 function updConjuge(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(!c.conjuge)c.conjuge={};c.conjuge[f]=v;saveClients();}
 function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(f==='refCorretor'&&v)v=normRef(v);if(f==='status'&&c.status!==v)registrarSaidaEtapa(c,c.status,v);c[f]=v;if(f==='status'&&v==='contrato'){c.dataComissao=c.dataComissao||new Date().toISOString();registrarComissao(c);}if(f==='status'&&v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();}saveClients();renderAll();}
+function moverParaPerdidos(){
+  const c=clients.find(x=>x.id===editClientId);
+  if(!c)return;
+  if(c.status==='perdidos'){alert('Este cliente já está em Perdidos.');return;}
+  if(!confirm('Mover "'+(c.nome||'este cliente')+'" para Perdidos?\n\nEle NÃO será apagado — fica na aba Perdidos e você pode recuperá-lo depois.'))return;
+  updClient('status','perdidos');
+  closeModal('mo-cd');
+}
+
 async function delClient(){
   if(!confirm('Excluir este cliente?'))return;
   const id=editClientId;
@@ -2349,7 +2358,7 @@ function saveNewClient(){
   if(iv>0&&fv>iv*_ncpct){chkLim();ok=false;}
   if(!ok)return;
   const selBanks=[...document.querySelectorAll('#nc-bchips .bchip.sel')].map(el=>el.dataset.bid);
-  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),prazoIntencao:document.getElementById('nc-prazo').value||'',obs:(function(){const base=document.getElementById('nc-obs').value||'';const d=_ncdoc?('Financia documentação: SIM (~5% do imóvel = '+(iv*0.05).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+')'):'Financia documentação: Não';return base?(base+' | '+d):d;})(),status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString()};
+  const c={id:'c_'+Date.now(),nome:nm,telefone:tl,cpf:document.getElementById('nc-cpf').value,nascimento:document.getElementById('nc-nasc').value,estadoCivil:document.getElementById('nc-ec').value,conjuge:(['casado','uniao'].includes(document.getElementById('nc-ec').value))?{nome:document.getElementById('nc-cjnm').value,cpf:document.getElementById('nc-cjcpf').value,nascimento:document.getElementById('nc-cjnasc').value}:null,valorImovel:iv,valorFinanciamento:fv,rendaFamiliar:parseCur(document.getElementById('nc-renda').value),prazoIntencao:document.getElementById('nc-prazo').value||'',obs:(function(){const base=document.getElementById('nc-obs').value||'';const d=_ncdoc?('Financia documentação: SIM (~5% do imóvel = '+(iv*0.05).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})+')'):'Financia documentação: Não';return base?(base+' | '+d):d;})(),status:'novo',bancos:selBanks,bancoEscolhido:'',origem:'interno',dataCadastro:new Date().toISOString(),entrouEtapaEm:new Date().toISOString()};
   clients.unshift(c);closeModal('mo-nc');saveClients();renderAll();
 }
 
@@ -3083,17 +3092,22 @@ function statsEtapas(){
 function clientesParados(minDias){
   const agora=new Date();
   return clients.filter(c=>!['finalizados','perdidos'].includes(c.status)).map(c=>{
-    const base=c.entrouEtapaEm||c.dataMovimentacao||c.dataCadastro;
-    const dias=base?Math.floor((agora-new Date(base))/86400000):0;
+    // Conta SEMPRE desde a entrada na etapa atual (nunca desde o cadastro).
+    // entrouEtapaEm e dataMovimentacao são a mesma coisa: a última mudança de etapa.
+    const base=c.entrouEtapaEm||c.dataMovimentacao;
+    // Sem registro de movimentação (cliente antigo, nunca movido): não dá pra saber há
+    // quantos dias está NA ETAPA, então não entra no alerta (evita número enganoso).
+    if(!base)return null;
+    const dias=Math.floor((agora-new Date(base))/86400000);
     return {id:c.id,nome:c.nome,telefone:c.telefone,etapa:SN[c.status]||c.status,status:c.status,dias};
-  }).filter(x=>x.dias>=minDias).sort((a,b)=>b.dias-a.dias);
+  }).filter(x=>x&&x.dias>=minDias).sort((a,b)=>b.dias-a.dias);
 }
 
 function renderAlertas(){
   const card=document.getElementById('alertas-card');
   const el=document.getElementById('alertas-list');
   if(!el||!card)return;
-  const minDias=parseInt((document.getElementById('alerta-dias')||{}).value||5);
+  const minDias=parseInt((document.getElementById('alerta-dias')||{}).value||7);
   const lista=clientesParados(minDias);
   // atualiza contador no menu
   const badge=document.getElementById('alerta-badge');
