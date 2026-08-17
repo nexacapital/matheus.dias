@@ -944,6 +944,10 @@ async function loadAll(){
   const newNovos=clients.filter(c=>c.status==='novo').length;
   if(newNovos>prevNovos && prevNovos>0) notifyNovoCliente(newNovos-prevNovos);
 
+  // Correção automática de vínculos de corretores (uma vez por carregamento)
+  if(!window._vinculosCorrigidos){window._vinculosCorrigidos=true;
+    try{await corrigirVinculosCorretores();}catch(e){console.warn(e);}}
+
   renderAll();
 }
 async function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
@@ -3998,6 +4002,34 @@ function todosIndicados(){
   const arr=clients.filter(c=>c.refCorretor).map(c=>({ref:normRef(c.refCorretor)}));
   (arquivados||[]).forEach(a=>{if(a.ref_corretor)arr.push({ref:normRef(a.ref_corretor)});});
   return arr;
+}
+
+
+// Distância de edição (Levenshtein) para achar refs quase iguais ao slug
+function _lev(a,b){const m=a.length,n=b.length;const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]!==b[j-1]?1:0));return d[m][n];}
+
+// Varre clientes e corrige refs 'tortos' (quase iguais a um corretor cadastrado)
+async function corrigirVinculosCorretores(){
+  // Correção automática e silenciosa: roda uma vez, sem pedir nada ao usuário.
+  if(!clients||!clients.length||!corretores||!corretores.length)return;
+  const slugs=corretores.map(co=>({slug:normRef(co.slug),nome:co.nome}));
+  const correcoes=[];
+  clients.forEach(c=>{
+    if(!c.refCorretor)return;
+    const r=normRef(c.refCorretor);
+    if(slugs.some(s=>s.slug===r))return;              // já bate exatamente: ok
+    let melhor=null, menor=99;
+    slugs.forEach(s=>{const d=_lev(r,s.slug);if(d<menor){menor=d;melhor=s;}});
+    if(melhor&&menor<=2)correcoes.push({cliente:c, para:melhor.slug}); // quase igual: corrige
+  });
+  if(!correcoes.length)return;
+  for(const x of correcoes){
+    x.cliente.refCorretor=x.para;
+    if(supa){try{await supa.from('clientes').update({ref_corretor:x.para}).eq('id',x.cliente.id);}catch(e){console.warn('corrigirVinculos',e);}}
+  }
+  saveClients();
+  if(typeof renderCorretores==='function')renderCorretores();
+  console.log('Vínculos de corretores corrigidos automaticamente:',correcoes.length);
 }
 
 function renderCorretores(){
