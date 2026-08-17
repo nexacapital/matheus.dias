@@ -797,8 +797,9 @@ checkAuth();
       <div id="cd-checklist"></div>
     </div>
     <div class="mf">
-      <button class="btn bo" onclick="moverParaPerdidos()" title="Marca como Perdido, sem apagar. Fica na aba Perdidos e no Marketing.">↪ Mover p/ Perdidos</button>
-      <button class="btn brd" onclick="delClient()" title="Apaga o cliente de vez. Não dá para recuperar.">🗑 Excluir de vez</button>
+      <button class="btn bo" onclick="abrirProposta()" title="Gera um PDF de proposta com a marca NEXA para enviar ao cliente">📄 Gerar proposta</button>
+      <button class="btn bo" onclick="moverParaPerdidos()" title="Marca como Perdido, sem apagar. Fica na aba Perdidos e no Marketing.">↪ Perdidos</button>
+      <button class="btn brd" onclick="delClient()" title="Apaga o cliente de vez. Não dá para recuperar.">🗑 Excluir</button>
       <button class="btn bg" onclick="closeModal('mo-cd')">Fechar</button>
     </div>
   </div>
@@ -815,6 +816,35 @@ checkAuth();
     <div class="mf">
       <button class="btn bo" onclick="closeModal('mo-chkmod')">Fechar</button>
       <button class="btn bg" onclick="salvarModelos()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: GERAR PROPOSTA PDF -->
+<div class="mo" id="mo-prop">
+  <div class="md">
+    <div class="mh">
+      <div><div class="mt">Gerar Proposta (PDF)</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="prop-cli">—</div></div>
+      <button class="mc" onclick="closeModal('mo-prop')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="ct">Condições do Financiamento</div>
+      <div class="fr">
+        <div class="fg"><label>Taxa de juros (% ao mês) <span class="rq">*</span></label><input type="text" id="prop-taxa" placeholder="Ex: 0,99" inputmode="decimal" oninput="calcProp()"></div>
+        <div class="fg"><label>Prazo (meses) <span class="rq">*</span></label><input type="text" id="prop-prazo" placeholder="Ex: 360" inputmode="numeric" oninput="calcProp()"></div>
+      </div>
+      <div id="prop-preview" style="background:var(--nvl);border:1px solid var(--bd);border-radius:8px;padding:14px;margin:6px 0 14px;font-size:12px;display:none">
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Entrada (imóvel − financiamento)</span><b id="pp-entrada">—</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Parcela estimada</span><b style="color:var(--gd)" id="pp-parcela">—</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Renda necessária (parcela ÷ 30%)</span><b id="pp-renda">—</b></div>
+        <div id="pp-doc-row" style="display:none;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Documentação (5% do imóvel)</span><b id="pp-doc">—</b></div>
+      </div>
+      <div class="ct">Observações / Condições (texto livre)</div>
+      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxa sujeita à aprovação. Seguro habitacional incluso. Primeira parcela em 30 dias..." style="min-height:70px"></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn bo" onclick="closeModal('mo-prop')">Cancelar</button>
+      <button class="btn bg" onclick="gerarPropostaPDF()">📄 Baixar PDF</button>
     </div>
   </div>
 </div>
@@ -2201,6 +2231,165 @@ function cdTab(qual){
 
 // ===== EDITOR DA LISTA-BASE =====
 let _modeloEdit=null;
+
+// ===== PROPOSTA PDF (material de venda para o cliente) =====
+let _propClienteId=null;
+function abrirProposta(id){
+  _propClienteId=id||editClientId;
+  const c=clients.find(x=>x.id===_propClienteId);
+  if(!c){alert('Cliente não encontrado.');return;}
+  document.getElementById('prop-cli').textContent=c.nome+(c.valorImovel?' · Imóvel '+fmtV(c.valorImovel):'');
+  document.getElementById('prop-taxa').value='';
+  document.getElementById('prop-prazo').value=c.prazoIntencao&&/^\d+$/.test(c.prazoIntencao)?c.prazoIntencao:'';
+  document.getElementById('prop-obs').value='';
+  document.getElementById('prop-preview').style.display='none';
+  openModal('mo-prop');
+}
+// parcela pela fórmula Price
+function _parcelaPrice(pv,taxaMes,n){
+  const i=taxaMes/100;
+  if(!pv||!n)return 0;
+  if(i===0)return pv/n;
+  return pv*i/(1-Math.pow(1+i,-n));
+}
+function calcProp(){
+  const c=clients.find(x=>x.id===_propClienteId);if(!c)return;
+  const taxa=parseFloat((document.getElementById('prop-taxa').value||'').replace(',','.'))||0;
+  const n=parseInt(document.getElementById('prop-prazo').value)||0;
+  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0;
+  const prev=document.getElementById('prop-preview');
+  if(taxa<=0||n<=0){prev.style.display='none';return;}
+  prev.style.display='block';
+  const entrada=Math.max(0,iv-fv);
+  const parcela=_parcelaPrice(fv,taxa,n);
+  const rendaNec=parcela/0.30;
+  document.getElementById('pp-entrada').textContent=fmtV(entrada);
+  document.getElementById('pp-parcela').textContent=fmtV(parcela);
+  document.getElementById('pp-renda').textContent=fmtV(rendaNec);
+  // documentação: só se o cliente marcou que financia (guardado no obs)
+  const financiaDoc=(c.obs||'').toLowerCase().includes('financia documentação: sim');
+  const docRow=document.getElementById('pp-doc-row');
+  if(financiaDoc&&iv>0){docRow.style.display='flex';document.getElementById('pp-doc').textContent=fmtV(iv*0.05);}
+  else docRow.style.display='none';
+}
+function gerarPropostaPDF(){
+  const c=clients.find(x=>x.id===_propClienteId);if(!c){alert('Cliente não encontrado.');return;}
+  const taxa=parseFloat((document.getElementById('prop-taxa').value||'').replace(',','.'))||0;
+  const n=parseInt(document.getElementById('prop-prazo').value)||0;
+  if(taxa<=0||n<=0){alert('Preencha a taxa de juros e o prazo para gerar a proposta.');return;}
+  const obsLivre=(document.getElementById('prop-obs').value||'').trim();
+
+  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0;
+  const entrada=Math.max(0,iv-fv);
+  const parcela=_parcelaPrice(fv,taxa,n);
+  const rendaNec=parcela/0.30;
+  const financiaDoc=(c.obs||'').toLowerCase().includes('financia documentação: sim');
+  const docVal=financiaDoc?iv*0.05:0;
+  const bancoNome=(banks.find(b=>b.id===c.bancoEscolhido)||{}).nome||'A definir';
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210, m=18; let y=0;
+  const GD=[201,168,76], DK=[13,27,42], MU=[120,120,120];
+  const fmt=v=>fmtV(v);
+
+  // Cabeçalho NEXA
+  doc.setFillColor(...DK); doc.rect(0,0,W,38,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22);
+  doc.text('NEXA',m,20); doc.setTextColor(...GD); doc.text('CAPITAL',m+24,20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(210,210,210);
+  doc.text('Correspondente Bancário · Crédito Imobiliário',m,28);
+  // número + data da proposta (à direita)
+  const nProp='#'+String(Date.now()).slice(-6);
+  const hoje=new Date();
+  doc.setFontSize(9); doc.setTextColor(255,255,255);
+  doc.text('Proposta '+nProp,W-m,16,{align:'right'});
+  doc.setTextColor(210,210,210); doc.setFontSize(8);
+  doc.text('Emitida em '+hoje.toLocaleDateString('pt-BR'),W-m,22,{align:'right'});
+  const val=new Date(hoje.getTime()+7*86400000);
+  doc.text('Válida até '+val.toLocaleDateString('pt-BR'),W-m,27,{align:'right'});
+
+  y=50;
+  doc.setTextColor(...DK); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text('Proposta de Financiamento Imobiliário',m,y);
+  y+=8; doc.setDrawColor(...GD); doc.setLineWidth(0.6); doc.line(m,y,W-m,y); y+=9;
+
+  // Dados do cliente
+  doc.setFontSize(9); doc.setTextColor(...MU); doc.setFont('helvetica','bold');
+  doc.text('CLIENTE',m,y); y+=6;
+  doc.setTextColor(40,40,40); doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
+  doc.text(c.nome||'—',m,y); y+=5.5;
+  doc.setFontSize(9); doc.setTextColor(90,90,90);
+  if(c.cpf){doc.text('CPF: '+c.cpf,m,y);y+=5;}
+  if(c.telefone){doc.text('Contato: '+c.telefone,m,y);y+=5;}
+  y+=4;
+
+  // Quadro de valores
+  const linhas=[
+    ['Valor do imóvel', fmt(iv)],
+    ['Valor financiado', fmt(fv)],
+    ['Entrada (recursos próprios)', fmt(entrada)],
+    ['Banco', bancoNome],
+    ['Prazo', n+' meses ('+(n/12).toFixed(1).replace('.',',')+' anos)'],
+    ['Taxa de juros', taxa.toString().replace('.',',')+'% ao mês'],
+  ];
+  if(financiaDoc)linhas.push(['Documentação (5% do imóvel)', fmt(docVal)]);
+
+  doc.setDrawColor(230,230,230);
+  linhas.forEach((ln,idx)=>{
+    if(idx%2===0){doc.setFillColor(247,245,240);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
+    doc.setTextColor(80,80,80); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    doc.text(ln[0],m+2,y);
+    doc.setTextColor(30,30,30); doc.setFont('helvetica','bold');
+    doc.text(String(ln[1]),W-m-2,y,{align:'right'});
+    y+=7.5;
+  });
+  y+=6;
+
+  // Destaque: parcela + renda necessária
+  doc.setFillColor(...DK); doc.roundedRect(m,y,W-2*m,22,2,2,'F');
+  doc.setTextColor(210,210,210); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text('PARCELA ESTIMADA',m+6,y+8);
+  doc.setTextColor(...GD); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text(fmt(parcela),m+6,y+16);
+  doc.setTextColor(210,210,210); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text('RENDA NECESSÁRIA',W-m-6,y+8,{align:'right'});
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text(fmt(rendaNec),W-m-6,y+16,{align:'right'});
+  y+=30;
+
+  // Observações livres
+  if(obsLivre){
+    doc.setTextColor(...MU); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('CONDIÇÕES',m,y); y+=5.5;
+    doc.setTextColor(70,70,70); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    const wrapped=doc.splitTextToSize(obsLivre,W-2*m);
+    doc.text(wrapped,m,y); y+=wrapped.length*4.6+6;
+  }
+
+  // Próximos passos
+  doc.setTextColor(...MU); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('PRÓXIMOS PASSOS',m,y); y+=6;
+  const passos=['Reúna a documentação inicial (identidade, renda, residência).','Análise de crédito junto ao banco.','Avaliação do imóvel e análise jurídica.','Assinatura do contrato e liberação do financiamento.'];
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(70,70,70);
+  passos.forEach((p,i)=>{doc.setTextColor(...GD);doc.setFont('helvetica','bold');doc.text((i+1)+'.',m,y);doc.setTextColor(70,70,70);doc.setFont('helvetica','normal');doc.text(p,m+6,y);y+=5.5;});
+
+  // Rodapé: contato + aviso
+  const yFoot=272;
+  doc.setDrawColor(...GD); doc.setLineWidth(0.5); doc.line(m,yFoot,W-m,yFoot);
+  doc.setTextColor(...DK); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('Matheus · NEXA Capital',m,yFoot+7);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,90);
+  doc.text('WhatsApp: (19) 99102-2882',m,yFoot+12);
+  doc.setFontSize(7); doc.setTextColor(150,150,150);
+  const aviso='Os valores desta proposta são estimativas e estão sujeitos à análise e aprovação da instituição financeira. Não constituem promessa de crédito.';
+  doc.text(doc.splitTextToSize(aviso,W-2*m),m,yFoot+18);
+
+  const nomeArq='Proposta_NEXA_'+(c.nome||'cliente').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
+  doc.save(nomeArq);
+  closeModal('mo-prop');
+}
+
 function abrirEditorModelos(){
   const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
   _modeloEdit=JSON.parse(JSON.stringify(base)); // cópia editável
