@@ -2064,7 +2064,7 @@ function renderTbl(){
   tb.innerHTML=fl.map(cl=>{
     const bk=(cl.bancos||[]).map(bid=>{const b=banks.find(x=>x.id===bid);return b?`<span class="tag tgc" style="margin-right:2px">${b.nome}</span>`:''}).join('');
     const isChecked = checkedIds.has(cl.id) ? ' checked' : '';
-    return `<tr><td onclick="event.stopPropagation()"><input type="checkbox" class="sel-cli" data-id="${cl.id}" onchange="updDelBtn()"${isChecked}></td><td onclick="openClientDetail('${cl.id}')" style="cursor:pointer"><div class="fg2"><div class="av">${ini(cl.nome)}</div><div>${cl.nome}${cl.origem==='formulario_publico'?'<div style="font-size:9px;color:var(--gd)">✦ Formulário</div>':''}</div></div></td><td style="font-size:11px">${cl.telefone||'—'}</td><td style="font-size:11px">${cl.refCorretor?`<span style="color:var(--gd)">${(corretores.find(co=>co.slug===cl.refCorretor)||{}).nome||cl.refCorretor}</span>`:'<span style="color:var(--mu)">Direto</span>'}</td><td>${cl.valorImovel?fmtV(cl.valorImovel):'—'}</td><td style="color:var(--gd)">${cl.valorFinanciamento?fmtV(cl.valorFinanciamento):'—'}</td><td>${bk||'<span style="color:var(--mu)">—</span>'}</td><td><span class="sb2 ${SL[cl.status]||''}">${SN[cl.status]||cl.status}</span></td><td onclick="event.stopPropagation()"><button class="btn brd bsm" onclick="delOne('${cl.id}')">✕</button></td></tr>`;
+    return `<tr><td onclick="event.stopPropagation()"><input type="checkbox" class="sel-cli" data-id="${cl.id}" onchange="updDelBtn()"${isChecked}></td><td onclick="openClientDetail('${cl.id}')" style="cursor:pointer"><div class="fg2"><div class="av">${ini(cl.nome)}</div><div>${cl.nome}${cl.origem==='formulario_publico'?'<div style="font-size:9px;color:var(--gd)">✦ Formulário</div>':''}</div></div></td><td style="font-size:11px">${cl.telefone||'—'}</td><td style="font-size:11px">${cl.refCorretor?`<span style="color:var(--gd)">${(corretores.find(co=>normRef(co.slug)===normRef(cl.refCorretor))||{}).nome||cl.refCorretor}</span>`:'<span style="color:var(--mu)">Direto</span>'}</td><td>${cl.valorImovel?fmtV(cl.valorImovel):'—'}</td><td style="color:var(--gd)">${cl.valorFinanciamento?fmtV(cl.valorFinanciamento):'—'}</td><td>${bk||'<span style="color:var(--mu)">—</span>'}</td><td><span class="sb2 ${SL[cl.status]||''}">${SN[cl.status]||cl.status}</span></td><td onclick="event.stopPropagation()"><button class="btn brd bsm" onclick="delOne('${cl.id}')">✕</button></td></tr>`;
   }).join('');
 }
 
@@ -3170,7 +3170,7 @@ function calcMetricas(mes,ano){
 
   // Conversão por corretor: volume de leads x quantos fecharam
   const porCorretor={};
-  const nomeCor=(c)=>c.refCorretor?(corretores.find(co=>co.slug===c.refCorretor)?.nome||c.refCorretor):'Direto (site/manual)';
+  const nomeCor=(c)=>c.refCorretor?(corretores.find(co=>normRef(co.slug)===normRef(c.refCorretor))?.nome||c.refCorretor):'Direto (site/manual)';
   novos.forEach(c=>{const n=nomeCor(c);porCorretor[n]??={leads:0,fechou:0,volume:0};porCorretor[n].leads++;});
   fechadosMes.forEach(c=>{const n=nomeCor(c);porCorretor[n]??={leads:0,fechou:0,volume:0};porCorretor[n].fechou++;porCorretor[n].volume+=Number(c.valorFinanciamento)||0;});
   const corretorStats=Object.entries(porCorretor).map(([nome,v])=>({
@@ -3971,7 +3971,7 @@ function saveCorretor(){
   const tel=document.getElementById('cor-tel-input').value.trim();
   const slug=document.getElementById('cor-slug-input').value.trim();
   if(!nome){alert('Preencha o nome!');return;}
-  const finalSlug=slug||nome.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const finalSlug=normRef(slug||nome);
   corretores.push({id:'cor_'+Date.now(), nome, telefone:tel, slug:finalSlug});
   saveCorretores();
   renderCorretores();
@@ -3991,7 +3991,7 @@ function delCorretor(id){
 
 
 // Normaliza ref/slug para comparar sem falhar por caixa/espaço/acento
-function normRef(v){return (v||'').toString().trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
+function normRef(v){return (v||'').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
 
 // Indicados = pipeline + arquivados (arquivar não pode diminuir o total do corretor)
 function todosIndicados(){
@@ -4113,7 +4113,7 @@ function onStatusChange(clientId, newStatus){
 
   // Envia para o corretor (se tiver indicação e mensagem definida)
   if(msg.corretor && cl.refCorretor){
-    const corretor = corretores.find(co=>co.slug===cl.refCorretor);
+    const corretor = corretores.find(co=>normRef(co.slug)===normRef(cl.refCorretor));
     if(corretor && corretor.telefone){
       const corPhone = corretor.telefone.replace(/[^0-9]/g,'');
       if(corPhone) sendZAPIMessage(zapiConfig, msg.corretor, corPhone);
