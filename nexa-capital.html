@@ -263,14 +263,15 @@ checkAuth();
     <div class="ni" data-page="clientes"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clientes<span class="ndot" id="ndot" style="display:none"></span></div>
     <div class="ni" data-page="agenda"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</div>
     <div class="sb-sec">Operações</div>
-    <div class="ni" data-page="simulador"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3"/><rect x="9" y="3" width="6" height="6" rx="1"/></svg>Simulador</div>
-    <div class="ni" data-page="comparativo"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparativo PDF</div>
+    
+    
     <div class="sb-sec">Config</div>
     <div class="ni" data-page="financeiro"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Financeiro</div>
     <div class="ni" data-page="resumo"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Resumo Mensal</div>
   <div class="ni" data-page="marketing"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Marketing</div>
   <div class="ni" data-page="corretores"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Corretores</div>
     <div class="ni" data-page="bancos"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Meus Bancos</div>
+    <div class="ni" data-page="config"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configurações</div>
   </nav>
   <div style="padding:10px 10px 0;border-top:1px solid var(--bd)">
     <div class="ni" onclick="arquivarFinalizados()" style="color:var(--mu)">
@@ -505,7 +506,7 @@ checkAuth();
     <div class="pg ain" id="page-bancos">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div><h1>Meus Bancos</h1><p>Gerencie seus bancos parceiros</p><div class="phl"></div></div>
-        <div style="display:flex;gap:8px;margin-top:4px"><button class="btn bo" onclick="abrirEditorMsgPortal()" title="Editar as mensagens que o cliente vê em cada etapa no portal">💬 Mensagens do portal</button><button class="btn bg" onclick="openBankModal()">+ Banco</button></div>
+        <button class="btn bg" onclick="openBankModal()" style="margin-top:4px">+ Banco</button>
       </div>
       <div class="bkg" id="bkgrid"></div>
 
@@ -555,6 +556,30 @@ checkAuth();
 
 
     <!-- RESUMO MENSAL -->
+    <div class="pg ain" id="page-config">
+      <div class="ph"><div><h1>Configurações</h1><p>Personalize o portal do cliente e a lista de documentos</p><div class="phl"></div></div></div>
+
+      <div class="card" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div>
+            <div class="ct" style="margin:0">💬 Portal do Cliente — Etapas e Mensagens</div>
+            <p style="font-size:11px;color:var(--mu);margin-top:4px;max-width:520px">Edite os títulos das etapas, as mensagens que o cliente vê, a ordem, e esconda etapas que o cliente não precisa acompanhar. Vale para todos os clientes.</p>
+          </div>
+          <button class="btn bg" onclick="abrirEditorMsgPortal()">Editar etapas do portal</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div>
+            <div class="ct" style="margin:0">📄 Lista-base de Documentos</div>
+            <p style="font-size:11px;color:var(--mu);margin-top:4px;max-width:520px">A lista padrão de documentos por fase. É o ponto de partida de todo cliente novo — depois, dentro de cada cliente, você pode ajustar a lista individualmente.</p>
+          </div>
+          <button class="btn bg" onclick="abrirEditorModelos()">Editar lista-base</button>
+        </div>
+      </div>
+    </div>
+
     <div class="pg ain" id="page-resumo">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
         <div><h1>Resumo Mensal</h1><p>Analise o desempenho de qualquer mês</p><div class="phl"></div></div>
@@ -791,9 +816,10 @@ checkAuth();
     <div class="mb" id="cd-pane-docs" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <div class="ct" style="margin:0">Checklist de Documentos</div>
-        <button class="btn bo bsm" onclick="abrirEditorModelos()" title="Editar a lista-base de documentos">⚙️ Editar lista-base</button>
+        <button class="btn bo bsm" onclick="abrirEditorDocsCliente()" title="Adicionar ou remover documentos só deste cliente">✏️ Personalizar deste cliente</button>
       </div>
-      <div style="font-size:10px;color:var(--mu);margin-bottom:12px;line-height:1.6">Marque o que o cliente já entregou. O progresso fica salvo e vai poder aparecer no portal do cliente.</div>
+      <div style="font-size:10px;color:var(--mu);margin-bottom:12px;line-height:1.6">Marque o que o cliente já entregou. A lista vem do padrão (Configurações), mas você pode ajustá-la só para este cliente.</div>
+      <div id="cd-docs-custom-badge"></div>
       <div id="cd-checklist"></div>
     </div>
     <div class="mf">
@@ -821,6 +847,22 @@ checkAuth();
   </div>
 </div>
 
+<!-- MODAL: PERSONALIZAR DOCS DO CLIENTE -->
+<div class="mo" id="mo-docscli">
+  <div class="md">
+    <div class="mh">
+      <div><div class="mt">Documentos deste Cliente</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="docscli-nome">—</div></div>
+      <button class="mc" onclick="closeModal('mo-docscli')">✕</button>
+    </div>
+    <div class="mb" id="docscli-body"></div>
+    <div class="mf">
+      <button class="btn brd" onclick="resetDocsCliente()" title="Volta para a lista padrão (Configurações)">↺ Usar lista padrão</button>
+      <button class="btn bo" onclick="closeModal('mo-docscli')">Cancelar</button>
+      <button class="btn bg" onclick="salvarDocsCliente()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: MENSAGENS DO PORTAL -->
 <div class="mo" id="mo-msgport">
   <div class="md">
@@ -836,27 +878,24 @@ checkAuth();
   </div>
 </div>
 
-<!-- MODAL: GERAR PROPOSTA PDF -->
+<!-- MODAL: GERAR PROPOSTA / COMPARATIVO PDF -->
 <div class="mo" id="mo-prop">
-  <div class="md">
+  <div class="md" style="max-width:720px">
     <div class="mh">
-      <div><div class="mt">Gerar Proposta (PDF)</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="prop-cli">—</div></div>
+      <div><div class="mt">Proposta — Comparativo de Bancos</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="prop-cli">—</div></div>
       <button class="mc" onclick="closeModal('mo-prop')">✕</button>
     </div>
     <div class="mb">
-      <div class="ct">Condições do Financiamento</div>
-      <div class="fr">
-        <div class="fg"><label>Taxa de juros (% ao mês) <span class="rq">*</span></label><input type="text" id="prop-taxa" placeholder="Ex: 0,99" inputmode="decimal" oninput="calcProp()"></div>
-        <div class="fg"><label>Prazo (meses) <span class="rq">*</span></label><input type="text" id="prop-prazo" placeholder="Ex: 360" inputmode="numeric" oninput="calcProp()"></div>
-      </div>
-      <div id="prop-preview" style="background:var(--nvl);border:1px solid var(--bd);border-radius:8px;padding:14px;margin:6px 0 14px;font-size:12px;display:none">
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Entrada (imóvel − financiamento)</span><b id="pp-entrada">—</b></div>
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Parcela estimada</span><b style="color:var(--gd)" id="pp-parcela">—</b></div>
-        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Renda necessária (parcela ÷ 30%)</span><b id="pp-renda">—</b></div>
-        <div id="pp-doc-row" style="display:none;justify-content:space-between;padding:5px 0"><span style="color:var(--mu)">Documentação (5% do imóvel)</span><b id="pp-doc">—</b></div>
-      </div>
-      <div class="ct">Observações / Condições (texto livre)</div>
-      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxa sujeita à aprovação. Seguro habitacional incluso. Primeira parcela em 30 dias..." style="min-height:70px"></textarea></div>
+      <div style="font-size:10.5px;color:var(--mu);margin-bottom:12px;line-height:1.6">Adicione as linhas do comparativo. Preencha os valores manualmente (como no documento que você já envia). Cada banco pode ter mais de uma linha, ex.: SAC e PRICE.</div>
+      <div class="ct" style="margin-bottom:8px">Linhas do comparativo</div>
+      <div id="prop-linhas"></div>
+      <button class="btn bo bsm" onclick="propAddLinha()" style="margin-top:4px">+ Adicionar linha</button>
+
+      <div class="ct" style="margin-top:18px">Renda familiar (para renda necessária)</div>
+      <div class="fg"><input type="text" id="prop-renda" placeholder="R$ 0,00 (opcional)" inputmode="numeric" oninput="fmtCur(this)"></div>
+
+      <div class="ct" style="margin-top:14px">Observações do correspondente</div>
+      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxas sujeitas à aprovação. Seguro habitacional incluso. Valores simulados em DD/MM..." style="min-height:64px"></textarea></div>
     </div>
     <div class="mf">
       <button class="btn bo" onclick="closeModal('mo-prop')">Cancelar</button>
@@ -865,7 +904,7 @@ checkAuth();
   </div>
 </div>
 
-<!-- MODAL: BANCO -->
+<!-- MODAL: BANCO --><!-- MODAL: BANCO -->
 <div class="mo" id="mo-bk">
   <div class="md sm">
     <div class="mh"><div><div class="mt" id="bk-ttl">Novo Banco</div></div><button class="mc" onclick="closeModal('mo-bk')">✕</button></div>
@@ -2170,6 +2209,9 @@ async function initChecklistModelos(){
 
 // retorna as fases aplicáveis a um cliente (base + exceção do banco, se houver)
 function fasesDoCliente(cl){
+  // 1º: lista personalizada DESTE cliente (se ele já editou individualmente)
+  if(checklistCliente&&checklistCliente._fases&&checklistCliente._fases.length)return checklistCliente._fases;
+  // 2º: exceção por banco. 3º: lista-base padrão
   const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
   const bkId=cl&&cl.bancoEscolhido;
   const exc=bkId&&checklistModelos['banco_'+bkId];
@@ -2201,6 +2243,7 @@ function toggleDoc(docId){
 }
 
 function renderChecklist(){
+  if(typeof atualizarBadgeDocsCustom==='function')atualizarBadgeDocsCustom();
   const el=document.getElementById('cd-checklist');
   if(!el)return;
   const cl=clients.find(c=>c.id===editClientId);
@@ -2249,14 +2292,75 @@ function cdTab(qual){
 let _modeloEdit=null;
 
 
-// ===== EDITOR DE MENSAGENS DO PORTAL =====
+
+// ===== EDITOR DE DOCUMENTOS POR CLIENTE =====
+let _docsCliEdit=null;
+function abrirEditorDocsCliente(){
+  const cl=clients.find(x=>x.id===editClientId);
+  if(!cl){alert('Cliente não encontrado.');return;}
+  document.getElementById('docscli-nome').textContent=cl.nome||'';
+  // parte da lista atual do cliente (custom, ou a que ele herda hoje)
+  const atual=fasesDoCliente(cl);
+  _docsCliEdit=JSON.parse(JSON.stringify(atual));
+  renderEditorDocsCliente();
+  openModal('mo-docscli');
+}
+function renderEditorDocsCliente(){
+  const el=document.getElementById('docscli-body');
+  if(!el||!_docsCliEdit)return;
+  el.innerHTML='<div style="font-size:10.5px;color:var(--mu);margin-bottom:12px;line-height:1.6">Ajuste os documentos só para este cliente. Não altera a lista padrão dos outros.</div>'
+    +_docsCliEdit.map((f,fi)=>`
+    <div style="margin-bottom:16px;border:1px solid var(--bd);border-radius:8px;padding:12px">
+      <input value="${(f.fase||'').replace(/"/g,'&quot;')}" onchange="_dcEditFase(${fi},this.value)" style="width:100%;font-size:12px;font-weight:700;color:var(--gd);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:4px 0;margin-bottom:10px">
+      ${f.docs.map((d,di)=>`
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+          <div style="flex:1">
+            <input value="${(d.nome||'').replace(/"/g,'&quot;')}" onchange="_dcEditNome(${fi},${di},this.value)" placeholder="Nome do documento" style="width:100%;font-size:11px;padding:6px 8px">
+            <input value="${(d.obs||'').replace(/"/g,'&quot;')}" onchange="_dcEditObs(${fi},${di},this.value)" placeholder="Observação (opcional)" style="width:100%;font-size:10px;padding:5px 8px;margin-top:3px;color:var(--mu)">
+          </div>
+          <button class="btn brd bsm" onclick="_dcRemove(${fi},${di})" title="Remover">✕</button>
+        </div>`).join('')}
+      <button class="btn bo bsm" onclick="_dcAddDoc(${fi})" style="margin-top:6px">+ Documento</button>
+    </div>`).join('')
+    +`<button class="btn bo bsm" onclick="_dcAddFase()">+ Adicionar fase</button>`;
+}
+function _dcEditFase(fi,v){_docsCliEdit[fi].fase=v;}
+function _dcEditNome(fi,di,v){_docsCliEdit[fi].docs[di].nome=v;}
+function _dcEditObs(fi,di,v){_docsCliEdit[fi].docs[di].obs=v;}
+function _dcRemove(fi,di){_docsCliEdit[fi].docs.splice(di,1);renderEditorDocsCliente();}
+function _dcAddDoc(fi){_docsCliEdit[fi].docs.push({id:'d_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),nome:'',obs:''});renderEditorDocsCliente();}
+function _dcAddFase(){_docsCliEdit.push({fase:'Nova fase',docs:[]});renderEditorDocsCliente();}
+async function salvarDocsCliente(){
+  _docsCliEdit.forEach(f=>f.docs.forEach(d=>{if(!d.id)d.id='d_'+Math.random().toString(36).slice(2,8);}));
+  checklistCliente._fases=_docsCliEdit;   // grava a lista custom junto ao progresso do cliente
+  await salvarChecklistCliente(editClientId);
+  closeModal('mo-docscli');
+  renderChecklist();
+  atualizarBadgeDocsCustom();
+}
+async function resetDocsCliente(){
+  if(!confirm('Voltar este cliente para a lista de documentos padrão?'))return;
+  delete checklistCliente._fases;
+  await salvarChecklistCliente(editClientId);
+  closeModal('mo-docscli');
+  renderChecklist();
+  atualizarBadgeDocsCustom();
+}
+function atualizarBadgeDocsCustom(){
+  const b=document.getElementById('cd-docs-custom-badge');
+  if(!b)return;
+  const custom=checklistCliente&&checklistCliente._fases&&checklistCliente._fases.length;
+  b.innerHTML=custom?'<div style="font-size:10px;color:var(--gd);background:rgba(201,168,76,.1);border:1px solid var(--bd);border-radius:6px;padding:5px 10px;margin-bottom:10px">✏️ Lista personalizada para este cliente</div>':'';
+}
+
+// ===== EDITOR DE ETAPAS DO PORTAL (título + mensagem + ordem + ocultar) =====
 const MSG_PORTAL_PADRAO={
   novo:'Recebemos seu cadastro! Em breve entraremos em contato para dar início.',
   contato:'Estamos entrando em contato para entender seu perfil e necessidades.',
   simulacao:'Estamos preparando a simulação com as melhores condições para o seu caso.',
   analise:'Seu crédito está em análise no banco. Costuma levar de 3 a 5 dias úteis.',
   aprovado:'Ótima notícia! Seu crédito foi aprovado. Vamos para a próxima fase.',
-  checklist:'Agora reunimos a documentação necessária. Veja abaixo o que ainda falta.',
+  checklist:'Agora reunimos a documentação necessária.',
   engenharia:'O imóvel está em avaliação de engenharia pelo banco.',
   juridico:'A documentação está em análise jurídica.',
   interveniente:'Estamos tratando da quitação junto ao credor atual do imóvel.',
@@ -2266,35 +2370,51 @@ const MSG_PORTAL_PADRAO={
   pagamento:'O recurso está sendo liberado. Parabéns, chegamos ao fim!',
   finalizados:'Seu financiamento foi concluído com sucesso. Parabéns pela sua conquista!'
 };
-// rótulos amigáveis das etapas (iguais aos do portal)
 const MSG_PORTAL_LABEL={novo:'Cadastro recebido',contato:'Primeiro contato',simulacao:'Simulação',analise:'Análise de crédito',aprovado:'Crédito aprovado',checklist:'Reunião de documentos',engenharia:'Avaliação do imóvel',juridico:'Análise jurídica',interveniente:'Quitação',fgts:'Liberação do FGTS',contrato:'Emissão do contrato',cartorio:'Registro em cartório',pagamento:'Liberação do recurso',finalizados:'Concluído'};
+// ordem padrão das etapas (chaves reais do pipeline)
+const ETAPAS_ORDEM_PADRAO=['novo','contato','simulacao','analise','aprovado','checklist','engenharia','juridico','interveniente','fgts','contrato','cartorio','pagamento','finalizados'];
 
-let msgPortalEdit={};
+let etapasPortalEdit=[]; // [{k,label,msg,hidden}]
 async function abrirEditorMsgPortal(){
-  // carrega mensagens salvas (ou usa padrão)
-  let salvas={};
-  if(supa){try{const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_msgs').maybeSingle();if(data&&data.fases)salvas=data.fases;}catch(e){}}
-  msgPortalEdit={};
-  Object.keys(MSG_PORTAL_PADRAO).forEach(k=>{msgPortalEdit[k]=(salvas&&salvas[k]!=null)?salvas[k]:MSG_PORTAL_PADRAO[k];});
+  let salvo=null;
+  if(supa){try{const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_etapas').maybeSingle();if(data&&data.fases)salvo=data.fases;}catch(e){}}
+  if(salvo&&Array.isArray(salvo)&&salvo.length){
+    etapasPortalEdit=JSON.parse(JSON.stringify(salvo));
+  }else{
+    // monta do padrão
+    etapasPortalEdit=ETAPAS_ORDEM_PADRAO.map(k=>({k,label:MSG_PORTAL_LABEL[k]||k,msg:MSG_PORTAL_PADRAO[k]||'',hidden:false}));
+  }
   renderEditorMsgPortal();
   openModal('mo-msgport');
 }
 function renderEditorMsgPortal(){
   const el=document.getElementById('msgport-body');
   if(!el)return;
-  el.innerHTML=Object.keys(MSG_PORTAL_PADRAO).map(k=>`
-    <div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--gd);margin-bottom:4px">${MSG_PORTAL_LABEL[k]||k}</div>
-      <textarea onchange="msgPortalEdit['${k}']=this.value" style="min-height:52px;font-size:12px">${(msgPortalEdit[k]||'').replace(/</g,'&lt;')}</textarea>
+  el.innerHTML='<div style="font-size:10.5px;color:var(--mu);margin-bottom:14px;line-height:1.6">Edite o título e a mensagem de cada etapa, reordene com as setas, ou esconda etapas que o cliente não precisa ver. Vale para todos os clientes.</div>'
+    +etapasPortalEdit.map((e,i)=>`
+    <div style="border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:10px;${e.hidden?'opacity:.5':''}">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <button class="btn bo bsm" style="padding:2px 7px;line-height:1" onclick="_epMove(${i},-1)" ${i===0?'disabled':''}>▲</button>
+          <button class="btn bo bsm" style="padding:2px 7px;line-height:1" onclick="_epMove(${i},1)" ${i===etapasPortalEdit.length-1?'disabled':''}>▼</button>
+        </div>
+        <input value="${(e.label||'').replace(/"/g,'&quot;')}" onchange="_epLabel(${i},this.value)" placeholder="Título da etapa" style="flex:1;font-size:12px;font-weight:700;color:var(--gd);padding:6px 8px">
+        <button class="btn ${e.hidden?'brd':'bo'} bsm" onclick="_epToggle(${i})" title="${e.hidden?'Etapa escondida do cliente':'Etapa visível ao cliente'}">${e.hidden?'👁 Oculta':'👁 Visível'}</button>
+      </div>
+      <textarea onchange="_epMsg(${i},this.value)" placeholder="Mensagem que o cliente vê nesta etapa" style="width:100%;min-height:48px;font-size:12px">${(e.msg||'').replace(/</g,'&lt;')}</textarea>
     </div>`).join('');
 }
+function _epLabel(i,v){etapasPortalEdit[i].label=v;}
+function _epMsg(i,v){etapasPortalEdit[i].msg=v;}
+function _epToggle(i){etapasPortalEdit[i].hidden=!etapasPortalEdit[i].hidden;renderEditorMsgPortal();}
+function _epMove(i,dir){const j=i+dir;if(j<0||j>=etapasPortalEdit.length)return;const t=etapasPortalEdit[i];etapasPortalEdit[i]=etapasPortalEdit[j];etapasPortalEdit[j]=t;renderEditorMsgPortal();}
 async function salvarMsgPortal(){
   if(supa){
-    try{await supa.from('checklist_modelos').upsert({id:'portal_msgs',nome:'Mensagens do Portal',fases:msgPortalEdit,atualizado_em:new Date().toISOString()});}
+    try{await supa.from('checklist_modelos').upsert({id:'portal_etapas',nome:'Etapas do Portal',fases:etapasPortalEdit,atualizado_em:new Date().toISOString()});}
     catch(e){alert('Erro ao salvar: '+e.message);return;}
   }
   closeModal('mo-msgport');
-  alert('✅ Mensagens do portal atualizadas! O cliente já vê o novo texto ao abrir o portal.');
+  alert('✅ Etapas do portal atualizadas! O cliente já vê as mudanças ao abrir o portal.');
 }
 
 // ===== PORTAL DO CLIENTE (link só de leitura) =====
@@ -2322,284 +2442,143 @@ async function copiarLinkPortal(){
   }
 }
 
-// ===== PROPOSTA PDF (material de venda para o cliente) =====
+// ===== PROPOSTA / COMPARATIVO DE BANCOS (PDF) =====
 let _propClienteId=null;
+let propLinhas=[];
 function abrirProposta(id){
   _propClienteId=id||editClientId;
   const c=clients.find(x=>x.id===_propClienteId);
-  if(!c){alert('Cliente não encontrado.');return;}
-  document.getElementById('prop-cli').textContent=c.nome+(c.valorImovel?' · Imóvel '+fmtV(c.valorImovel):'');
-  document.getElementById('prop-taxa').value='';
-  document.getElementById('prop-prazo').value=c.prazoIntencao&&/^\d+$/.test(c.prazoIntencao)?c.prazoIntencao:'';
+  if(!c){alert('Cliente nao encontrado.');return;}
+  document.getElementById('prop-cli').textContent=c.nome+(c.valorImovel?' \u00b7 Im\u00f3vel '+fmtV(c.valorImovel):'');
   document.getElementById('prop-obs').value='';
-  document.getElementById('prop-preview').style.display='none';
+  document.getElementById('prop-renda').value=c.rendaFamiliar?fmtV(c.rendaFamiliar):'';
+  propLinhas=[{banco:'',taxaAA:'',cet:'',pInicial:'',pFinal:'',prazo:'360',amort:'SAC'}];
+  renderPropLinhas();
   openModal('mo-prop');
 }
-// parcela pela fórmula Price
-function _parcelaPrice(pv,taxaMes,n){
-  const i=taxaMes/100;
-  if(!pv||!n)return 0;
-  if(i===0)return pv/n;
-  return pv*i/(1-Math.pow(1+i,-n));
+function renderPropLinhas(){
+  const el=document.getElementById('prop-linhas');
+  if(!el)return;
+  const bancoOpts=banks.map(b=>'<option value="'+(b.nome||'').replace(/"/g,'&quot;')+'">').join('');
+  el.innerHTML=propLinhas.map((l,i)=>`
+    <div style="border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <input list="prop-bancos-dl" value="${(l.banco||'').replace(/"/g,'&quot;')}" onchange="_plSet(${i},'banco',this.value)" placeholder="Banco" style="flex:1;font-size:12px;font-weight:700;color:var(--gd);padding:6px 8px">
+        <button class="btn brd bsm" onclick="_plDel(${i})" style="margin-left:6px" title="Remover linha">\u2715</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_plSet(${i},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
+        <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_plSet(${i},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
+        <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_plSet(${i},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
+        <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" onchange="_plSet(${i},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
+        <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" onchange="_plSet(${i},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
+        <div><label style="font-size:9px;color:var(--mu)">Amortiza\u00e7\u00e3o</label><select onchange="_plSet(${i},'amort',this.value)" style="font-size:11px;padding:5px 7px"><option ${l.amort==='SAC'?'selected':''}>SAC</option><option ${l.amort==='PRICE'?'selected':''}>PRICE</option></select></div>
+      </div>
+    </div>`).join('')+'<datalist id="prop-bancos-dl">'+bancoOpts+'</datalist>';
 }
-function calcProp(){
-  const c=clients.find(x=>x.id===_propClienteId);if(!c)return;
-  const taxa=parseFloat((document.getElementById('prop-taxa').value||'').replace(',','.'))||0;
-  const n=parseInt(document.getElementById('prop-prazo').value)||0;
-  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0;
-  const prev=document.getElementById('prop-preview');
-  if(taxa<=0||n<=0){prev.style.display='none';return;}
-  prev.style.display='block';
-  const entrada=Math.max(0,iv-fv);
-  const parcela=_parcelaPrice(fv,taxa,n);
-  const rendaNec=parcela/0.30;
-  document.getElementById('pp-entrada').textContent=fmtV(entrada);
-  document.getElementById('pp-parcela').textContent=fmtV(parcela);
-  document.getElementById('pp-renda').textContent=fmtV(rendaNec);
-  // documentação: só se o cliente marcou que financia (guardado no obs)
-  const financiaDoc=(c.obs||'').toLowerCase().includes('financia documentação: sim');
-  const docRow=document.getElementById('pp-doc-row');
-  if(financiaDoc&&iv>0){docRow.style.display='flex';document.getElementById('pp-doc').textContent=fmtV(iv*0.05);}
-  else docRow.style.display='none';
-}
-function gerarPropostaPDF(){
-  const c=clients.find(x=>x.id===_propClienteId);if(!c){alert('Cliente não encontrado.');return;}
-  const taxa=parseFloat((document.getElementById('prop-taxa').value||'').replace(',','.'))||0;
-  const n=parseInt(document.getElementById('prop-prazo').value)||0;
-  if(taxa<=0||n<=0){alert('Preencha a taxa de juros e o prazo para gerar a proposta.');return;}
-  const obsLivre=(document.getElementById('prop-obs').value||'').trim();
+function _plSet(i,campo,v){propLinhas[i][campo]=v;}
+function _plDel(i){propLinhas.splice(i,1);if(!propLinhas.length)propAddLinha();renderPropLinhas();}
+function propAddLinha(){propLinhas.push({banco:'',taxaAA:'',cet:'',pInicial:'',pFinal:'',prazo:'360',amort:'SAC'});renderPropLinhas();}
+function _num(v){if(v==null)return 0;const s=String(v).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(s)||0;}
 
-  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0;
-  const entrada=Math.max(0,iv-fv);
-  const parcela=_parcelaPrice(fv,taxa,n);
-  const rendaNec=parcela/0.30;
-  const financiaDoc=(c.obs||'').toLowerCase().includes('financia documentação: sim');
-  const docVal=financiaDoc?iv*0.05:0;
-  const bancoNome=(banks.find(b=>b.id===c.bancoEscolhido)||{}).nome||'A definir';
+function gerarPropostaPDF(){
+  const c=clients.find(x=>x.id===_propClienteId);if(!c){alert('Cliente nao encontrado.');return;}
+  const linhas=propLinhas.filter(l=>l.banco&&l.banco.trim());
+  if(!linhas.length){alert('Adicione ao menos um banco no comparativo.');return;}
+  const obsLivre=(document.getElementById('prop-obs').value||'').trim();
+  const rendaFam=_num(document.getElementById('prop-renda').value);
+  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0, entrada=Math.max(0,iv-fv);
+
+  let melhor=null;
+  linhas.forEach(l=>{const cet=_num(l.cet)||999,pin=_num(l.pInicial)||999999999;if(!melhor||cet<melhor._cet||(cet===melhor._cet&&pin<melhor._pin)){melhor={...l,_cet:cet,_pin:pin};}});
+  const menorParc=Math.min(...linhas.map(l=>_num(l.pInicial)||Infinity));
+  const rendaNec=(isFinite(menorParc)&&menorParc>0)?menorParc/0.30:0;
 
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
-  const W=210, m=18; let y=0;
-  const GD=[201,168,76], DK=[13,27,42], MU=[120,120,120];
+  const W=210,m=16;let y=0;
+  const GD=[201,168,76],DK=[13,27,42],MU=[120,120,120];
   const fmt=v=>fmtV(v);
 
-  // Cabeçalho NEXA
-  doc.setFillColor(...DK); doc.rect(0,0,W,38,'F');
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(22);
-  doc.text('NEXA',m,20); doc.setTextColor(...GD); doc.text('CAPITAL',m+24,20);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(210,210,210);
-  doc.text('Correspondente Bancário · Crédito Imobiliário',m,28);
-  // número + data da proposta (à direita)
-  const nProp='#'+String(Date.now()).slice(-6);
-  const hoje=new Date();
-  doc.setFontSize(9); doc.setTextColor(255,255,255);
-  doc.text('Proposta '+nProp,W-m,16,{align:'right'});
-  doc.setTextColor(210,210,210); doc.setFontSize(8);
-  doc.text('Emitida em '+hoje.toLocaleDateString('pt-BR'),W-m,22,{align:'right'});
+  doc.setFillColor(...DK);doc.rect(0,0,W,36,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(21);
+  doc.text('NEXA',m,19);doc.setTextColor(...GD);doc.text('CAPITAL',m+23,19);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(210,210,210);
+  doc.text('Correspondente Bancario \u00b7 Credito Imobiliario',m,27);
+  const nProp='#'+String(Date.now()).slice(-6);const hoje=new Date();
+  doc.setFontSize(9);doc.setTextColor(255,255,255);doc.text('Proposta '+nProp,W-m,15,{align:'right'});
+  doc.setTextColor(210,210,210);doc.setFontSize(7.5);
+  doc.text('Emitida em '+hoje.toLocaleDateString('pt-BR'),W-m,21,{align:'right'});
   const val=new Date(hoje.getTime()+7*86400000);
-  doc.text('Válida até '+val.toLocaleDateString('pt-BR'),W-m,27,{align:'right'});
+  doc.text('Valida ate '+val.toLocaleDateString('pt-BR'),W-m,26,{align:'right'});
 
-  y=50;
-  doc.setTextColor(...DK); doc.setFont('helvetica','bold'); doc.setFontSize(13);
-  doc.text('Proposta de Financiamento Imobiliário',m,y);
-  y+=8; doc.setDrawColor(...GD); doc.setLineWidth(0.6); doc.line(m,y,W-m,y); y+=9;
+  y=46;doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('Comparativo de Financiamento',m,y);
+  y+=7;doc.setDrawColor(...GD);doc.setLineWidth(0.5);doc.line(m,y,W-m,y);y+=8;
 
-  // Dados do cliente
-  doc.setFontSize(9); doc.setTextColor(...MU); doc.setFont('helvetica','bold');
-  doc.text('CLIENTE',m,y); y+=6;
-  doc.setTextColor(40,40,40); doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
-  doc.text(c.nome||'—',m,y); y+=5.5;
-  doc.setFontSize(9); doc.setTextColor(90,90,90);
-  if(c.cpf){doc.text('CPF: '+c.cpf,m,y);y+=5;}
-  if(c.telefone){doc.text('Contato: '+c.telefone,m,y);y+=5;}
-  y+=4;
+  doc.setFontSize(9);doc.setTextColor(...MU);doc.setFont('helvetica','bold');
+  doc.text('CLIENTE',m,y);doc.text('IMOVEL',W/2,y);y+=5;
+  doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');doc.setFontSize(10);
+  doc.text(c.nome||'-',m,y);doc.setFontSize(9);doc.text('Valor: '+fmt(iv),W/2,y);y+=5;
+  doc.setFontSize(9);doc.setTextColor(90,90,90);
+  if(c.telefone)doc.text(String(c.telefone),m,y);
+  doc.text('Financiado: '+fmt(fv)+'  \u00b7  Entrada: '+fmt(entrada),W/2,y);y+=8;
 
-  // Quadro de valores
-  const linhas=[
-    ['Valor do imóvel', fmt(iv)],
-    ['Valor financiado', fmt(fv)],
-    ['Entrada (recursos próprios)', fmt(entrada)],
-    ['Banco', bancoNome],
-    ['Prazo', n+' meses ('+(n/12).toFixed(1).replace('.',',')+' anos)'],
-    ['Taxa de juros', taxa.toString().replace('.',',')+'% ao mês'],
-  ];
-  if(financiaDoc)linhas.push(['Documentação (5% do imóvel)', fmt(docVal)]);
+  const cols=['Banco','Taxa a.a.+TR','CET','Parc. Inicial','Parc. Final','Prazo','Amort.'];
+  const cw=[34,26,20,30,30,18,18];
+  let x=m;
+  doc.setFillColor(...DK);doc.rect(m,y-4.5,W-2*m,8,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7.8);
+  cols.forEach((h,i)=>{doc.text(h,x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];});y+=6.5;
+  doc.setFont('helvetica','normal');doc.setFontSize(7.8);
+  const melhorRef=linhas.find(z=>z.banco===melhor.banco&&z.pInicial===melhor.pInicial&&z.amort===melhor.amort);
+  linhas.forEach((l,idx)=>{
+    const ehMelhor=(l===melhorRef);
+    if(ehMelhor){doc.setFillColor(240,247,238);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
+    else if(idx%2===0){doc.setFillColor(247,245,240);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
+    x=m;
+    const vals=[l.banco||'',(l.taxaAA||'')+'%',(l.cet||'')+'%',l.pInicial||'',l.pFinal||'',(l.prazo||'')+'m',l.amort||''];
+    vals.forEach((v,i)=>{
+      if(i===0&&ehMelhor){doc.setFont('helvetica','bold');doc.setTextColor(...GD);}
+      else{doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);}
+      doc.text(String(v),x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];
+    });y+=7.5;
+  });y+=6;
 
-  doc.setDrawColor(230,230,230);
-  linhas.forEach((ln,idx)=>{
-    if(idx%2===0){doc.setFillColor(247,245,240);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
-    doc.setTextColor(80,80,80); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
-    doc.text(ln[0],m+2,y);
-    doc.setTextColor(30,30,30); doc.setFont('helvetica','bold');
-    doc.text(String(ln[1]),W-m-2,y,{align:'right'});
-    y+=7.5;
-  });
-  y+=6;
+  doc.setFillColor(...DK);doc.roundedRect(m,y,W-2*m,20,2,2,'F');
+  doc.setTextColor(...GD);doc.setFont('helvetica','bold');doc.setFontSize(9);
+  doc.text('MELHOR CUSTO-BENEFICIO',m+5,y+7);
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(12);
+  doc.text(melhor.banco+(melhor.amort?' ('+melhor.amort+')':''),m+5,y+15);
+  doc.setTextColor(210,210,210);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+  doc.text('Menor CET'+(melhor.cet?' ('+melhor.cet+'%)':'')+' - reflete o custo real do financiamento.',W-m-5,y+15,{align:'right'});
+  y+=27;
 
-  // Destaque: parcela + renda necessária
-  doc.setFillColor(...DK); doc.roundedRect(m,y,W-2*m,22,2,2,'F');
-  doc.setTextColor(210,210,210); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('PARCELA ESTIMADA',m+6,y+8);
-  doc.setTextColor(...GD); doc.setFont('helvetica','bold'); doc.setFontSize(16);
-  doc.text(fmt(parcela),m+6,y+16);
-  doc.setTextColor(210,210,210); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('RENDA NECESSÁRIA',W-m-6,y+8,{align:'right'});
-  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(13);
-  doc.text(fmt(rendaNec),W-m-6,y+16,{align:'right'});
-  y+=30;
-
-  // Observações livres
+  if(rendaNec>0){
+    doc.setTextColor(...MU);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    doc.text('Renda necessaria estimada (menor parcela / 30%): ',m,y);
+    doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.text(fmt(rendaNec),m+90,y);
+    if(rendaFam>0){const ok=rendaFam>=rendaNec;doc.setTextColor(...(ok?[40,140,60]:[200,80,80]));
+      doc.text(ok?'Renda informada compativel':'Atencao: renda abaixo do necessario',m,y+5);}
+    y+=12;
+  }
   if(obsLivre){
-    doc.setTextColor(...MU); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-    doc.text('CONDIÇÕES',m,y); y+=5.5;
-    doc.setTextColor(70,70,70); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    const wrapped=doc.splitTextToSize(obsLivre,W-2*m);
-    doc.text(wrapped,m,y); y+=wrapped.length*4.6+6;
+    doc.setTextColor(...MU);doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text('OBSERVACOES',m,y);y+=5;
+    doc.setTextColor(70,70,70);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    const wr=doc.splitTextToSize(obsLivre,W-2*m);doc.text(wr,m,y);y+=wr.length*4.4+4;
   }
 
-  // Próximos passos
-  doc.setTextColor(...MU); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('PRÓXIMOS PASSOS',m,y); y+=6;
-  const passos=['Reúna a documentação inicial (identidade, renda, residência).','Análise de crédito junto ao banco.','Avaliação do imóvel e análise jurídica.','Assinatura do contrato e liberação do financiamento.'];
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(70,70,70);
-  passos.forEach((p,i)=>{doc.setTextColor(...GD);doc.setFont('helvetica','bold');doc.text((i+1)+'.',m,y);doc.setTextColor(70,70,70);doc.setFont('helvetica','normal');doc.text(p,m+6,y);y+=5.5;});
+  const yF=270;doc.setDrawColor(...GD);doc.setLineWidth(0.4);doc.line(m,yF,W-m,yF);
+  doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
+  doc.text('Matheus \u00b7 NEXA Capital',m,yF+6);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(90,90,90);
+  doc.text('WhatsApp: (19) 99102-2882',m,yF+11);
+  doc.setFontSize(6.8);doc.setTextColor(150,150,150);
+  const aviso='Valores e taxas sao simulacoes sujeitas a analise e aprovacao da instituicao financeira, podendo sofrer alteracoes. Nao constituem promessa de credito. CET = Custo Efetivo Total.';
+  doc.text(doc.splitTextToSize(aviso,W-2*m),m,yF+16);
 
-  // Rodapé: contato + aviso
-  const yFoot=272;
-  doc.setDrawColor(...GD); doc.setLineWidth(0.5); doc.line(m,yFoot,W-m,yFoot);
-  doc.setTextColor(...DK); doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text('Matheus · NEXA Capital',m,yFoot+7);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,90);
-  doc.text('WhatsApp: (19) 99102-2882',m,yFoot+12);
-  doc.setFontSize(7); doc.setTextColor(150,150,150);
-  const aviso='Os valores desta proposta são estimativas e estão sujeitos à análise e aprovação da instituição financeira. Não constituem promessa de crédito.';
-  doc.text(doc.splitTextToSize(aviso,W-2*m),m,yFoot+18);
-
-  const nomeArq='Proposta_NEXA_'+(c.nome||'cliente').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
-  doc.save(nomeArq);
+  doc.save('Proposta_NEXA_'+(c.nome||'cliente').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
   closeModal('mo-prop');
-}
-
-function abrirEditorModelos(){
-  const base=checklistModelos['base']||CHECKLIST_BASE_PADRAO;
-  _modeloEdit=JSON.parse(JSON.stringify(base)); // cópia editável
-  renderEditorModelos();
-  openModal('mo-chkmod');
-}
-function renderEditorModelos(){
-  const el=document.getElementById('chkmod-body');
-  if(!el||!_modeloEdit)return;
-  el.innerHTML=_modeloEdit.fases.map((f,fi)=>`
-    <div style="margin-bottom:16px;border:1px solid var(--bd);border-radius:8px;padding:12px">
-      <input value="${(f.fase||'').replace(/"/g,'&quot;')}" onchange="editFaseNome(${fi},this.value)" style="width:100%;font-size:12px;font-weight:700;color:var(--gd);background:transparent;border:none;border-bottom:1px solid var(--bd);padding:4px 0;margin-bottom:10px">
-      ${f.docs.map((d,di)=>`
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-          <div style="flex:1">
-            <input value="${(d.nome||'').replace(/"/g,'&quot;')}" onchange="editDocNome(${fi},${di},this.value)" placeholder="Nome do documento" style="width:100%;font-size:11px;padding:6px 8px">
-            <input value="${(d.obs||'').replace(/"/g,'&quot;')}" onchange="editDocObs(${fi},${di},this.value)" placeholder="Observação (opcional)" style="width:100%;font-size:10px;padding:5px 8px;margin-top:3px;color:var(--mu)">
-          </div>
-          <button class="btn brd bsm" onclick="removerDoc(${fi},${di})" title="Remover">✕</button>
-        </div>`).join('')}
-      <button class="btn bo bsm" onclick="addDoc(${fi})" style="margin-top:6px">+ Documento</button>
-    </div>`).join('')
-    +`<button class="btn bo bsm" onclick="addFase()">+ Adicionar fase</button>`;
-}
-function editFaseNome(fi,v){_modeloEdit.fases[fi].fase=v;}
-function editDocNome(fi,di,v){_modeloEdit.fases[fi].docs[di].nome=v;}
-function editDocObs(fi,di,v){_modeloEdit.fases[fi].docs[di].obs=v;}
-function removerDoc(fi,di){_modeloEdit.fases[fi].docs.splice(di,1);renderEditorModelos();}
-function addDoc(fi){_modeloEdit.fases[fi].docs.push({id:'d_'+Date.now(),nome:'',obs:''});renderEditorModelos();}
-function addFase(){_modeloEdit.fases.push({fase:'Nova fase',docs:[]});renderEditorModelos();}
-async function salvarModelos(){
-  // garante ids únicos nos docs novos
-  _modeloEdit.fases.forEach(f=>f.docs.forEach(d=>{if(!d.id)d.id='d_'+Math.random().toString(36).slice(2,8);}));
-  checklistModelos['base']=_modeloEdit;
-  if(supa){try{await supa.from('checklist_modelos').upsert({id:'base',nome:_modeloEdit.nome||'Lista-base',fases:_modeloEdit.fases,atualizado_em:new Date().toISOString()});}catch(e){alert('Erro ao salvar: '+e.message);return;}}
-  closeModal('mo-chkmod');
-  if(typeof renderChecklist==='function')renderChecklist();
-  alert('✅ Lista-base atualizada.');
-}
-
-function openClientDetail(id){
-  const c=clients.find(x=>x.id===id);if(!c)return;
-  editClientId=id;
-  if(typeof cdTab==='function')cdTab('dados');
-  carregarChecklistCliente(id).then(()=>{if(typeof renderChecklist==='function')renderChecklist();});
-  document.getElementById('cd-nm').textContent=c.nome;
-  document.getElementById('cd-info').textContent=`${c.telefone||''} · ${c.valorFinanciamento?fmtV(c.valorFinanciamento):'Valor não informado'}`;
-  // Dados pessoais
-  const ecMap={solteiro:'Solteiro(a)',casado:'Casado(a)',divorciado:'Divorciado(a)',viuvo:'Viúvo(a)',uniao:'União Estável'};
-  const dp=document.getElementById('cd-dados-pessoais');
-  if(dp){
-    const esc=s=>(s==null?'':String(s)).replace(/"/g,'&quot;');
-    const lbl=t=>`<div style="font-size:9px;letter-spacing:1px;color:var(--mu);margin-bottom:3px">${t}</div>`;
-    const ecOpts=Object.entries(ecMap).map(([k,v])=>`<option value="${k}" ${c.estadoCivil===k?'selected':''}>${v}</option>`).join('');
-    const prazoOpts=['','0 a 30 dias','1-3 meses','3-6 meses','6 meses+'].map(o=>`<option value="${o}" ${(c.prazoIntencao||'')===o?'selected':''}>${o||'—'}</option>`).join('');
-    const corOpts='<option value="">Direto (sem corretor)</option>'+corretores.map(co=>`<option value="${esc(co.slug)}" ${normRef(c.refCorretor)===normRef(co.slug)?'selected':''}>${esc(co.nome)}</option>`).join('');
-    dp.innerHTML=`
-      <div style="grid-column:1/-1">${lbl('NOME COMPLETO')}<input type="text" value="${esc(c.nome)}" onchange="updClient('nome',this.value);document.getElementById('cd-nm').textContent=this.value"></div>
-      <div>${lbl('CPF')}<input type="text" value="${esc(c.cpf)}" onchange="updClient('cpf',this.value)"></div>
-      <div>${lbl('NASCIMENTO')}<input type="date" value="${esc(c.nascimento)}" onchange="updClient('nascimento',this.value)"></div>
-      <div>${lbl('ESTADO CIVIL')}<select onchange="updClient('estadoCivil',this.value)">${ecOpts}</select></div>
-      <div>${lbl('WHATSAPP')}<input type="text" value="${esc(c.telefone)}" onchange="updClient('telefone',this.value)"></div>
-      <div>${lbl('RENDA FAMILIAR')}<input type="text" value="${c.rendaFamiliar?fmtV(c.rendaFamiliar):''}" placeholder="R$ 0,00" oninput="fmtCur(this)" onchange="updClient('rendaFamiliar',parseCur(this.value))"></div>
-      <div>${lbl('INTENÇÃO DE COMPRA')}<select onchange="updClient('prazoIntencao',this.value)">${prazoOpts}</select></div>
-      <div>${lbl('CORRETOR')}<select onchange="updClient('refCorretor',this.value)">${corOpts}</select></div>
-      <div style="opacity:.6">${lbl('ORIGEM')}<div style="font-weight:600;color:var(--wh);padding:8px 0">${c.origem==='formulario_publico'?'✦ Formulário público':'Cadastro interno'}</div></div>
-      <div style="opacity:.6">${lbl('DATA CADASTRO')}<div style="font-weight:600;color:var(--wh);padding:8px 0">${c.dataCadastro?new Date(c.dataCadastro).toLocaleDateString('pt-BR'):'—'}</div></div>
-    `;
-    // Add conjuge if exists
-    if(c.conjuge&&c.conjuge.nome){
-      const escj=s=>(s==null?'':String(s)).replace(/"/g,'&quot;');
-      dp.innerHTML+=`<div style="grid-column:1/-1;border-top:1px solid var(--bd);padding-top:8px;margin-top:4px"><div style="font-size:9px;letter-spacing:1px;color:var(--gd);margin-bottom:6px">CÔNJUGE</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><div style="font-size:9px;color:var(--mu);margin-bottom:3px">Nome</div><input type="text" value="${escj(c.conjuge.nome)}" onchange="updConjuge('nome',this.value)"></div><div><div style="font-size:9px;color:var(--mu);margin-bottom:3px">CPF</div><input type="text" value="${escj(c.conjuge.cpf)}" onchange="updConjuge('cpf',this.value)"></div><div><div style="font-size:9px;color:var(--mu);margin-bottom:3px">Nascimento</div><input type="date" value="${escj(c.conjuge.nascimento)}" onchange="updConjuge('nascimento',this.value)"></div></div></div>`;
-    }
-  }
-  document.getElementById('cd-st').value=c.status||'novo';
-  document.getElementById('cd-obs').value=c.obs||'';
-  document.getElementById('cd-iv').value=c.valorImovel?fmtV(c.valorImovel):'';
-  document.getElementById('cd-fv').value=c.valorFinanciamento?fmtV(c.valorFinanciamento):'';
-  document.getElementById('cd-bchips').innerHTML=banks.map(b=>`<div class="bchip ${(c.bancos||[]).includes(b.id)?'sel':''}" onclick="toggleCDBk('${b.id}',this)">${b.nome}</div>`).join('');
-  const sel=document.getElementById('cd-bk');
-  sel.innerHTML='<option value="">—</option>'+banks.map(b=>`<option value="${b.id}" ${c.bancoEscolhido===b.id?'selected':''}>${b.nome}</option>`).join('');
-  openModal('mo-cd');
-}
-function toggleCDBk(bid,el){
-  const c=clients.find(x=>x.id===editClientId);if(!c)return;
-  if(!c.bancos)c.bancos=[];
-  if(c.bancos.includes(bid)){c.bancos=c.bancos.filter(b=>b!==bid);el.classList.remove('sel');}
-  else{c.bancos.push(bid);el.classList.add('sel');}
-  saveClients();renderAll();
-}
-function updConjuge(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(!c.conjuge)c.conjuge={};c.conjuge[f]=v;saveClients();}
-function updClient(f,v){const c=clients.find(x=>x.id===editClientId);if(!c)return;if(f==='refCorretor'&&v)v=normRef(v);if(f==='status'&&c.status!==v)registrarSaidaEtapa(c,c.status,v);c[f]=v;if(f==='status'&&v==='contrato'){c.dataComissao=c.dataComissao||new Date().toISOString();registrarComissao(c);}if(f==='status'&&v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();}saveClients();renderAll();}
-function moverParaPerdidos(){
-  const c=clients.find(x=>x.id===editClientId);
-  if(!c)return;
-  if(c.status==='perdidos'){alert('Este cliente já está em Perdidos.');return;}
-  if(!confirm('Mover "'+(c.nome||'este cliente')+'" para Perdidos?\n\nEle NÃO será apagado — fica na aba Perdidos e você pode recuperá-lo depois.'))return;
-  updClient('status','perdidos');
-  closeModal('mo-cd');
-}
-
-async function delClient(){
-  if(!confirm('Excluir este cliente?'))return;
-  const id=editClientId;
-  _deletando=true;
-  _idsExcluidos.add(id);
-  registerDeleted([id]);
-  await limparVestigiosCliente(id);
-  clients=clients.filter(c=>c.id!==id);
-  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
-  closeModal('mo-cd');
-  renderAll();
-  if(supa){
-    try{
-      const {error}=await supa.from('clientes').delete().eq('id',id);
-      if(error){console.error('Erro Supabase delete:',error);alert('⚠️ Não consegui excluir da nuvem: '+error.message);}
-      else{console.log('Cliente excluído do Supabase:',id);}
-    }catch(e){console.error(e);alert('⚠️ Erro de conexão ao excluir.');}
-  }
-  setTimeout(()=>{_deletando=false;},2000);
 }
 
 // ===== NEW CLIENT =====

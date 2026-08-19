@@ -79,7 +79,7 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const WA_MATHEUS='5519991022882';
 
 // Etapas visíveis ao cliente (perdidos fica fora; nomes amigáveis)
-const ETAPAS=[
+let ETAPAS=[
   {k:'novo',l:'Cadastro recebido'},
   {k:'contato',l:'Primeiro contato'},
   {k:'simulacao',l:'Simulação'},
@@ -158,10 +158,15 @@ async function init(){
     if(data)bancos=data;
   }catch(e){}
 
-  // busca mensagens personalizadas do portal (editadas pelo Matheus)
+  // busca etapas personalizadas do portal (título, mensagem, ordem, ocultas)
   try{
-    const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_msgs').maybeSingle();
-    if(data&&data.fases)Object.keys(data.fases).forEach(k=>{if(data.fases[k]!=null)MSG_ETAPA[k]=data.fases[k];});
+    const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_etapas').maybeSingle();
+    if(data&&Array.isArray(data.fases)&&data.fases.length){
+      const visiveis=data.fases.filter(e=>!e.hidden);
+      // remonta ETAPAS na ordem definida (só as visíveis)
+      ETAPAS.length=0;
+      visiveis.forEach(e=>{ETAPAS.push({k:e.k,l:e.label||e.k});MSG_ETAPA[e.k]=e.msg||'';});
+    }
   }catch(e){}
 
   render(cli,checklist,fasesBase,bancos);
@@ -177,9 +182,16 @@ function render(cli,checklist,fasesBase,bancos){
   const status=cli.status||'novo';
   const perdido=status==='perdidos';
 
-  // índice da etapa atual
+  // índice da etapa atual (se a etapa foi ocultada, usa a última visível antes dela)
   let idx=ETAPAS.findIndex(e=>e.k===status);
-  if(idx<0)idx=0;
+  if(idx<0){
+    // etapa atual está oculta: acha a posição aproximada pela ordem original
+    const ordemReal=['novo','contato','simulacao','analise','aprovado','checklist','engenharia','juridico','interveniente','fgts','contrato','cartorio','pagamento','finalizados'];
+    const posReal=ordemReal.indexOf(status);
+    let best=0;
+    ETAPAS.forEach((e,i)=>{if(ordemReal.indexOf(e.k)<=posReal)best=i;});
+    idx=best;
+  }
   const finalizado=status==='finalizados';
   const pct=Math.round(((idx+ (finalizado?1:0)) / ETAPAS.length)*100);
 
@@ -209,23 +221,7 @@ function render(cli,checklist,fasesBase,bancos){
     <div class="now-box"><div class="now-t">${finalizado?'Concluído':'Etapa atual: '+ETAPAS[idx].l}</div><div class="now-d">${MSG_ETAPA[status]||''}</div></div>
   </div>`;
 
-  // documentos pendentes (destaque no topo)
-  if(totalDocs>0){
-    if(pendentes.length){
-      html+=`<div class="card"><div class="doc-alert"><div class="doc-alert-t">📎 Faltam ${pendentes.length} documento(s)</div><div class="now-d">Para agilizar seu processo, envie ao seu consultor: ${pendentes.slice(0,6).join(', ')}${pendentes.length>6?'…':''}.</div></div>`;
-    }else{
-      html+=`<div class="card"><div class="doc-alert ok"><div class="doc-alert-t">✓ Documentação completa</div><div class="now-d">Você já entregou todos os documentos. Obrigado!</div></div>`;
-    }
-    // checklist completo por fase
-    fasesBase.forEach(f=>{
-      html+=`<div class="doc-fase">${f.fase}</div>`;
-      f.docs.forEach(d=>{
-        const ok=checklist[d.id]&&checklist[d.id].entregue;
-        html+=`<div class="doc-item ${ok?'doc-ok':'doc-no'}"><div class="doc-check">${ok?'✓':''}</div><div>${d.nome}</div></div>`;
-      });
-    });
-    html+=`</div>`;
-  }
+  // (documentos removidos da visão do cliente a pedido)
 
   // linha do tempo
   html+=`<div class="card"><div class="ct">Sua jornada</div><div class="tl">`;
