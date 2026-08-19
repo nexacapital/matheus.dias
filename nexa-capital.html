@@ -753,19 +753,19 @@ checkAuth();
     <div class="mb">
       <div class="ct" style="margin-bottom:8px">Dados do cliente</div>
       <div class="fr">
-        <div class="fg"><label>Nome do cliente</label><input type="text" id="prop-nome" placeholder="Nome"></div>
-        <div class="fg"><label>Renda familiar (opcional)</label><input type="text" id="prop-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"></div>
+        <div class="fg"><label>Nome do cliente</label><input type="text" id="prop-nome" placeholder="Nome" oninput="_salvarRascunhoProposta()"></div>
+        <div class="fg"><label>Renda familiar (opcional)</label><input type="text" id="prop-renda" placeholder="R$ 0,00" oninput="fmtCur(this);_salvarRascunhoProposta()"></div>
       </div>
 
       <div id="prop-cenarios"></div>
       <button class="btn bo bsm" onclick="propAddCenario()" style="margin-top:6px">+ Adicionar cenário (outro valor de imóvel/entrada)</button>
 
       <div class="ct" style="margin-top:18px">Observações do correspondente</div>
-      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxas sujeitas à aprovação. Seguro habitacional incluso. Valores simulados em DD/MM..." style="min-height:60px"></textarea></div>
+      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxas sujeitas à aprovação. Seguro habitacional incluso. Valores simulados em DD/MM..." style="min-height:60px" oninput="_salvarRascunhoProposta()"></textarea></div>
     </div>
     <div class="mf">
       <button class="btn brd" onclick="limparProposta()" title="Apaga tudo que foi digitado nesta proposta">🗑 Limpar tudo</button>
-      <button class="btn bo" onclick="fecharProposta()" title="Fecha e guarda o que você digitou">Fechar (guarda rascunho)</button>
+      <button class="btn bo" onclick="fecharProposta()">Fechar</button>
       <button class="btn bg" onclick="gerarPropostaPDF()">📄 Baixar PDF</button>
     </div>
   </div>
@@ -2337,11 +2337,11 @@ function abrirProposta(id){
   renderPropCenarios();
   openModal('mo-prop');
 }
-function propAddCenario(){propCenarios.push(_novoCenario(0,0));renderPropCenarios();}
+function propAddCenario(){propCenarios.push(_novoCenario(0,0));renderPropCenarios();_salvarRascunhoProposta();}
 function _cenDel(ci){propCenarios.splice(ci,1);if(!propCenarios.length)propCenarios.push(_novoCenario(0,0));renderPropCenarios();}
-function propAddLinha(ci){propCenarios[ci].linhas.push(_novaLinha());renderPropCenarios();}
+function propAddLinha(ci){propCenarios[ci].linhas.push(_novaLinha());renderPropCenarios();_salvarRascunhoProposta();}
 function _plDel(ci,li){propCenarios[ci].linhas.splice(li,1);if(!propCenarios[ci].linhas.length)propCenarios[ci].linhas.push(_novaLinha());renderPropCenarios();}
-function _plSet(ci,li,campo,v){propCenarios[ci].linhas[li][campo]=v;}
+function _plSet(ci,li,campo,v){propCenarios[ci].linhas[li][campo]=v;_salvarRascunhoProposta();}
 function _cenSet(ci,campo,v){
   propCenarios[ci][campo]=v;
   // recalcula entrada automaticamente (imóvel - financiamento)
@@ -2351,7 +2351,7 @@ function _cenSet(ci,campo,v){
     propCenarios[ci].entrada=e?fmtV(e):'';
     const el=document.getElementById(`cen-entrada-${ci}`);
     if(el)el.value=propCenarios[ci].entrada;
-  }
+  }  _salvarRascunhoProposta();
 }
 function renderPropCenarios(){
   const el=document.getElementById('prop-cenarios');
@@ -2377,8 +2377,8 @@ function renderPropCenarios(){
             <button class="btn brd bsm" onclick="_plDel(${ci},${li})" style="margin-left:6px" title="Remover banco">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_plSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
-            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_plSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" oninput="fmtTaxa(this)" onchange="_plSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" oninput="fmtTaxa(this)" onchange="_plSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_plSet(${ci},${li},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" oninput="fmtCur(this)" onchange="_plSet(${ci},${li},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" oninput="fmtCur(this)" onchange="_plSet(${ci},${li},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
@@ -2439,12 +2439,8 @@ function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
   // ===== CABEÇALHO (alto, centralizado, com logo) =====
   doc.setFillColor(...DK);doc.rect(0,0,W,52,'F');
   doc.setFillColor(...GD);doc.rect(0,0,W,1.5,'F');
-  try{doc.addImage(NEXA_LOGO_PDF,'PNG',W/2-14,4,28,28);}catch(e){}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(16);
-  doc.text('NEXA CAPITAL',W/2,38,{align:'center'});
-  doc.setFontSize(7);doc.setTextColor(...GD);
-  doc.text('\u2014 CAPITAL \u2014',W/2,43,{align:'center'});
-  doc.setFontSize(6);doc.setTextColor(140,150,165);
+  try{doc.addImage(NEXA_LOGO_PDF,'PNG',W/2-19,5,38,38);}catch(e){}
+  doc.setFontSize(6.5);doc.setTextColor(...GD);
   doc.text('CREDITO IMOBILIARIO',W/2,48,{align:'center'});
   doc.setFillColor(...GD);doc.rect(0,51,W,0.8,'F');
 
@@ -2583,8 +2579,8 @@ function renderComparativo(){
             <button class="btn brd bsm" onclick="_cmpLinDel(${ci},${li})" style="margin-left:6px" title="Remover banco">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_cmpSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
-            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_cmpSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" oninput="fmtTaxa(this)" onchange="_cmpSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" oninput="fmtTaxa(this)" onchange="_cmpSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_cmpSet(${ci},${li},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" oninput="fmtCur(this)" onchange="_cmpSet(${ci},${li},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
             <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" oninput="fmtCur(this)" onchange="_cmpSet(${ci},${li},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
@@ -3033,12 +3029,8 @@ function pdfHeader(doc,titulo,subtitulo){
   const W=210,m=18;
   doc.setFillColor(13,27,42);doc.rect(0,0,W,52,'F');
   doc.setFillColor(201,168,76);doc.rect(0,0,W,1.5,'F');
-  try{doc.addImage(LOGO_DATA,'JPEG',W/2-14,4,28,28);}catch(e){}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(16);
-  doc.text('NEXA CAPITAL',W/2,38,{align:'center'});
-  doc.setFontSize(7);doc.setTextColor(201,168,76);
-  doc.text('— CAPITAL —',W/2,43,{align:'center'});
-  doc.setFontSize(6);doc.setTextColor(140,150,165);
+  try{doc.addImage(NEXA_LOGO_PDF,'PNG',W/2-19,5,38,38);}catch(e){}
+  doc.setFontSize(6.5);doc.setTextColor(201,168,76);
   doc.text('CRÉDITO IMOBILIÁRIO',W/2,48,{align:'center'});
   doc.setFillColor(201,168,76);doc.rect(0,51,W,0.8,'F');
   let y=62;
@@ -3175,6 +3167,13 @@ function gerarPDFComp(){
 // ===== UTILS =====
 function fmtV(v){return(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
 function parseCur(s){if(!s)return 0;return parseFloat(s.replace(/[R$\s.]/g,'').replace(',','.'))||0;}
+function fmtTaxa(i){
+  // Insere vírgula automática: 2 casas inteiras + 2 decimais (1225 -> 12,25)
+  let v=i.value.replace(/[^0-9]/g,'');
+  if(v.length>4)v=v.slice(0,4);
+  if(v.length>2){i.value=v.slice(0,2)+','+v.slice(2);}
+  else{i.value=v;}
+}
 function fmtCur(i){let v=i.value.replace(/\D/g,'');if(!v){i.value='';return;}i.value=(parseInt(v)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
 function mCPF(i){let v=i.value.replace(/\D/g,'').slice(0,11);if(v.length>9)v=v.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/,'$1.$2.$3-$4');else if(v.length>6)v=v.replace(/^(\d{3})(\d{3})(\d+)/,'$1.$2.$3');else if(v.length>3)v=v.replace(/^(\d{3})(\d+)/,'$1.$2');i.value=v;}
 function mPhone(i){let v=i.value.replace(/\D/g,'').slice(0,11);if(v.length>10)v=v.replace(/^(\d{2})(\d{5})(\d{4}).*/,'($1) $2-$3');else if(v.length>6)v=v.replace(/^(\d{2})(\d{4})(\d+)/,'($1) $2-$3');else if(v.length>2)v=v.replace(/^(\d{2})(\d+)/,'($1) $2');i.value=v;}
