@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXA Capital · Acompanhamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--nv:#0d1b2a;--nvm:#12233a;--nvl:#1a2f4a;--gd:#c9a84c;--gd2:#e2c77a;--wh:#f4f1ea;--mu:#8a97a8;--bd:rgba(201,168,76,.15);--gr:#4ade80;--rd:#f87171;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Montserrat',sans-serif;background:linear-gradient(160deg,#0a1522,#0d1b2a 40%,#12233a);color:var(--wh);min-height:100vh;padding-bottom:90px}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+.hd{background:rgba(10,21,34,.6);border-bottom:1px solid var(--bd);padding:20px 0;text-align:center;backdrop-filter:blur(10px)}
+.logo{font-size:26px;font-weight:700;letter-spacing:2px}
+.logo b{color:var(--gd)}
+.logo span{color:var(--wh)}
+.sub{font-size:10px;color:var(--mu);letter-spacing:2px;margin-top:2px;text-transform:uppercase}
+.card{background:rgba(26,47,74,.5);border:1px solid var(--bd);border-radius:14px;padding:22px;margin:18px 0;backdrop-filter:blur(8px)}
+.greet{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin-bottom:4px}
+.greet b{color:var(--gd)}
+.upd{font-size:10px;color:var(--mu);margin-top:4px}
+.ct{font-size:11px;letter-spacing:1.5px;color:var(--gd);text-transform:uppercase;font-weight:600;margin-bottom:14px}
+.prog-lbl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.prog-pct{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--gd)}
+.prog-txt{font-size:12px;color:var(--mu)}
+.prog-bar{height:9px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--gd2));border-radius:5px;transition:width 1s}
+.now-box{background:rgba(201,168,76,.09);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:14px 16px;margin-top:16px}
+.now-t{font-size:14px;font-weight:700;color:var(--gd2);margin-bottom:4px}
+.now-d{font-size:12px;color:var(--wh);line-height:1.6;opacity:.85}
+.tl{margin-top:8px}
+.tl-item{display:flex;gap:12px;align-items:flex-start;padding:2px 0}
+.tl-dot{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;position:relative;z-index:2}
+.tl-line{width:2px;flex:1;background:var(--bd);margin:2px 0;min-height:14px}
+.tl-col{display:flex;flex-direction:column;align-items:center;align-self:stretch}
+.tl-done .tl-dot{background:var(--gr);color:var(--nv)}
+.tl-now .tl-dot{background:var(--gd);color:var(--nv);box-shadow:0 0 0 4px rgba(201,168,76,.2)}
+.tl-todo .tl-dot{background:var(--nvl);border:2px solid var(--mu);color:transparent}
+.tl-txt{padding:1px 0 14px}
+.tl-name{font-size:13px;font-weight:600}
+.tl-now .tl-name{color:var(--gd2)}
+.tl-todo .tl-name{color:var(--mu)}
+.doc-alert{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.doc-alert.ok{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.3)}
+.doc-alert-t{font-size:13px;font-weight:700;color:var(--rd);margin-bottom:6px}
+.doc-alert.ok .doc-alert-t{color:var(--gr)}
+.doc-item{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.04)}
+.doc-item:last-child{border-bottom:none}
+.doc-check{width:18px;height:18px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+.doc-ok .doc-check{background:var(--gr);color:var(--nv)}
+.doc-no .doc-check{border:2px solid var(--mu)}
+.doc-ok{opacity:.55;text-decoration:line-through}
+.doc-fase{font-size:10px;letter-spacing:1px;color:var(--gd);text-transform:uppercase;font-weight:600;margin:14px 0 6px}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fin-item{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:13px}
+.fin-l{font-size:10px;color:var(--mu);letter-spacing:.5px;margin-bottom:4px}
+.fin-v{font-size:16px;font-weight:700;color:var(--wh)}
+.fin-v.gd{color:var(--gd)}
+.wa-float{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#25d366;color:#fff;padding:14px 28px;border-radius:30px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 8px 24px rgba(37,211,102,.4);display:flex;align-items:center;gap:9px;z-index:100}
+.foot{text-align:center;font-size:10px;color:var(--mu);padding:20px;line-height:1.7}
+.loading,.error{text-align:center;padding:80px 20px;color:var(--mu)}
+.error-t{font-size:20px;color:var(--wh);margin-bottom:8px;font-family:'Cormorant Garamond',serif}
+.celebrate{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(74,222,128,.1));border:1px solid var(--gd);border-radius:14px;padding:24px;text-align:center;margin:18px 0}
+.celebrate-t{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gd);font-weight:700;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="hd"><div class="logo"><b>NEXA</b> <span>CAPITAL</span></div><div class="sub">Correspondente Bancário</div></div>
+<div class="wrap" id="app">
+  <div class="loading">Carregando seu acompanhamento…</div>
+</div>
+<div class="foot" id="foot"></div>
+
+<script>
+const SUPA_URL='https://qbgeletotmujqkckaoko.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2VsZXRvdG11anFrY2thb2tvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2NDA5NDAsImV4cCI6MjA5OTIxNjk0MH0.TB-Ejz1C-pEIXnCHnJqk6M930yqs_YtEOa7VnRCcsC0';
+const WA_MATHEUS='5519991022882';
+
+// Etapas visíveis ao cliente (perdidos fica fora; nomes amigáveis)
+const ETAPAS=[
+  {k:'novo',l:'Cadastro recebido'},
+  {k:'contato',l:'Primeiro contato'},
+  {k:'simulacao',l:'Simulação'},
+  {k:'analise',l:'Análise de crédito'},
+  {k:'aprovado',l:'Crédito aprovado'},
+  {k:'checklist',l:'Reunião de documentos'},
+  {k:'engenharia',l:'Avaliação do imóvel'},
+  {k:'juridico',l:'Análise jurídica'},
+  {k:'interveniente',l:'Quitação (se houver)'},
+  {k:'fgts',l:'Liberação do FGTS'},
+  {k:'contrato',l:'Emissão do contrato'},
+  {k:'cartorio',l:'Registro em cartório'},
+  {k:'pagamento',l:'Liberação do recurso'},
+  {k:'finalizados',l:'Financiamento concluído'}
+];
+// Mensagem amigável da etapa atual
+const MSG_ETAPA={
+  novo:'Recebemos seu cadastro! Em breve entraremos em contato para dar início.',
+  contato:'Estamos entrando em contato para entender seu perfil e necessidades.',
+  simulacao:'Estamos preparando a simulação com as melhores condições para o seu caso.',
+  analise:'Seu crédito está em análise no banco. Costuma levar de 3 a 5 dias úteis.',
+  aprovado:'Ótima notícia! Seu crédito foi aprovado. Vamos para a próxima fase.',
+  checklist:'Agora reunimos a documentação necessária. Veja abaixo o que ainda falta.',
+  engenharia:'O imóvel está em avaliação de engenharia pelo banco.',
+  juridico:'A documentação está em análise jurídica.',
+  interveniente:'Estamos tratando da quitação junto ao credor atual do imóvel.',
+  fgts:'Estamos providenciando a liberação do seu FGTS.',
+  contrato:'Seu contrato está sendo emitido. Estamos quase lá!',
+  cartorio:'O contrato está em registro no cartório de imóveis.',
+  pagamento:'O recurso está sendo liberado. Parabéns, chegamos ao fim!',
+  finalizados:'Seu financiamento foi concluído com sucesso. Parabéns pela sua conquista!'
+};
+
+const fmt=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const ecMap={solteiro:'Solteiro(a)',casado:'Casado(a)',divorciado:'Divorciado(a)',viuvo:'Viúvo(a)',uniao:'União Estável'};
+
+function getToken(){
+  const p=new URLSearchParams(location.search);
+  return p.get('t')||p.get('token')||'';
+}
+
+async function init(){
+  const app=document.getElementById('app');
+  const token=getToken();
+  if(!token){app.innerHTML=erro('Link inválido','Este link de acompanhamento está incompleto. Peça um novo link ao seu consultor.');return;}
+  let supa;
+  try{supa=supabase.createClient(SUPA_URL,SUPA_KEY);}catch(e){app.innerHTML=erro('Erro','Não foi possível conectar. Tente novamente mais tarde.');return;}
+
+  // busca o cliente pelo token
+  let cli=null;
+  try{
+    const {data,error}=await supa.from('clientes').select('*').eq('portal_token',token).maybeSingle();
+    if(error)throw error;
+    cli=data;
+  }catch(e){app.innerHTML=erro('Não encontrado','Não localizamos seu processo. Verifique o link ou fale com seu consultor.');return;}
+  if(!cli){app.innerHTML=erro('Não encontrado','Não localizamos seu processo. Verifique o link ou fale com seu consultor.');return;}
+
+  // busca o checklist do cliente
+  let checklist={};
+  try{
+    const {data}=await supa.from('checklist_cliente').select('*').eq('id',cli.id).maybeSingle();
+    if(data&&data.itens)checklist=data.itens;
+  }catch(e){}
+
+  // busca a lista-base de documentos
+  let fasesBase=[];
+  try{
+    const {data}=await supa.from('checklist_modelos').select('*').eq('id','base').maybeSingle();
+    if(data&&data.fases)fasesBase=data.fases;
+  }catch(e){}
+
+  render(cli,checklist,fasesBase);
+}
+
+function erro(t,d){return `<div class="error"><div class="error-t">${t}</div><div>${d}</div></div>`;}
+
+function render(cli,checklist,fasesBase){
+  const app=document.getElementById('app');
+  const primeiro=(cli.nome||'').split(' ')[0]||'Cliente';
+  const status=cli.status||'novo';
+  const perdido=status==='perdidos';
+
+  // índice da etapa atual
+  let idx=ETAPAS.findIndex(e=>e.k===status);
+  if(idx<0)idx=0;
+  const finalizado=status==='finalizados';
+  const pct=Math.round(((idx+ (finalizado?1:0)) / ETAPAS.length)*100);
+
+  // documentos pendentes
+  let totalDocs=0,entregues=0,pendentes=[];
+  fasesBase.forEach(f=>f.docs.forEach(d=>{totalDocs++;const ok=checklist[d.id]&&checklist[d.id].entregue;if(ok)entregues++;else pendentes.push(d.nome);}));
+
+  let html='';
+
+  // saudação
+  html+=`<div class="card"><div class="greet">Olá, <b>${primeiro}</b>!</div><div class="prog-txt">Acompanhe aqui o andamento do seu financiamento.</div><div class="upd">Atualizado em ${new Date().toLocaleDateString('pt-BR')}</div></div>`;
+
+  if(perdido){
+    html+=`<div class="card"><div class="now-box"><div class="now-t">Processo pausado</div><div class="now-d">Seu processo está pausado no momento. Fale com seu consultor para retomar.</div></div></div>`;
+    app.innerHTML=html; montarFoot(); return;
+  }
+
+  // celebração se finalizado
+  if(finalizado){
+    html+=`<div class="celebrate"><div class="celebrate-t">🎉 Parabéns, ${primeiro}!</div><div class="now-d">Seu financiamento foi concluído com sucesso. Foi uma honra fazer parte da conquista da sua casa!</div></div>`;
+  }
+
+  // progresso + etapa atual
+  html+=`<div class="card">
+    <div class="prog-lbl"><span class="prog-pct">${pct}%</span><span class="prog-txt">concluído</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <div class="now-box"><div class="now-t">${finalizado?'Concluído':'Etapa atual: '+ETAPAS[idx].l}</div><div class="now-d">${MSG_ETAPA[status]||''}</div></div>
+  </div>`;
+
+  // documentos pendentes (destaque no topo)
+  if(totalDocs>0){
+    if(pendentes.length){
+      html+=`<div class="card"><div class="doc-alert"><div class="doc-alert-t">📎 Faltam ${pendentes.length} documento(s)</div><div class="now-d">Para agilizar seu processo, envie ao seu consultor: ${pendentes.slice(0,6).join(', ')}${pendentes.length>6?'…':''}.</div></div>`;
+    }else{
+      html+=`<div class="card"><div class="doc-alert ok"><div class="doc-alert-t">✓ Documentação completa</div><div class="now-d">Você já entregou todos os documentos. Obrigado!</div></div>`;
+    }
+    // checklist completo por fase
+    fasesBase.forEach(f=>{
+      html+=`<div class="doc-fase">${f.fase}</div>`;
+      f.docs.forEach(d=>{
+        const ok=checklist[d.id]&&checklist[d.id].entregue;
+        html+=`<div class="doc-item ${ok?'doc-ok':'doc-no'}"><div class="doc-check">${ok?'✓':''}</div><div>${d.nome}</div></div>`;
+      });
+    });
+    html+=`</div>`;
+  }
+
+  // linha do tempo
+  html+=`<div class="card"><div class="ct">Sua jornada</div><div class="tl">`;
+  ETAPAS.forEach((e,i)=>{
+    const cls=finalizado||i<idx?'tl-done':(i===idx?'tl-now':'tl-todo');
+    const dot=finalizado||i<idx?'✓':(i===idx?'●':'');
+    html+=`<div class="tl-item ${cls}"><div class="tl-col"><div class="tl-dot">${dot}</div>${i<ETAPAS.length-1?'<div class="tl-line"></div>':''}</div><div class="tl-txt"><div class="tl-name">${e.l}</div></div></div>`;
+  });
+  html+=`</div></div>`;
+
+  // resumo financeiro
+  const iv=cli.valor_imovel||0, fv=cli.valor_financiamento||0, entrada=Math.max(0,iv-fv);
+  if(iv||fv){
+    html+=`<div class="card"><div class="ct">Seu financiamento</div><div class="fin-grid">
+      <div class="fin-item"><div class="fin-l">VALOR DO IMÓVEL</div><div class="fin-v">${fmt(iv)}</div></div>
+      <div class="fin-item"><div class="fin-l">VALOR FINANCIADO</div><div class="fin-v gd">${fmt(fv)}</div></div>
+      <div class="fin-item"><div class="fin-l">ENTRADA</div><div class="fin-v">${fmt(entrada)}</div></div>
+      <div class="fin-item"><div class="fin-l">ESTADO CIVIL</div><div class="fin-v" style="font-size:13px">${ecMap[cli.estado_civil]||'—'}</div></div>
+    </div></div>`;
+  }
+
+  app.innerHTML=html;
+  montarFoot();
+
+  // botão whatsapp
+  const msg='Olá Matheus! Estou acompanhando meu processo pelo portal e gostaria de tirar uma dúvida.';
+  if(!document.getElementById('wafloat')){
+    const a=document.createElement('a');
+    a.id='wafloat'; a.className='wa-float';
+    a.href='https://wa.me/'+WA_MATHEUS+'?text='+encodeURIComponent(msg);
+    a.target='_blank';
+    a.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.5 15.3L2 22l4.8-1.5A10 10 0 1012 2zm5.8 14.2c-.2.7-1.2 1.3-1.7 1.3-.4 0-1 .1-3.3-.9-2.8-1.2-4.5-4-4.7-4.2-.1-.2-1-1.4-1-2.6s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.5c-.2.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.5-.1l.7-.8c.2-.2.3-.2.6-.1l2 1c.2.1.4.2.4.3.1.2.1.8-.1 1.3z"/></svg> Falar com meu consultor';
+    document.body.appendChild(a);
+  }
+}
+
+function montarFoot(){
+  document.getElementById('foot').innerHTML='NEXA Capital · Correspondente Bancário<br>Este é um acompanhamento informativo. Valores sujeitos à análise da instituição financeira.';
+}
+
+init();
+</script>
+</body>
+</html>

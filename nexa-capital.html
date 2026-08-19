@@ -797,7 +797,8 @@ checkAuth();
       <div id="cd-checklist"></div>
     </div>
     <div class="mf">
-      <button class="btn bo" onclick="abrirProposta()" title="Gera um PDF de proposta com a marca NEXA para enviar ao cliente">📄 Gerar proposta</button>
+      <button class="btn bo" onclick="abrirProposta()" title="Gera um PDF de proposta com a marca NEXA para enviar ao cliente">📄 Proposta</button>
+      <button class="btn bo" onclick="copiarLinkPortal()" title="Copia o link do portal (só leitura) para enviar ao cliente pelo WhatsApp">🔗 Link do portal</button>
       <button class="btn bo" onclick="moverParaPerdidos()" title="Marca como Perdido, sem apagar. Fica na aba Perdidos e no Marketing.">↪ Perdidos</button>
       <button class="btn brd" onclick="delClient()" title="Apaga o cliente de vez. Não dá para recuperar.">🗑 Excluir</button>
       <button class="btn bg" onclick="closeModal('mo-cd')">Fechar</button>
@@ -1001,7 +1002,7 @@ function cliToRow(cl){
     bancos:cl.bancos||[], banco_escolhido:cl.bancoEscolhido||'',
     origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
     data_cadastro:cl.dataCadastro||new Date().toISOString(),
-    data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null, entrou_etapa_em:cl.entrouEtapaEm||null
+    data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null, entrou_etapa_em:cl.entrouEtapaEm||null, portal_token:cl.portalToken||null
   };
 }
 function rowToCli(r){
@@ -1010,7 +1011,7 @@ function rowToCli(r){
     telefone:r.telefone, valorImovel:r.valor_imovel, valorFinanciamento:r.valor_financiamento, rendaFamiliar:r.renda_familiar, prazoIntencao:r.prazo_intencao,
     conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
     bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
-    dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao, entrouEtapaEm:r.entrou_etapa_em
+    dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao, entrouEtapaEm:r.entrou_etapa_em, portalToken:r.portal_token
   };
 }
 
@@ -2231,6 +2232,31 @@ function cdTab(qual){
 
 // ===== EDITOR DA LISTA-BASE =====
 let _modeloEdit=null;
+
+// ===== PORTAL DO CLIENTE (link só de leitura) =====
+function gerarTokenPortal(){
+  // token aleatório longo e seguro (difícil de adivinhar)
+  const a=new Uint8Array(18); (crypto||window.crypto).getRandomValues(a);
+  return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function copiarLinkPortal(){
+  const c=clients.find(x=>x.id===editClientId);
+  if(!c){alert('Cliente não encontrado.');return;}
+  // garante token
+  if(!c.portalToken){
+    c.portalToken=gerarTokenPortal();
+    saveClients();
+    if(supa){try{await supa.from('clientes').update({portal_token:c.portalToken}).eq('id',c.id);}catch(e){console.warn(e);}}
+  }
+  const base='https://nexacapital.github.io/matheus.dias/portal.html';
+  const link=base+'?t='+c.portalToken;
+  try{
+    await navigator.clipboard.writeText(link);
+    alert('🔗 Link do portal copiado!\n\nCole no WhatsApp do cliente:\n'+link);
+  }catch(e){
+    prompt('Copie o link do portal do cliente:',link);
+  }
+}
 
 // ===== PROPOSTA PDF (material de venda para o cliente) =====
 let _propClienteId=null;
