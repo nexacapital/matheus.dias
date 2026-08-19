@@ -2436,30 +2436,35 @@ function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const W=210,m=16;
-  const GD=[201,168,76],DK=[13,27,42],MU=[130,135,145],CREME=[248,245,238];
+  const GD=[201,168,76],DK=[13,27,42],MU=[90,95,105],CREME=[248,245,238];
   const fmt=v=>fmtV(v);
 
-  // ===== CABEÇALHO arredondado =====
-  doc.setFillColor(...DK);doc.roundedRect(m,10,W-2*m,30,4,4,'F');
-  try{doc.addImage(NEXA_LOGO_PDF,'PNG',m+4,13,24,24);}catch(e){}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text('COMPARATIVO DE FINANCIAMENTO',m+32,22);
-  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(200,205,215);
-  doc.text('Preparado para '+nomeCli,m+32,28);
-  const hoje=new Date();
-  doc.setTextColor(...GD);doc.setFontSize(7);
-  doc.text(hoje.toLocaleDateString('pt-BR'),W-m-4,22,{align:'right'});
-  doc.setTextColor(180,185,195);
-  doc.text('NEXA Capital',W-m-4,28,{align:'right'});
+  // ===== CABEÇALHO (topo alto, logo centralizado) =====
+  doc.setFillColor(...DK);doc.rect(0,0,W,52,'F');
+  doc.setFillColor(...GD);doc.rect(0,0,W,1.5,'F');
+  try{doc.addImage(NEXA_LOGO_PDF,'PNG',W/2-19,5,38,38);}catch(e){}
+  doc.setFontSize(6.5);doc.setTextColor(...GD);
+  doc.text('CREDITO IMOBILIARIO',W/2,48,{align:'center'});
+  doc.setFillColor(...GD);doc.rect(0,51,W,0.8,'F');
 
-  let y=50;
+  // título
+  const hoje=new Date();
+  let y=62;
+  doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('COMPARATIVO DE FINANCIAMENTO',W/2,y,{align:'center'});y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(80,90,100);
+  doc.text('Preparado para: '+nomeCli,W/2,y,{align:'center'});y+=5;
+  doc.setFontSize(8.5);doc.setTextColor(120,130,140);
+  doc.text('Data: '+hoje.toLocaleDateString('pt-BR'),W/2,y+1,{align:'center'});
+  doc.setFillColor(...GD);doc.rect(m,y+6,W-m*2,.4,'F');
+  y+=16;
   const multi=cenarios.length>1;
 
   cenarios.forEach((cen,ci)=>{
     if(y>232){doc.addPage();y=20;}
     if(multi){
       doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...DK);
-      doc.text('Cenario '+(ci+1),m,y);y+=6;
+      doc.text('Cen\u00e1rio '+(ci+1),m,y);y+=6;
     }
     const entrada=cen.entrada||Math.max(0,cen.iv-cen.fv);
     // ===== 3 cards arredondados de dados =====
@@ -2467,18 +2472,18 @@ function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
     const gap=5, bw=(W-2*m-2*gap)/3;
     boxes.forEach((bx,k)=>{
       const x=m+k*(bw+gap);
-      doc.setFillColor(...CREME);doc.roundedRect(x,y,bw,17,3,3,'F');
-      doc.setDrawColor(...GD);doc.setLineWidth(0.3);doc.roundedRect(x,y,bw,17,3,3,'S');
-      doc.setFontSize(6.5);doc.setTextColor(...MU);doc.setFont('helvetica','bold');
-      doc.text(bx[0],x+bw/2,y+6,{align:'center'});
-      doc.setFontSize(10.5);doc.setTextColor(...DK);doc.setFont('helvetica','bold');
-      doc.text(bx[1],x+bw/2,y+13,{align:'center'});
+      doc.setFillColor(...CREME);doc.roundedRect(x,y,bw,18,3,3,'F');
+      doc.setDrawColor(...GD);doc.setLineWidth(0.3);doc.roundedRect(x,y,bw,18,3,3,'S');
+      doc.setFontSize(7.5);doc.setTextColor(...MU);doc.setFont('helvetica','bold');
+      doc.text(bx[0],x+bw/2,y+6.5,{align:'center'});
+      doc.setFontSize(12);doc.setTextColor(...DK);doc.setFont('helvetica','bold');
+      doc.text(bx[1],x+bw/2,y+13.5,{align:'center'});
     });
-    y+=24;
+    y+=25;
 
     // ===== cada banco num CARD arredondado =====
     cen.linhas.forEach((l)=>{
-      const ch=22;
+      const ch=24;
       if(y+ch>276){doc.addPage();y=20;}
       // card
       doc.setFillColor(255,255,255);doc.roundedRect(m,y,W-2*m,ch,3,3,'F');
@@ -2486,22 +2491,22 @@ function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
       // faixa lateral dourada
       doc.setFillColor(...GD);doc.roundedRect(m,y,2.2,ch,1,1,'F');
       // nome do banco
-      doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...DK);
-      doc.text(l.banco||'Banco',m+7,y+8);
+      doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...DK);
+      doc.text(l.banco||'Banco',m+7,y+8.5);
       // amortizacao tag
       if(l.amort){
-        doc.setFontSize(6.5);doc.setTextColor(...MU);doc.setFont('helvetica','normal');
-        doc.text(l.amort+(l.prazo?'  ·  '+l.prazo+' meses':''),m+7,y+13.5);
+        doc.setFontSize(7.5);doc.setTextColor(...MU);doc.setFont('helvetica','normal');
+        doc.text(l.amort+(l.prazo?'  ·  '+l.prazo+' meses':''),m+7,y+14.5);
       }
       // metricas em colunas
       const met=[['Taxa a.a.+TR',(l.taxaAA||'-')+'%'],['CET',(l.cet||'-')+'%'],['Parc. inicial',l.pInicial||'-'],['Parc. final',l.pFinal||'-']];
-      const availW=W-2*m-70, colw=availW/4, startX=m+72;
+      const availW=W-2*m-72, colw=availW/4, startX=m+74;
       met.forEach((mt,mi)=>{
         const x=startX+mi*colw;
-        doc.setFontSize(6.2);doc.setTextColor(...MU);doc.setFont('helvetica','normal');
-        doc.text(mt[0],x,y+8);
-        doc.setFontSize(9);doc.setTextColor(40,45,55);doc.setFont('helvetica','bold');
-        doc.text(String(mt[1]),x,y+14);
+        doc.setFontSize(7.3);doc.setTextColor(...MU);doc.setFont('helvetica','normal');
+        doc.text(mt[0],x,y+8.5);
+        doc.setFontSize(10.5);doc.setTextColor(30,35,45);doc.setFont('helvetica','bold');
+        doc.text(String(mt[1]),x,y+15);
       });
       y+=ch+5;
     });
@@ -2511,12 +2516,12 @@ function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
   // ===== OBSERVAÇÕES em card arredondado =====
   if(obsLivre){
     const wr=doc.splitTextToSize(obsLivre,W-2*m-8);
-    const bh=wr.length*4.4+12;
+    const bh=wr.length*4.8+13;
     if(y+bh>280){doc.addPage();y=20;}
     doc.setFillColor(...CREME);doc.roundedRect(m,y,W-2*m,bh,3,3,'F');
-    doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(9);
     doc.text('OBSERVACOES',m+4,y+7);
-    doc.setTextColor(70,70,70);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    doc.setTextColor(60,60,65);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
     doc.text(wr,m+4,y+13);
     y+=bh+4;
   }
