@@ -505,7 +505,7 @@ checkAuth();
     <div class="pg ain" id="page-bancos">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div><h1>Meus Bancos</h1><p>Gerencie seus bancos parceiros</p><div class="phl"></div></div>
-        <button class="btn bg" onclick="openBankModal()" style="margin-top:4px">+ Banco</button>
+        <div style="display:flex;gap:8px;margin-top:4px"><button class="btn bo" onclick="abrirEditorMsgPortal()" title="Editar as mensagens que o cliente vê em cada etapa no portal">💬 Mensagens do portal</button><button class="btn bg" onclick="openBankModal()">+ Banco</button></div>
       </div>
       <div class="bkg" id="bkgrid"></div>
 
@@ -817,6 +817,21 @@ checkAuth();
     <div class="mf">
       <button class="btn bo" onclick="closeModal('mo-chkmod')">Fechar</button>
       <button class="btn bg" onclick="salvarModelos()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MENSAGENS DO PORTAL -->
+<div class="mo" id="mo-msgport">
+  <div class="md">
+    <div class="mh">
+      <div><div class="mt">Mensagens do Portal</div><div style="font-size:11px;color:var(--mu);margin-top:3px">O texto que o cliente vê em cada etapa. Personalize os prazos conforme a realidade de cada banco.</div></div>
+      <button class="mc" onclick="closeModal('mo-msgport')">✕</button>
+    </div>
+    <div class="mb" id="msgport-body"></div>
+    <div class="mf">
+      <button class="btn bo" onclick="closeModal('mo-msgport')">Cancelar</button>
+      <button class="btn bg" onclick="salvarMsgPortal()">Salvar mensagens</button>
     </div>
   </div>
 </div>
@@ -2232,6 +2247,55 @@ function cdTab(qual){
 
 // ===== EDITOR DA LISTA-BASE =====
 let _modeloEdit=null;
+
+
+// ===== EDITOR DE MENSAGENS DO PORTAL =====
+const MSG_PORTAL_PADRAO={
+  novo:'Recebemos seu cadastro! Em breve entraremos em contato para dar início.',
+  contato:'Estamos entrando em contato para entender seu perfil e necessidades.',
+  simulacao:'Estamos preparando a simulação com as melhores condições para o seu caso.',
+  analise:'Seu crédito está em análise no banco. Costuma levar de 3 a 5 dias úteis.',
+  aprovado:'Ótima notícia! Seu crédito foi aprovado. Vamos para a próxima fase.',
+  checklist:'Agora reunimos a documentação necessária. Veja abaixo o que ainda falta.',
+  engenharia:'O imóvel está em avaliação de engenharia pelo banco.',
+  juridico:'A documentação está em análise jurídica.',
+  interveniente:'Estamos tratando da quitação junto ao credor atual do imóvel.',
+  fgts:'Estamos providenciando a liberação do seu FGTS.',
+  contrato:'Seu contrato está sendo emitido. Estamos quase lá!',
+  cartorio:'O contrato está em registro no cartório de imóveis.',
+  pagamento:'O recurso está sendo liberado. Parabéns, chegamos ao fim!',
+  finalizados:'Seu financiamento foi concluído com sucesso. Parabéns pela sua conquista!'
+};
+// rótulos amigáveis das etapas (iguais aos do portal)
+const MSG_PORTAL_LABEL={novo:'Cadastro recebido',contato:'Primeiro contato',simulacao:'Simulação',analise:'Análise de crédito',aprovado:'Crédito aprovado',checklist:'Reunião de documentos',engenharia:'Avaliação do imóvel',juridico:'Análise jurídica',interveniente:'Quitação',fgts:'Liberação do FGTS',contrato:'Emissão do contrato',cartorio:'Registro em cartório',pagamento:'Liberação do recurso',finalizados:'Concluído'};
+
+let msgPortalEdit={};
+async function abrirEditorMsgPortal(){
+  // carrega mensagens salvas (ou usa padrão)
+  let salvas={};
+  if(supa){try{const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_msgs').maybeSingle();if(data&&data.fases)salvas=data.fases;}catch(e){}}
+  msgPortalEdit={};
+  Object.keys(MSG_PORTAL_PADRAO).forEach(k=>{msgPortalEdit[k]=(salvas&&salvas[k]!=null)?salvas[k]:MSG_PORTAL_PADRAO[k];});
+  renderEditorMsgPortal();
+  openModal('mo-msgport');
+}
+function renderEditorMsgPortal(){
+  const el=document.getElementById('msgport-body');
+  if(!el)return;
+  el.innerHTML=Object.keys(MSG_PORTAL_PADRAO).map(k=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--gd);margin-bottom:4px">${MSG_PORTAL_LABEL[k]||k}</div>
+      <textarea onchange="msgPortalEdit['${k}']=this.value" style="min-height:52px;font-size:12px">${(msgPortalEdit[k]||'').replace(/</g,'&lt;')}</textarea>
+    </div>`).join('');
+}
+async function salvarMsgPortal(){
+  if(supa){
+    try{await supa.from('checklist_modelos').upsert({id:'portal_msgs',nome:'Mensagens do Portal',fases:msgPortalEdit,atualizado_em:new Date().toISOString()});}
+    catch(e){alert('Erro ao salvar: '+e.message);return;}
+  }
+  closeModal('mo-msgport');
+  alert('✅ Mensagens do portal atualizadas! O cliente já vê o novo texto ao abrir o portal.');
+}
 
 // ===== PORTAL DO CLIENTE (link só de leitura) =====
 function gerarTokenPortal(){
