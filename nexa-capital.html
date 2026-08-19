@@ -2581,6 +2581,67 @@ function gerarPropostaPDF(){
   closeModal('mo-prop');
 }
 
+// ===== CLIENT DETAIL (recriada) =====
+function openClientDetail(id){
+  const c=clients.find(x=>x.id===id);if(!c)return;
+  editClientId=id;
+  if(typeof cdTab==='function')cdTab('dados');
+  carregarChecklistCliente(id).then(()=>{if(typeof renderChecklist==='function')renderChecklist();});
+  document.getElementById('cd-nm').textContent=c.nome||'';
+  document.getElementById('cd-info').textContent=`${c.telefone||''} \u00b7 ${c.valorFinanciamento?fmtV(c.valorFinanciamento):'Valor n\u00e3o informado'}`;
+  // Dados pessoais edit\u00e1veis
+  const ecMap={solteiro:'Solteiro(a)',casado:'Casado(a)',divorciado:'Divorciado(a)',viuvo:'Vi\u00favo(a)',uniao:'Uni\u00e3o Est\u00e1vel'};
+  const dp=document.getElementById('cd-dados-pessoais');
+  if(dp){
+    const fld=(lab,campo,val,tipo)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><input type="${tipo||'text'}" value="${(val==null?'':String(val)).replace(/"/g,'&quot;')}" onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px"></div>`;
+    const sel=(lab,campo,val,opts)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><select onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px">${opts.map(o=>`<option value="${o[0]}" ${val===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;
+    let h='';
+    h+=fld('Nome','nome',c.nome);
+    h+=fld('CPF','cpf',c.cpf);
+    h+=fld('Nascimento','nascimento',c.nascimento,'date');
+    h+=sel('Estado Civil','estadoCivil',c.estadoCivil||'',[['','\u2014'],['solteiro','Solteiro(a)'],['casado','Casado(a)'],['divorciado','Divorciado(a)'],['viuvo','Vi\u00favo(a)'],['uniao','Uni\u00e3o Est\u00e1vel']]);
+    h+=fld('WhatsApp','telefone',c.telefone);
+    h+=fld('Renda Familiar','rendaFamiliar',c.rendaFamiliar||'');
+    h+=fld('Refer\u00eancia (corretor)','refCorretor',c.refCorretor||'');
+    h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Origem</label><div style="font-size:11px;padding:7px 0;color:var(--mu)">${c.origem==='formulario_publico'?'Formul\u00e1rio':'Interno'}${c.dataCadastro?' \u00b7 '+new Date(c.dataCadastro).toLocaleDateString('pt-BR'):''}</div></div>`;
+    dp.innerHTML=h;
+  }
+  // C\u00f4njuge (se casado/uni\u00e3o)
+  // Bancos em simula\u00e7\u00e3o
+  document.getElementById('cd-bchips').innerHTML=banks.map(b=>`<div class="bchip ${(c.bancos||[]).includes(b.id)?'sel':''}" onclick="toggleCDBk('${b.id}',this)">${b.nome}</div>`).join('');
+  // Status
+  document.getElementById('cd-st').value=c.status||'novo';
+  // Banco escolhido
+  const bk=document.getElementById('cd-bk');
+  if(bk)bk.innerHTML='<option value="">\u2014</option>'+banks.map(b=>`<option value="${b.id}" ${c.bancoEscolhido===b.id?'selected':''}>${b.nome}</option>`).join('');
+  // Valores
+  document.getElementById('cd-iv').value=c.valorImovel?fmtV(c.valorImovel):'';
+  document.getElementById('cd-fv').value=c.valorFinanciamento?fmtV(c.valorFinanciamento):'';
+  document.getElementById('cd-obs').value=c.obs||'';
+  if(typeof atualizarBadgeDocsCustom==='function')atualizarBadgeDocsCustom();
+  openModal('mo-cd');
+}
+function updClient(f,v){
+  const c=clients.find(x=>x.id===editClientId);if(!c)return;
+  if(f==='refCorretor'&&v&&typeof normRef==='function')v=normRef(v);
+  if(f==='status'&&c.status!==v&&typeof registrarSaidaEtapa==='function')registrarSaidaEtapa(c,c.status,v);
+  if((f==='valorImovel'||f==='valorFinanciamento'||f==='rendaFamiliar')&&typeof v==='string')v=parseCur(v);
+  c[f]=v;
+  if(f==='status'){
+    c.entrouEtapaEm=new Date().toISOString();
+    if(v==='contrato'){c.dataComissao=c.dataComissao||new Date().toISOString();if(typeof registrarComissao==='function')registrarComissao(c);}
+    if(v==='pagamento'){c.dataPagamento=c.dataPagamento||new Date().toISOString();}
+  }
+  saveClients();renderAll();
+}
+function toggleCDBk(bid,el){
+  const c=clients.find(x=>x.id===editClientId);if(!c)return;
+  if(!c.bancos)c.bancos=[];
+  if(c.bancos.includes(bid)){c.bancos=c.bancos.filter(b=>b!==bid);el.classList.remove('sel');}
+  else{c.bancos.push(bid);el.classList.add('sel');}
+  saveClients();renderAll();
+}
+
 // ===== NEW CLIENT =====
 function openNewClient(){
   ['nc-nm','nc-cpf','nc-tel','nc-iv','nc-fv','nc-obs','nc-cjnm','nc-cjcpf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
