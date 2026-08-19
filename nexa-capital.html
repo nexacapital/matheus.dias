@@ -262,6 +262,7 @@ checkAuth();
     <div class="ni active" data-page="dashboard"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard<span id="alerta-badge" style="display:none;margin-left:6px;background:#f87171;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;align-items:center;vertical-align:middle">0</span></div>
     <div class="ni" data-page="clientes"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clientes<span class="ndot" id="ndot" style="display:none"></span></div>
     <div class="ni" data-page="agenda"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</div>
+    <div class="ni" data-page="comparativo"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparativo PDF</div>
     <div class="sb-sec">Operações</div>
     
     
@@ -649,6 +650,25 @@ checkAuth();
     </div>
 
     <!-- FINANCEIRO -->
+    <div class="pg ain" id="page-comparativo">
+      <div class="ph"><div><h1>Comparativo PDF</h1><p>Monte um comparativo de bancos avulso e gere o PDF com a marca NEXA</p><div class="phl"></div></div></div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:8px">Dados do cliente</div>
+        <div class="fr">
+          <div class="fg"><label>Nome do cliente</label><input type="text" id="cmp-nome" placeholder="Nome"></div>
+          <div class="fg"><label>Renda familiar (opcional)</label><input type="text" id="cmp-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"></div>
+        </div>
+        <div id="cmp-cenarios"></div>
+        <button class="btn bo bsm" onclick="cmpAddCenario()" style="margin-top:6px">+ Adicionar cenário (outro valor de imóvel/entrada)</button>
+        <div class="ct" style="margin-top:18px">Observações do correspondente</div>
+        <div class="fg"><textarea id="cmp-obs" placeholder="Ex: Taxas sujeitas à aprovação..." style="min-height:60px"></textarea></div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+          <button class="btn bo" onclick="cmpReset()">Limpar</button>
+          <button class="btn bg" onclick="gerarComparativoPDF()">📄 Baixar PDF</button>
+        </div>
+      </div>
+    </div>
+
     <div class="pg ain" id="page-financeiro">
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div><h1>Financeiro</h1><p>Comissões, receitas extras, descontos e despesas do mês</p><div class="phl"></div></div>
@@ -880,22 +900,23 @@ checkAuth();
 
 <!-- MODAL: GERAR PROPOSTA / COMPARATIVO PDF -->
 <div class="mo" id="mo-prop">
-  <div class="md" style="max-width:720px">
+  <div class="md" style="max-width:780px">
     <div class="mh">
       <div><div class="mt">Proposta — Comparativo de Bancos</div><div style="font-size:11px;color:var(--mu);margin-top:3px" id="prop-cli">—</div></div>
       <button class="mc" onclick="closeModal('mo-prop')">✕</button>
     </div>
     <div class="mb">
-      <div style="font-size:10.5px;color:var(--mu);margin-bottom:12px;line-height:1.6">Adicione as linhas do comparativo. Preencha os valores manualmente (como no documento que você já envia). Cada banco pode ter mais de uma linha, ex.: SAC e PRICE.</div>
-      <div class="ct" style="margin-bottom:8px">Linhas do comparativo</div>
-      <div id="prop-linhas"></div>
-      <button class="btn bo bsm" onclick="propAddLinha()" style="margin-top:4px">+ Adicionar linha</button>
+      <div class="ct" style="margin-bottom:8px">Dados do cliente</div>
+      <div class="fr">
+        <div class="fg"><label>Nome do cliente</label><input type="text" id="prop-nome" placeholder="Nome"></div>
+        <div class="fg"><label>Renda familiar (opcional)</label><input type="text" id="prop-renda" placeholder="R$ 0,00" oninput="fmtCur(this)"></div>
+      </div>
 
-      <div class="ct" style="margin-top:18px">Renda familiar (para renda necessária)</div>
-      <div class="fg"><input type="text" id="prop-renda" placeholder="R$ 0,00 (opcional)" inputmode="numeric" oninput="fmtCur(this)"></div>
+      <div id="prop-cenarios"></div>
+      <button class="btn bo bsm" onclick="propAddCenario()" style="margin-top:6px">+ Adicionar cenário (outro valor de imóvel/entrada)</button>
 
-      <div class="ct" style="margin-top:14px">Observações do correspondente</div>
-      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxas sujeitas à aprovação. Seguro habitacional incluso. Valores simulados em DD/MM..." style="min-height:64px"></textarea></div>
+      <div class="ct" style="margin-top:18px">Observações do correspondente</div>
+      <div class="fg"><textarea id="prop-obs" placeholder="Ex: Taxas sujeitas à aprovação. Seguro habitacional incluso. Valores simulados em DD/MM..." style="min-height:60px"></textarea></div>
     </div>
     <div class="mf">
       <button class="btn bo" onclick="closeModal('mo-prop')">Cancelar</button>
@@ -904,7 +925,7 @@ checkAuth();
   </div>
 </div>
 
-<!-- MODAL: BANCO --><!-- MODAL: BANCO -->
+<!-- MODAL: BANCO --><!-- MODAL: BANCO --><!-- MODAL: BANCO -->
 <div class="mo" id="mo-bk">
   <div class="md sm">
     <div class="mh"><div><div class="mt" id="bk-ttl">Novo Banco</div></div><button class="mc" onclick="closeModal('mo-bk')">✕</button></div>
@@ -2444,56 +2465,91 @@ async function copiarLinkPortal(){
 
 // ===== PROPOSTA / COMPARATIVO DE BANCOS (PDF) =====
 let _propClienteId=null;
-let propLinhas=[];
+let propCenarios=[]; // [{imovel,financiamento,entrada, linhas:[{banco,taxaAA,cet,pInicial,pFinal,prazo,amort}]}]
+
+function _novaLinha(){return {banco:'',taxaAA:'',cet:'',pInicial:'',pFinal:'',prazo:'360',amort:'SAC'};}
+function _novoCenario(iv,fv){const e=Math.max(0,(iv||0)-(fv||0));return {imovel:iv?fmtV(iv):'',financiamento:fv?fmtV(fv):'',entrada:e?fmtV(e):'',linhas:[_novaLinha()]};}
+
 function abrirProposta(id){
   _propClienteId=id||editClientId;
   const c=clients.find(x=>x.id===_propClienteId);
   if(!c){alert('Cliente nao encontrado.');return;}
-  document.getElementById('prop-cli').textContent=c.nome+(c.valorImovel?' \u00b7 Im\u00f3vel '+fmtV(c.valorImovel):'');
+  document.getElementById('prop-cli').textContent=c.nome||'';
+  document.getElementById('prop-nome').value=c.nome||'';
   document.getElementById('prop-obs').value='';
   document.getElementById('prop-renda').value=c.rendaFamiliar?fmtV(c.rendaFamiliar):'';
-  propLinhas=[{banco:'',taxaAA:'',cet:'',pInicial:'',pFinal:'',prazo:'360',amort:'SAC'}];
-  renderPropLinhas();
+  // cenário inicial vem dos valores do cliente
+  propCenarios=[_novoCenario(c.valorImovel||0, c.valorFinanciamento||0)];
+  renderPropCenarios();
   openModal('mo-prop');
 }
-function renderPropLinhas(){
-  const el=document.getElementById('prop-linhas');
+function propAddCenario(){propCenarios.push(_novoCenario(0,0));renderPropCenarios();}
+function _cenDel(ci){propCenarios.splice(ci,1);if(!propCenarios.length)propCenarios.push(_novoCenario(0,0));renderPropCenarios();}
+function propAddLinha(ci){propCenarios[ci].linhas.push(_novaLinha());renderPropCenarios();}
+function _plDel(ci,li){propCenarios[ci].linhas.splice(li,1);if(!propCenarios[ci].linhas.length)propCenarios[ci].linhas.push(_novaLinha());renderPropCenarios();}
+function _plSet(ci,li,campo,v){propCenarios[ci].linhas[li][campo]=v;}
+function _cenSet(ci,campo,v){
+  propCenarios[ci][campo]=v;
+  // recalcula entrada automaticamente (imóvel - financiamento)
+  if(campo==='imovel'||campo==='financiamento'){
+    const iv=_num(propCenarios[ci].imovel), fv=_num(propCenarios[ci].financiamento);
+    const e=Math.max(0,iv-fv);
+    propCenarios[ci].entrada=e?fmtV(e):'';
+    const el=document.getElementById(`cen-entrada-${ci}`);
+    if(el)el.value=propCenarios[ci].entrada;
+  }
+}
+function renderPropCenarios(){
+  const el=document.getElementById('prop-cenarios');
   if(!el)return;
+  const multi=propCenarios.length>1;
   const bancoOpts=banks.map(b=>'<option value="'+(b.nome||'').replace(/"/g,'&quot;')+'">').join('');
-  el.innerHTML=propLinhas.map((l,i)=>`
-    <div style="border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <input list="prop-bancos-dl" value="${(l.banco||'').replace(/"/g,'&quot;')}" onchange="_plSet(${i},'banco',this.value)" placeholder="Banco" style="flex:1;font-size:12px;font-weight:700;color:var(--gd);padding:6px 8px">
-        <button class="btn brd bsm" onclick="_plDel(${i})" style="margin-left:6px" title="Remover linha">\u2715</button>
+  el.innerHTML=propCenarios.map((cen,ci)=>`
+    <div style="border:1px solid var(--bd);border-radius:10px;padding:14px;margin-top:14px;background:rgba(255,255,255,.02)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="ct" style="margin:0">${multi?'Cenário '+(ci+1):'Valores e bancos'}</div>
+        ${multi?`<button class="btn brd bsm" onclick="_cenDel(${ci})" title="Remover cenário">✕ Cenário</button>`:''}
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-        <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_plSet(${i},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
-        <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_plSet(${i},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
-        <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_plSet(${i},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
-        <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" onchange="_plSet(${i},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
-        <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" onchange="_plSet(${i},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
-        <div><label style="font-size:9px;color:var(--mu)">Amortiza\u00e7\u00e3o</label><select onchange="_plSet(${i},'amort',this.value)" style="font-size:11px;padding:5px 7px"><option ${l.amort==='SAC'?'selected':''}>SAC</option><option ${l.amort==='PRICE'?'selected':''}>PRICE</option></select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="fg"><label>Valor do imóvel</label><input type="text" value="${cen.imovel||''}" oninput="fmtCur(this);_cenSet(${ci},'imovel',this.value)" placeholder="R$ 0,00"></div>
+        <div class="fg"><label>Valor financiado</label><input type="text" value="${cen.financiamento||''}" oninput="fmtCur(this);_cenSet(${ci},'financiamento',this.value)" placeholder="R$ 0,00"></div>
+        <div class="fg"><label>Entrada</label><input type="text" id="cen-entrada-${ci}" value="${cen.entrada||''}" oninput="fmtCur(this);_cenSet(${ci},'entrada',this.value)" placeholder="R$ 0,00"></div>
       </div>
+      <div style="font-size:10px;color:var(--mu);margin-bottom:6px;letter-spacing:.5px">BANCOS DESTE CENÁRIO</div>
+      ${cen.linhas.map((l,li)=>`
+        <div style="border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:7px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <input list="prop-bancos-dl" value="${(l.banco||'').replace(/"/g,'&quot;')}" onchange="_plSet(${ci},${li},'banco',this.value)" placeholder="Banco" style="flex:1;font-size:12px;font-weight:700;color:var(--gd);padding:6px 8px">
+            <button class="btn brd bsm" onclick="_plDel(${ci},${li})" style="margin-left:6px" title="Remover banco">✕</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_plSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_plSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_plSet(${ci},${li},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" onchange="_plSet(${ci},${li},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" onchange="_plSet(${ci},${li},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Amortização</label><select onchange="_plSet(${ci},${li},'amort',this.value)" style="font-size:11px;padding:5px 7px"><option ${l.amort==='SAC'?'selected':''}>SAC</option><option ${l.amort==='PRICE'?'selected':''}>PRICE</option></select></div>
+          </div>
+        </div>`).join('')}
+      <button class="btn bo bsm" onclick="propAddLinha(${ci})">+ Banco</button>
     </div>`).join('')+'<datalist id="prop-bancos-dl">'+bancoOpts+'</datalist>';
 }
-function _plSet(i,campo,v){propLinhas[i][campo]=v;}
-function _plDel(i){propLinhas.splice(i,1);if(!propLinhas.length)propAddLinha();renderPropLinhas();}
-function propAddLinha(){propLinhas.push({banco:'',taxaAA:'',cet:'',pInicial:'',pFinal:'',prazo:'360',amort:'SAC'});renderPropLinhas();}
 function _num(v){if(v==null)return 0;const s=String(v).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');return parseFloat(s)||0;}
 
 function gerarPropostaPDF(){
-  const c=clients.find(x=>x.id===_propClienteId);if(!c){alert('Cliente nao encontrado.');return;}
-  const linhas=propLinhas.filter(l=>l.banco&&l.banco.trim());
-  if(!linhas.length){alert('Adicione ao menos um banco no comparativo.');return;}
+  const nomeCli=(document.getElementById('prop-nome').value||'').trim()||'Cliente';
   const obsLivre=(document.getElementById('prop-obs').value||'').trim();
-  const rendaFam=_num(document.getElementById('prop-renda').value);
-  const iv=c.valorImovel||0, fv=c.valorFinanciamento||0, entrada=Math.max(0,iv-fv);
+  const cenarios=propCenarios.map(cen=>({
+    iv:_num(cen.imovel), fv:_num(cen.financiamento), entrada:_num(cen.entrada),
+    linhas:cen.linhas.filter(l=>l.banco&&l.banco.trim())
+  })).filter(cen=>cen.linhas.length);
+  if(!cenarios.length){alert('Adicione ao menos um banco em um cenário.');return;}
+  _gerarPDFComparativo(nomeCli,cenarios,obsLivre);
+  closeModal('mo-prop');
+}
 
-  let melhor=null;
-  linhas.forEach(l=>{const cet=_num(l.cet)||999,pin=_num(l.pInicial)||999999999;if(!melhor||cet<melhor._cet||(cet===melhor._cet&&pin<melhor._pin)){melhor={...l,_cet:cet,_pin:pin};}});
-  const menorParc=Math.min(...linhas.map(l=>_num(l.pInicial)||Infinity));
-  const rendaNec=(isFinite(menorParc)&&menorParc>0)?menorParc/0.30:0;
-
+// Geração de PDF compartilhada (proposta do cliente + aba Comparativo)
+function _gerarPDFComparativo(nomeCli,cenarios,obsLivre){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:'mm',format:'a4'});
   const W=210,m=16;let y=0;
@@ -2509,76 +2565,131 @@ function gerarPropostaPDF(){
   doc.setFontSize(9);doc.setTextColor(255,255,255);doc.text('Proposta '+nProp,W-m,15,{align:'right'});
   doc.setTextColor(210,210,210);doc.setFontSize(7.5);
   doc.text('Emitida em '+hoje.toLocaleDateString('pt-BR'),W-m,21,{align:'right'});
-  const val=new Date(hoje.getTime()+7*86400000);
-  doc.text('Valida ate '+val.toLocaleDateString('pt-BR'),W-m,26,{align:'right'});
 
   y=46;doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(13);
   doc.text('Comparativo de Financiamento',m,y);
   y+=7;doc.setDrawColor(...GD);doc.setLineWidth(0.5);doc.line(m,y,W-m,y);y+=8;
 
-  doc.setFontSize(9);doc.setTextColor(...MU);doc.setFont('helvetica','bold');
-  doc.text('CLIENTE',m,y);doc.text('IMOVEL',W/2,y);y+=5;
+  doc.setFontSize(9);doc.setTextColor(...MU);doc.setFont('helvetica','bold');doc.text('CLIENTE',m,y);y+=5;
   doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');doc.setFontSize(10);
-  doc.text(c.nome||'-',m,y);doc.setFontSize(9);doc.text('Valor: '+fmt(iv),W/2,y);y+=5;
-  doc.setFontSize(9);doc.setTextColor(90,90,90);
-  if(c.telefone)doc.text(String(c.telefone),m,y);
-  doc.text('Financiado: '+fmt(fv)+'  \u00b7  Entrada: '+fmt(entrada),W/2,y);y+=8;
+  doc.text(nomeCli,m,y);y+=9;
 
-  const cols=['Banco','Taxa a.a.+TR','CET','Parc. Inicial','Parc. Final','Prazo','Amort.'];
-  const cw=[34,26,20,30,30,18,18];
-  let x=m;
-  doc.setFillColor(...DK);doc.rect(m,y-4.5,W-2*m,8,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7.8);
-  cols.forEach((h,i)=>{doc.text(h,x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];});y+=6.5;
-  doc.setFont('helvetica','normal');doc.setFontSize(7.8);
-  const melhorRef=linhas.find(z=>z.banco===melhor.banco&&z.pInicial===melhor.pInicial&&z.amort===melhor.amort);
-  linhas.forEach((l,idx)=>{
-    const ehMelhor=(l===melhorRef);
-    if(ehMelhor){doc.setFillColor(240,247,238);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
-    else if(idx%2===0){doc.setFillColor(247,245,240);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
-    x=m;
-    const vals=[l.banco||'',(l.taxaAA||'')+'%',(l.cet||'')+'%',l.pInicial||'',l.pFinal||'',(l.prazo||'')+'m',l.amort||''];
-    vals.forEach((v,i)=>{
-      if(i===0&&ehMelhor){doc.setFont('helvetica','bold');doc.setTextColor(...GD);}
-      else{doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);}
-      doc.text(String(v),x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];
-    });y+=7.5;
-  });y+=6;
+  const multi=cenarios.length>1;
+  cenarios.forEach((cen,ci)=>{
+    if(y>235){doc.addPage();y=20;}
+    if(multi){
+      doc.setFillColor(...GD);doc.rect(m,y-4.5,W-2*m,7,'F');
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
+      doc.text('CENARIO '+(ci+1),m+2,y);y+=8;
+    }
+    doc.setTextColor(90,90,90);doc.setFont('helvetica','normal');doc.setFontSize(9);
+    const entrada=cen.entrada||Math.max(0,cen.iv-cen.fv);
+    doc.text('Imovel: '+fmt(cen.iv)+'   \u00b7   Financiado: '+fmt(cen.fv)+'   \u00b7   Entrada: '+fmt(entrada),m,y);y+=7;
 
-  doc.setFillColor(...DK);doc.roundedRect(m,y,W-2*m,20,2,2,'F');
-  doc.setTextColor(...GD);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text('MELHOR CUSTO-BENEFICIO',m+5,y+7);
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(12);
-  doc.text(melhor.banco+(melhor.amort?' ('+melhor.amort+')':''),m+5,y+15);
-  doc.setTextColor(210,210,210);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
-  doc.text('Menor CET'+(melhor.cet?' ('+melhor.cet+'%)':'')+' - reflete o custo real do financiamento.',W-m-5,y+15,{align:'right'});
-  y+=27;
+    const cols=['Banco','Taxa a.a.+TR','CET','Parc. Inicial','Parc. Final','Prazo','Amort.'];
+    const cw=[34,26,20,30,30,18,18];
+    let x=m;
+    doc.setFillColor(...DK);doc.rect(m,y-4.5,W-2*m,8,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7.8);
+    cols.forEach((h,i)=>{doc.text(h,x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];});y+=6.5;
+    doc.setFont('helvetica','normal');doc.setFontSize(7.8);
+    cen.linhas.forEach((l,idx)=>{
+      if(y>270){doc.addPage();y=20;}
+      if(idx%2===0){doc.setFillColor(247,245,240);doc.rect(m,y-4.5,W-2*m,7.5,'F');}
+      x=m;doc.setTextColor(40,40,40);
+      const vals=[l.banco||'',(l.taxaAA||'')+'%',(l.cet||'')+'%',l.pInicial||'',l.pFinal||'',(l.prazo||'')+'m',l.amort||''];
+      vals.forEach((v,i)=>{doc.setFont('helvetica',i===0?'bold':'normal');doc.text(String(v),x+1.5,y,{maxWidth:cw[i]-2});x+=cw[i];});
+      y+=7.5;
+    });
+    y+=8;
+  });
 
-  if(rendaNec>0){
-    doc.setTextColor(...MU);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
-    doc.text('Renda necessaria estimada (menor parcela / 30%): ',m,y);
-    doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.text(fmt(rendaNec),m+90,y);
-    if(rendaFam>0){const ok=rendaFam>=rendaNec;doc.setTextColor(...(ok?[40,140,60]:[200,80,80]));
-      doc.text(ok?'Renda informada compativel':'Atencao: renda abaixo do necessario',m,y+5);}
-    y+=12;
-  }
   if(obsLivre){
+    if(y>250){doc.addPage();y=20;}
     doc.setTextColor(...MU);doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.text('OBSERVACOES',m,y);y+=5;
     doc.setTextColor(70,70,70);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
     const wr=doc.splitTextToSize(obsLivre,W-2*m);doc.text(wr,m,y);y+=wr.length*4.4+4;
   }
 
-  const yF=270;doc.setDrawColor(...GD);doc.setLineWidth(0.4);doc.line(m,yF,W-m,yF);
-  doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
-  doc.text('Matheus \u00b7 NEXA Capital',m,yF+6);
-  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(90,90,90);
-  doc.text('WhatsApp: (19) 99102-2882',m,yF+11);
-  doc.setFontSize(6.8);doc.setTextColor(150,150,150);
-  const aviso='Valores e taxas sao simulacoes sujeitas a analise e aprovacao da instituicao financeira, podendo sofrer alteracoes. Nao constituem promessa de credito. CET = Custo Efetivo Total.';
-  doc.text(doc.splitTextToSize(aviso,W-2*m),m,yF+16);
-
-  doc.save('Proposta_NEXA_'+(c.nome||'cliente').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
-  closeModal('mo-prop');
+  const pages=doc.getNumberOfPages();
+  for(let p=1;p<=pages;p++){
+    doc.setPage(p);
+    const yF=282;
+    doc.setDrawColor(...GD);doc.setLineWidth(0.4);doc.line(m,yF,W-m,yF);
+    doc.setTextColor(...DK);doc.setFont('helvetica','bold');doc.setFontSize(9);
+    doc.text('Matheus \u00b7 NEXA Capital',m,yF+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90,90,90);
+    doc.text('WhatsApp: (19) 99102-2882',m,yF+9.5);
+    doc.setFontSize(6.5);doc.setTextColor(150,150,150);
+    doc.text('Valores e taxas sao simulacoes sujeitas a analise e aprovacao da instituicao financeira. CET = Custo Efetivo Total.',W-m,yF+9.5,{align:'right',maxWidth:120});
+  }
+  doc.save('Proposta_NEXA_'+nomeCli.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
+}
+// ===== ABA COMPARATIVO (avulso, mesmo formato da proposta) =====
+let cmpCenarios=[];
+function _cmpNovoCenario(){return {imovel:'',financiamento:'',entrada:'',linhas:[_novaLinha()]};}
+function renderComparativo(){
+  if(!cmpCenarios.length)cmpCenarios=[_cmpNovoCenario()];
+  const el=document.getElementById('cmp-cenarios');
+  if(!el)return;
+  const multi=cmpCenarios.length>1;
+  const bancoOpts=banks.map(b=>'<option value="'+(b.nome||'').replace(/"/g,'&quot;')+'">').join('');
+  el.innerHTML=cmpCenarios.map((cen,ci)=>`
+    <div style="border:1px solid var(--bd);border-radius:10px;padding:14px;margin-top:14px;background:rgba(255,255,255,.02)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="ct" style="margin:0">${multi?'Cenário '+(ci+1):'Valores e bancos'}</div>
+        ${multi?`<button class="btn brd bsm" onclick="_cmpCenDel(${ci})" title="Remover cenário">✕ Cenário</button>`:''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="fg"><label>Valor do imóvel</label><input type="text" value="${cen.imovel||''}" oninput="fmtCur(this);_cmpCenSet(${ci},'imovel',this.value)" placeholder="R$ 0,00"></div>
+        <div class="fg"><label>Valor financiado</label><input type="text" value="${cen.financiamento||''}" oninput="fmtCur(this);_cmpCenSet(${ci},'financiamento',this.value)" placeholder="R$ 0,00"></div>
+        <div class="fg"><label>Entrada</label><input type="text" id="cmp-entrada-${ci}" value="${cen.entrada||''}" oninput="fmtCur(this);_cmpCenSet(${ci},'entrada',this.value)" placeholder="R$ 0,00"></div>
+      </div>
+      <div style="font-size:10px;color:var(--mu);margin-bottom:6px;letter-spacing:.5px">BANCOS DESTE CENÁRIO</div>
+      ${cen.linhas.map((l,li)=>`
+        <div style="border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:7px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <input list="cmp-bancos-dl" value="${(l.banco||'').replace(/"/g,'&quot;')}" onchange="_cmpSet(${ci},${li},'banco',this.value)" placeholder="Banco" style="flex:1;font-size:12px;font-weight:700;color:var(--gd);padding:6px 8px">
+            <button class="btn brd bsm" onclick="_cmpLinDel(${ci},${li})" style="margin-left:6px" title="Remover banco">✕</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div><label style="font-size:9px;color:var(--mu)">Taxa a.a.(%) + TR</label><input value="${l.taxaAA||''}" onchange="_cmpSet(${ci},${li},'taxaAA',this.value)" placeholder="12,29" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">CET (%)</label><input value="${l.cet||''}" onchange="_cmpSet(${ci},${li},'cet',this.value)" placeholder="12,75" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Prazo (meses)</label><input value="${l.prazo||''}" onchange="_cmpSet(${ci},${li},'prazo',this.value)" placeholder="360" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Parcela Inicial</label><input value="${l.pInicial||''}" onchange="_cmpSet(${ci},${li},'pInicial',this.value)" placeholder="R$ 7.783,08" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Parcela Final</label><input value="${l.pFinal||''}" onchange="_cmpSet(${ci},${li},'pFinal',this.value)" placeholder="R$ 1.712,50" style="font-size:11px;padding:5px 7px"></div>
+            <div><label style="font-size:9px;color:var(--mu)">Amortização</label><select onchange="_cmpSet(${ci},${li},'amort',this.value)" style="font-size:11px;padding:5px 7px"><option ${l.amort==='SAC'?'selected':''}>SAC</option><option ${l.amort==='PRICE'?'selected':''}>PRICE</option></select></div>
+          </div>
+        </div>`).join('')}
+      <button class="btn bo bsm" onclick="cmpAddLinha(${ci})">+ Banco</button>
+    </div>`).join('')+'<datalist id="cmp-bancos-dl">'+bancoOpts+'</datalist>';
+}
+function cmpAddCenario(){cmpCenarios.push(_cmpNovoCenario());renderComparativo();}
+function _cmpCenDel(ci){cmpCenarios.splice(ci,1);if(!cmpCenarios.length)cmpCenarios.push(_cmpNovoCenario());renderComparativo();}
+function cmpAddLinha(ci){cmpCenarios[ci].linhas.push(_novaLinha());renderComparativo();}
+function _cmpLinDel(ci,li){cmpCenarios[ci].linhas.splice(li,1);if(!cmpCenarios[ci].linhas.length)cmpCenarios[ci].linhas.push(_novaLinha());renderComparativo();}
+function _cmpSet(ci,li,campo,v){cmpCenarios[ci].linhas[li][campo]=v;}
+function _cmpCenSet(ci,campo,v){
+  cmpCenarios[ci][campo]=v;
+  if(campo==='imovel'||campo==='financiamento'){
+    const iv=_num(cmpCenarios[ci].imovel), fv=_num(cmpCenarios[ci].financiamento);
+    const e=Math.max(0,iv-fv);cmpCenarios[ci].entrada=e?fmtV(e):'';
+    const el=document.getElementById(`cmp-entrada-${ci}`);if(el)el.value=cmpCenarios[ci].entrada;
+  }
+}
+function cmpReset(){
+  document.getElementById('cmp-nome').value='';
+  document.getElementById('cmp-renda').value='';
+  document.getElementById('cmp-obs').value='';
+  cmpCenarios=[_cmpNovoCenario()];renderComparativo();
+}
+function gerarComparativoPDF(){
+  const nomeCli=(document.getElementById('cmp-nome').value||'').trim()||'Cliente';
+  const obsLivre=(document.getElementById('cmp-obs').value||'').trim();
+  const cenarios=cmpCenarios.map(cen=>({iv:_num(cen.imovel),fv:_num(cen.financiamento),entrada:_num(cen.entrada),linhas:cen.linhas.filter(l=>l.banco&&l.banco.trim())})).filter(cen=>cen.linhas.length);
+  if(!cenarios.length){alert('Adicione ao menos um banco em um cenário.');return;}
+  // reaproveita a mesma geração de PDF da proposta
+  _gerarPDFComparativo(nomeCli,cenarios,obsLivre);
 }
 
 // ===== CLIENT DETAIL (recriada) =====
@@ -2589,32 +2700,24 @@ function openClientDetail(id){
   carregarChecklistCliente(id).then(()=>{if(typeof renderChecklist==='function')renderChecklist();});
   document.getElementById('cd-nm').textContent=c.nome||'';
   document.getElementById('cd-info').textContent=`${c.telefone||''} \u00b7 ${c.valorFinanciamento?fmtV(c.valorFinanciamento):'Valor n\u00e3o informado'}`;
-  // Dados pessoais edit\u00e1veis
-  const ecMap={solteiro:'Solteiro(a)',casado:'Casado(a)',divorciado:'Divorciado(a)',viuvo:'Vi\u00favo(a)',uniao:'Uni\u00e3o Est\u00e1vel'};
   const dp=document.getElementById('cd-dados-pessoais');
   if(dp){
     const fld=(lab,campo,val,tipo)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><input type="${tipo||'text'}" value="${(val==null?'':String(val)).replace(/"/g,'&quot;')}" onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px"></div>`;
-    const sel=(lab,campo,val,opts)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><select onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px">${opts.map(o=>`<option value="${o[0]}" ${val===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;
     let h='';
     h+=fld('Nome','nome',c.nome);
     h+=fld('CPF','cpf',c.cpf);
     h+=fld('Nascimento','nascimento',c.nascimento,'date');
-    h+=sel('Estado Civil','estadoCivil',c.estadoCivil||'',[['','\u2014'],['solteiro','Solteiro(a)'],['casado','Casado(a)'],['divorciado','Divorciado(a)'],['viuvo','Vi\u00favo(a)'],['uniao','Uni\u00e3o Est\u00e1vel']]);
+    h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Estado Civil</label><select onchange="updClient('estadoCivil',this.value)" style="font-size:12px;padding:7px 9px">${[['','\u2014'],['solteiro','Solteiro(a)'],['casado','Casado(a)'],['divorciado','Divorciado(a)'],['viuvo','Vi\u00favo(a)'],['uniao','Uni\u00e3o Est\u00e1vel']].map(o=>`<option value="${o[0]}" ${(c.estadoCivil||'')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;
     h+=fld('WhatsApp','telefone',c.telefone);
-    h+=fld('Renda Familiar','rendaFamiliar',c.rendaFamiliar||'');
+    h+=fld('Renda Familiar','rendaFamiliar',c.rendaFamiliar?fmtV(c.rendaFamiliar):'');
     h+=fld('Refer\u00eancia (corretor)','refCorretor',c.refCorretor||'');
     h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Origem</label><div style="font-size:11px;padding:7px 0;color:var(--mu)">${c.origem==='formulario_publico'?'Formul\u00e1rio':'Interno'}${c.dataCadastro?' \u00b7 '+new Date(c.dataCadastro).toLocaleDateString('pt-BR'):''}</div></div>`;
     dp.innerHTML=h;
   }
-  // C\u00f4njuge (se casado/uni\u00e3o)
-  // Bancos em simula\u00e7\u00e3o
   document.getElementById('cd-bchips').innerHTML=banks.map(b=>`<div class="bchip ${(c.bancos||[]).includes(b.id)?'sel':''}" onclick="toggleCDBk('${b.id}',this)">${b.nome}</div>`).join('');
-  // Status
   document.getElementById('cd-st').value=c.status||'novo';
-  // Banco escolhido
   const bk=document.getElementById('cd-bk');
   if(bk)bk.innerHTML='<option value="">\u2014</option>'+banks.map(b=>`<option value="${b.id}" ${c.bancoEscolhido===b.id?'selected':''}>${b.nome}</option>`).join('');
-  // Valores
   document.getElementById('cd-iv').value=c.valorImovel?fmtV(c.valorImovel):'';
   document.getElementById('cd-fv').value=c.valorFinanciamento?fmtV(c.valorFinanciamento):'';
   document.getElementById('cd-obs').value=c.obs||'';
@@ -3147,7 +3250,8 @@ function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function toggleSB(){document.getElementById('sbo').classList.toggle('open');document.getElementById('sidebar').classList.toggle('open');}
 function closeSB(){document.getElementById('sbo').classList.remove('open');document.getElementById('sidebar').classList.remove('open');}
-function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(p==='resumo'){initResumoSelects();loadArquivados().then(renderResumo);}if(p==='marketing'){loadArquivados().then(renderMarketing);}if(p==='corretores'){loadArquivados().then(renderCorretores);}if(window.innerWidth<=768)closeSB();}
+function navTo(p){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));const ni=document.querySelector(`.ni[data-page="${p}"]`);if(ni)ni.classList.add('active');document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');const titles={dashboard:'Dashboard',clientes:'Clientes',agenda:'Agenda',comparativo:'Comparativo PDF',simulador:'Simulador',comparativo:'Comparativo PDF',bancos:'Meus Bancos',financeiro:'Financeiro',corretores:'Corretores',resumo:'Resumo Mensal',marketing:'Marketing'};document.getElementById('ttl').textContent=titles[p]||p;if(p==='resumo'){initResumoSelects();loadArquivados().then(renderResumo);}if(p==='marketing'){loadArquivados().then(renderMarketing);}if(p==='corretores'){loadArquivados().then(renderCorretores);}if(p==='comparativo'&&typeof renderComparativo==='function')renderComparativo();
+  if(window.innerWidth<=768)closeSB();}
 
 
 // ===== FINANCEIRO =====
