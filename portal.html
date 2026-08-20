@@ -169,6 +169,16 @@ async function init(){
     }
   }catch(e){}
 
+  // Etapas condicionais por cliente: Quitação (interveniente) e FGTS
+  // Só aparecem se o consultor marcou "Sim" na ficha do cliente.
+  const temQuit=(cli.tem_quitacao==='sim');
+  const temFgts=(cli.tem_fgts==='sim');
+  ETAPAS=ETAPAS.filter(e=>{
+    if(e.k==='interveniente') return temQuit;
+    if(e.k==='fgts') return temFgts;
+    return true;
+  });
+
   render(cli,checklist,fasesBase,bancos);
 }
 

@@ -924,7 +924,8 @@ function cliToRow(cl){
     origem:cl.origem||'interno', ref_corretor:cl.refCorretor||null,
     data_cadastro:cl.dataCadastro||new Date().toISOString(),
     data_pagamento:cl.dataPagamento||null, data_movimentacao:cl.dataMovimentacao||null, entrou_etapa_em:cl.entrouEtapaEm||null, portal_token:cl.portalToken||null,
-    proposta:cl._proposta||null
+    proposta:cl._proposta||null,
+    tem_quitacao:cl.temQuitacao||null, tem_fgts:cl.temFgts||null
   };
 }
 function rowToCli(r){
@@ -934,7 +935,8 @@ function rowToCli(r){
     conjuge:r.conjuge, obs:r.obs, status:r.status, bancos:r.bancos||[],
     bancoEscolhido:r.banco_escolhido||'', origem:r.origem, refCorretor:r.ref_corretor,
     dataCadastro:r.data_cadastro, dataPagamento:r.data_pagamento, dataMovimentacao:r.data_movimentacao, entrouEtapaEm:r.entrou_etapa_em, portalToken:r.portal_token,
-    _proposta:r.proposta||null
+    _proposta:r.proposta||null,
+    temQuitacao:r.tem_quitacao||'', temFgts:r.tem_fgts||''
   };
 }
 
@@ -2657,6 +2659,9 @@ function openClientDetail(id){
     h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Estado Civil</label><select onchange="updClient('estadoCivil',this.value)" style="font-size:12px;padding:7px 9px">${[['','\u2014'],['solteiro','Solteiro(a)'],['casado','Casado(a)'],['divorciado','Divorciado(a)'],['viuvo','Vi\u00favo(a)'],['uniao','Uni\u00e3o Est\u00e1vel']].map(o=>`<option value="${o[0]}" ${(c.estadoCivil||'')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;
     h+=fld('WhatsApp','telefone',c.telefone);
     h+=fld('Renda Familiar','rendaFamiliar',c.rendaFamiliar?fmtV(c.rendaFamiliar):'');
+    const selSN=(lab,campo,val)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><select onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px"><option value="" ${!val?'selected':''}>\u2014</option><option value="sim" ${val==='sim'?'selected':''}>Sim</option><option value="nao" ${val==='nao'?'selected':''}>N\u00e3o</option></select></div>`;
+    h+=selSN('Haver\u00e1 quita\u00e7\u00e3o?','temQuitacao',c.temQuitacao||'');
+    h+=selSN('Vai usar FGTS?','temFgts',c.temFgts||'');
     h+=fld('Refer\u00eancia (corretor)','refCorretor',c.refCorretor||'');
     h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Origem</label><div style="font-size:11px;padding:7px 0;color:var(--mu)">${c.origem==='formulario_publico'?'Formul\u00e1rio':'Interno'}${c.dataCadastro?' \u00b7 '+new Date(c.dataCadastro).toLocaleDateString('pt-BR'):''}</div></div>`;
     dp.innerHTML=h;
