@@ -64,7 +64,7 @@ body{font-family:'Montserrat',sans-serif;background:#0d1b2a!important;color:#fff
 .card{background:var(--nvm);border:1px solid var(--bd);border-radius:12px;padding:20px;}
 .ct{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gd);display:flex;align-items:center;gap:10px;margin-bottom:16px;}
 .ct::after{content:'';flex:1;height:1px;background:var(--bd);}
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px;}
 .sc{background:var(--nvm);border:1px solid var(--bd);border-radius:10px;padding:18px;position:relative;overflow:hidden;}
 .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gd),transparent);}
 .sl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:8px;}
@@ -311,7 +311,9 @@ checkAuth();
         <div class="sc"><div class="sl">Total Clientes</div><div class="sv" id="s1">0</div><div class="ss" id="s1s">—</div></div>
         <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Do Novo Contato até Análise</div></div>
         <div class="sc"><div class="sl">Aprovados</div><div class="sv" id="s3">0</div><div class="ss">Total aprovados</div></div>
-        <div class="sc"><div class="sl">Volume Total</div><div class="sv" id="s4" style="font-size:22px;white-space:nowrap">R$ 0,00</div><div class="ss">Financiamentos</div></div>
+        <div class="sc"><div class="sl">Volume Total</div><div class="sv" id="s4" style="font-size:20px;white-space:nowrap">R$ 0,00</div><div class="ss">Todos (exceto perdidos)</div></div>
+        <div class="sc"><div class="sl">Volume Aprovados</div><div class="sv" id="s5" style="font-size:20px;white-space:nowrap">R$ 0,00</div><div class="ss">Somente aprovados</div></div>
+        <div class="sc"><div class="sl">Volume Confirmado</div><div class="sv" id="s6" style="font-size:20px;white-space:nowrap">R$ 0,00</div><div class="ss">A partir da análise jurídica</div></div>
       </div>
       <div class="card" style="margin-bottom:20px">
         <div class="ct">Pipeline de Processos</div>
@@ -1843,8 +1845,17 @@ function renderStats(){
   document.getElementById('s1s').textContent=ff>0?`↑ ${ff} via formulário`:'Clientes ativos';
   document.getElementById('s2').textContent=clients.filter(c=>['novo','contato','simulacao','analise'].includes(c.status)).length;
   document.getElementById('s3').textContent=clients.filter(c=>c.status==='aprovado').length;
-  const vol=clients.reduce((s,c)=>s+(c.valorFinanciamento||0),0);
-  document.getElementById('s4').textContent=fmtV(vol)+' M';
+  // Volumes de financiamento (sempre excluindo clientes em "perdidos")
+  const ativos=clients.filter(c=>c.status!=='perdidos');
+  const somaVol=arr=>arr.reduce((s,c)=>s+(c.valorFinanciamento||0),0);
+  // etapas a partir da análise jurídica (onde o Matheus tem mais certeza)
+  const FASES_CONFIRMADO=['juridico','interveniente','fgts','contrato','cartorio','pagamento','finalizados'];
+  const volTotal=somaVol(ativos);
+  const volAprovados=somaVol(ativos.filter(c=>c.status==='aprovado'));
+  const volConfirmado=somaVol(ativos.filter(c=>FASES_CONFIRMADO.includes(c.status)));
+  document.getElementById('s4').textContent=fmtV(volTotal)+' M';
+  const e5=document.getElementById('s5'); if(e5)e5.textContent=fmtV(volAprovados)+' M';
+  const e6=document.getElementById('s6'); if(e6)e6.textContent=fmtV(volConfirmado)+' M';
   const nn=clients.filter(c=>c.status==='novo').length;
   const dot=document.getElementById('ndot');
   if(dot)dot.style.display=nn>0?'block':'none';
