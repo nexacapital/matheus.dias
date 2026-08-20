@@ -309,7 +309,7 @@ checkAuth();
       <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap"><div><h1>Visão Geral</h1><p>Acompanhe suas operações em tempo real</p><div class="phl"></div></div><div id="frase-dia" style="flex:1;min-width:280px;max-width:520px;padding:14px 18px;background:rgba(201,168,76,.06);border-left:3px solid var(--gd);border-radius:8px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.82);text-align:left"></div></div>
       <div class="sg">
         <div class="sc"><div class="sl">Total Clientes</div><div class="sv" id="s1">0</div><div class="ss" id="s1s">—</div></div>
-        <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Do Novo Contato até Análise</div></div>
+        <div class="sc"><div class="sl">Em Andamento</div><div class="sv" id="s2">0</div><div class="ss">Da Jurídica ao Pagamento</div></div>
         <div class="sc"><div class="sl">Aprovados</div><div class="sv" id="s3">0</div><div class="ss">Total aprovados</div></div>
         <div class="sc"><div class="sl">Volume Total</div><div class="sv" id="s4" style="font-size:20px;white-space:nowrap">R$ 0,00</div><div class="ss">Todos (exceto perdidos)</div></div>
         <div class="sc"><div class="sl">Volume Aprovados</div><div class="sv" id="s5" style="font-size:20px;white-space:nowrap">R$ 0,00</div><div class="ss">Somente aprovados</div></div>
@@ -484,6 +484,7 @@ checkAuth();
           <div id="fin-ext-list" style="margin-bottom:12px"></div>
           <div style="display:flex;flex-direction:column;gap:7px">
             <input type="text" id="fin-ext-nome" placeholder="Escreva o serviço..." style="font-size:12px;padding:8px 10px">
+            <input type="text" id="fin-ext-cliente" placeholder="Nome do cliente (opcional)" style="font-size:12px;padding:8px 10px">
             <select id="fin-ext-sel" onchange="preencherExtraNome()" style="font-size:12px;padding:8px 10px">
               <option value="">...ou selecione uma opção pronta</option>
               <option value="Declaração do contador">Declaração do contador</option>
@@ -1843,7 +1844,7 @@ function renderStats(){
   const ff=clients.filter(c=>c.origem==='formulario_publico').length;
   document.getElementById('s1').textContent=clients.length;
   document.getElementById('s1s').textContent=ff>0?`↑ ${ff} via formulário`:'Clientes ativos';
-  document.getElementById('s2').textContent=clients.filter(c=>['novo','contato','simulacao','analise'].includes(c.status)).length;
+  document.getElementById('s2').textContent=clients.filter(c=>['juridico','interveniente','fgts','contrato','cartorio','pagamento'].includes(c.status)).length;
   document.getElementById('s3').textContent=clients.filter(c=>c.status==='aprovado').length;
   // Volumes de financiamento (sempre excluindo clientes em "perdidos")
   const ativos=clients.filter(c=>c.status!=='perdidos');
@@ -3898,10 +3899,16 @@ function renderFin(){
   const exts=(finData.extras||[]).filter(d=>d.mes===m&&d.ano===y);
   if(extEl){
     if(!exts.length)extEl.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:12px">Nenhuma receita extra</div>';
-    else extEl.innerHTML=exts.map(d=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
-      <div style="font-size:12px;font-weight:600">${d.nome}</div>
-      <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gr);font-weight:600;font-size:12px">+${fmtV(d.valor)}</span>
-      <button class="btn brd" style="padding:3px 8px;font-size:9px" onclick="delExtra(${finData.extras.indexOf(d)})">✕</button></div></div>`).join('');
+    else extEl.innerHTML=exts.map(d=>{const gi=finData.extras.indexOf(d);const pago=!!d.pago;return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="min-width:0">
+        <div style="font-size:12px;font-weight:600">${d.nome}</div>
+        ${d.cliente?`<div style="font-size:10px;color:var(--mu);margin-top:1px">👤 ${d.cliente}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span style="color:var(--gr);font-weight:600;font-size:12px">+${fmtV(d.valor)}</span>
+        <button class="btn ${pago?'bg':'bo'} bsm" style="padding:3px 8px;font-size:9px;white-space:nowrap" onclick="toggleExtraPago(${gi})" title="${pago?'Recebido':'Marcar como recebido'}">${pago?'✓ Pago':'A cobrar'}</button>
+        <button class="btn brd" style="padding:3px 8px;font-size:9px" onclick="delExtra(${gi})">✕</button>
+      </div></div>`;}).join('');
   }
 
   // Despesas
@@ -3972,13 +3979,19 @@ function preencherExtraNome(){
 function addExtra(){
   const manual=document.getElementById('fin-ext-nome');
   const nm=manual?manual.value.trim():'';
+  const cliEl=document.getElementById('fin-ext-cliente');
+  const cli=cliEl?cliEl.value.trim():'';
   const vl=parseCur(document.getElementById('fin-ext-val').value);
   if(!nm){alert('Escolha um serviço ou escreva o nome.');return;}
   if(!vl){alert('Informe o valor.');return;}
-  finData.extras.push({nome:nm,valor:vl,mes:getFinMes(),ano:getFinAno(),data:new Date().toISOString()});
+  finData.extras.push({nome:nm,cliente:cli,valor:vl,pago:false,mes:getFinMes(),ano:getFinAno(),data:new Date().toISOString()});
   if(manual)manual.value='';
+  if(cliEl)cliEl.value='';
   document.getElementById('fin-ext-val').value='';
   saveFin();renderFin();
+}
+function toggleExtraPago(i){
+  if(finData.extras[i]){finData.extras[i].pago=!finData.extras[i].pago;saveFin();renderFin();}
 }
 function delExtra(i){
   if(!confirm('Excluir esta receita extra?'))return;
