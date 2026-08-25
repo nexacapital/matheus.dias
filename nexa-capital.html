@@ -937,13 +937,20 @@ async function loadAll(){
 async 
 // ===== PIPELINE EDITÁVEL (etapas) =====
 function _rebuildSNfromCOLS(){
-  // Atualiza os labels (SN) a partir de COLS, preservando as chaves.
-  COLS.forEach(col=>{ SN[col.k]=col.l; });
+  // Atualiza os labels (SN) a partir de COLS, preservando as chaves. Nunca quebra a tela.
+  try{ if(Array.isArray(COLS))COLS.forEach(col=>{ if(col&&col.k)SN[col.k]=col.l; }); }catch(e){}
+}
+function _pipeColsValido(arr){
+  // Precisa ser array não-vazio E conter todas as etapas de sistema (senão ignora e usa padrão)
+  if(!Array.isArray(arr)||!arr.length)return false;
+  const keys=new Set(arr.map(x=>x&&x.k));
+  for(const def of COLS_DEFAULT){ if(!keys.has(def.k))return false; }
+  return true;
 }
 function loadPipelineCols(){
   try{
     const r=localStorage.getItem('nexa_pipeline_cols');
-    if(r){const arr=JSON.parse(r); if(Array.isArray(arr)&&arr.length){COLS=arr;}}
+    if(r){const arr=JSON.parse(r); if(_pipeColsValido(arr)){COLS=arr;}}
   }catch(e){}
   _rebuildSNfromCOLS();
 }
@@ -951,7 +958,7 @@ async function loadPipelineColsRemoto(){
   if(!supa)return;
   try{
     const {data}=await supa.from('checklist_modelos').select('*').eq('id','pipeline_cols').maybeSingle();
-    if(data&&Array.isArray(data.fases)&&data.fases.length){
+    if(data&&_pipeColsValido(data.fases)){
       COLS=data.fases;
       try{localStorage.setItem('nexa_pipeline_cols',JSON.stringify(COLS));}catch(e){}
       _rebuildSNfromCOLS();
@@ -1093,7 +1100,15 @@ function rowToCli(r){
 async function supaSaveCliente(cl){
   if(!supa)return false;
   try{ const {error}=await supa.from('clientes').upsert(cliToRow(cl)); if(error)throw error; return true; }
-  catch(e){ console.warn('supaSaveCliente',e); return false; }
+  catch(e){
+    console.warn('supaSaveCliente (tentando sem colunas novas):',e);
+    // Fallback: se alguma coluna nova ainda não existe no banco, salva só as colunas essenciais.
+    try{
+      const row=cliToRow(cl);
+      ['proposta','tem_quitacao','tem_fgts'].forEach(k=>{delete row[k];});
+      const {error}=await supa.from('clientes').upsert(row); if(error)throw error; return true;
+    }catch(e2){ console.warn('supaSaveCliente fallback',e2); return false; }
+  }
 }
 async function supaDeleteCliente(id){
   if(!supa)return false;
