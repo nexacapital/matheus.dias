@@ -574,11 +574,33 @@ checkAuth();
           <p style="font-size:12px;color:var(--mu);margin:6px 0 12px">Ajuste a lista-base de documentos exigidos em cada etapa.</p>
           <button class="btn bo" onclick="abrirEditorDocsCliente()">📄 Editar lista-base de documentos</button>
         </div>
+        <div class="card" style="flex:1;min-width:240px">
+          <div class="ct">Etapas do Pipeline</div>
+          <p style="font-size:12px;color:var(--mu);margin:6px 0 12px">Renomeie, reordene ou adicione etapas. Os clientes nunca são movidos ou apagados.</p>
+          <button class="btn bo" onclick="abrirEditorPipeline()">🔧 Editar etapas do pipeline</button>
+        </div>
       </div>
     </div>
 
   </div>
 </main>
+
+
+<!-- MODAL: EDITAR ETAPAS DO PIPELINE -->
+<div class="mo" id="mo-pipe">
+  <div class="md">
+    <div class="mh">
+      <div><div class="mt">Etapas do Pipeline</div><div style="font-size:11px;color:var(--mu);margin-top:3px">Arraste para reordenar, edite o nome, adicione ou remova. Os clientes ficam onde estão.</div></div>
+      <button class="mc" onclick="closeModal('mo-pipe')">✕</button>
+    </div>
+    <div class="mb" id="pipe-body"></div>
+    <div class="mf">
+      <button class="btn bo" onclick="pipeAddEtapa()">+ Adicionar etapa</button>
+      <button class="btn brd" onclick="pipeReset()" title="Volta às etapas originais do sistema">↺ Restaurar padrão</button>
+      <button class="btn bg" onclick="salvarPipeline()">Salvar etapas</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: NOVO CORRETOR -->
 <div class="mo" id="mo-corretor">
@@ -588,6 +610,11 @@ checkAuth();
       <div class="fr"><div class="fg"><label>Nome <span class="rq">*</span></label><input type="text" id="cor-nome-input" placeholder="Ex: João Silva"></div></div>
       <div class="fr"><div class="fg"><label>WhatsApp</label><input type="text" id="cor-tel-input" placeholder="(19) 99999-9999"></div></div>
       <div class="fr"><div class="fg"><label>Slug do link (opcional)</label><input type="text" id="cor-slug-input" placeholder="joao-silva"><div class="fe" style="display:block;color:var(--mu)">Gerado do nome se vazio</div></div></div>
+      <div class="fr"><div class="fg"><label>Logo da imobiliária (opcional)</label>
+        <input type="file" id="cor-logo-input" accept="image/*" onchange="_corLogoUpload(this)" style="font-size:12px">
+        <div class="fe" style="display:block;color:var(--mu)">Aparece no portal dos clientes indicados por este corretor</div>
+        <div id="cor-logo-preview" style="margin-top:8px;display:none"><img id="cor-logo-img" style="max-height:56px;max-width:160px;border-radius:6px;background:#fff;padding:4px"><button type="button" class="btn brd" style="padding:3px 8px;font-size:10px;margin-left:8px" onclick="_corLogoRemove()">Remover</button></div>
+      </div></div>
       <div class="fr"><div class="fg"><label>Link de cadastro</label><div id="cor-link-preview" style="font-size:11px;color:var(--gd);word-break:break-all;padding:8px;background:var(--bg);border-radius:6px">—</div></div></div>
     </div>
     <div class="mf">
@@ -854,6 +881,8 @@ function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 
 // ===== LOAD / SAVE =====
 async function loadAll(){
+  loadPipelineCols();
+  await loadPipelineColsRemoto();
   // Bancos, agenda, corretores: tenta Supabase, senão localStorage
   const supaBancos=await supaLoadBancos();
   if(supaBancos&&supaBancos.length){banks=supaBancos;}
@@ -905,7 +934,124 @@ async function loadAll(){
 
   renderAll();
 }
-async function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+async 
+// ===== PIPELINE EDITÁVEL (etapas) =====
+function _rebuildSNfromCOLS(){
+  // Atualiza os labels (SN) a partir de COLS, preservando as chaves.
+  COLS.forEach(col=>{ SN[col.k]=col.l; });
+}
+function loadPipelineCols(){
+  try{
+    const r=localStorage.getItem('nexa_pipeline_cols');
+    if(r){const arr=JSON.parse(r); if(Array.isArray(arr)&&arr.length){COLS=arr;}}
+  }catch(e){}
+  _rebuildSNfromCOLS();
+}
+async function loadPipelineColsRemoto(){
+  if(!supa)return;
+  try{
+    const {data}=await supa.from('checklist_modelos').select('*').eq('id','pipeline_cols').maybeSingle();
+    if(data&&Array.isArray(data.fases)&&data.fases.length){
+      COLS=data.fases;
+      try{localStorage.setItem('nexa_pipeline_cols',JSON.stringify(COLS));}catch(e){}
+      _rebuildSNfromCOLS();
+    }
+  }catch(e){}
+}
+async function savePipelineCols(){
+  // Garante que as etapas de sistema nunca sumam: mescla mantendo qualquer sys ausente.
+  const presentes=new Set(COLS.map(x=>x.k));
+  COLS_DEFAULT.forEach(def=>{ if(!presentes.has(def.k)) COLS.push({...def}); });
+  // marca sys corretamente
+  COLS.forEach(col=>{ col.sys=SYS_KEYS.has(col.k); });
+  try{localStorage.setItem('nexa_pipeline_cols',JSON.stringify(COLS));}catch(e){}
+  _rebuildSNfromCOLS();
+  if(supa){try{await supa.from('checklist_modelos').upsert({id:'pipeline_cols',nome:'Etapas do pipeline',fases:COLS,atualizado_em:new Date().toISOString()});}catch(e){}}
+}
+
+
+// ===== EDITOR DE ETAPAS DO PIPELINE =====
+let _pipeEdit=[];
+function abrirEditorPipeline(){
+  _pipeEdit=JSON.parse(JSON.stringify(COLS));
+  renderEditorPipeline();
+  openModal('mo-pipe');
+}
+function _clientesNaEtapa(k){
+  return clients.filter(c=>c.status===k).length;
+}
+function renderEditorPipeline(){
+  const body=document.getElementById('pipe-body');
+  if(!body)return;
+  body.innerHTML=_pipeEdit.map((col,i)=>{
+    const isSys=SYS_KEYS.has(col.k);
+    const qtd=_clientesNaEtapa(col.k);
+    const podeRemover=!isSys && qtd===0;
+    return `<div draggable="true" ondragstart="_pipeDragStart(${i})" ondragover="event.preventDefault()" ondrop="_pipeDrop(${i})"
+      style="display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:6px;background:var(--nvm);border:1px solid var(--bd);border-radius:8px">
+      <span style="cursor:grab;color:var(--mu);font-size:14px" title="Arraste para reordenar">⠿</span>
+      <span style="color:var(--mu);font-size:11px;width:22px;text-align:center">${i+1}</span>
+      <input type="text" value="${(col.l||'').replace(/"/g,'&quot;')}" oninput="_pipeSetLabel(${i},this.value)" style="flex:1;font-size:12px;padding:6px 8px">
+      <span style="font-size:10px;color:var(--mu);white-space:nowrap" title="Clientes nesta etapa">${qtd} cliente${qtd===1?'':'s'}</span>
+      ${isSys
+        ? `<span style="font-size:9px;color:var(--gd);border:1px solid var(--bd);border-radius:5px;padding:2px 6px;white-space:nowrap" title="Etapa do sistema — pode renomear e reordenar, mas não remover">sistema</span>`
+        : `<button class="btn ${podeRemover?'brd':'bo'}" style="padding:3px 8px;font-size:10px;white-space:nowrap" ${podeRemover?'':'disabled title="Só dá para remover se não houver clientes nesta etapa"'} onclick="_pipeRemove(${i})">${podeRemover?'✕ Remover':'🔒 '+qtd+' aqui'}</button>`
+      }
+    </div>`;
+  }).join('');
+}
+let _pipeDragIdx=null;
+function _pipeDragStart(i){_pipeDragIdx=i;}
+function _pipeDrop(i){
+  if(_pipeDragIdx===null||_pipeDragIdx===i)return;
+  const item=_pipeEdit.splice(_pipeDragIdx,1)[0];
+  _pipeEdit.splice(i,0,item);
+  _pipeDragIdx=null;
+  renderEditorPipeline();
+}
+function _pipeSetLabel(i,v){ if(_pipeEdit[i])_pipeEdit[i].l=v; }
+function _pipeRemove(i){
+  const col=_pipeEdit[i];
+  if(!col)return;
+  if(SYS_KEYS.has(col.k)){alert('Esta é uma etapa do sistema e não pode ser removida.');return;}
+  if(_clientesNaEtapa(col.k)>0){alert('Há clientes nesta etapa. Mova-os antes de remover.');return;}
+  if(!confirm('Remover a etapa "'+(col.l||col.k)+'"?'))return;
+  _pipeEdit.splice(i,1);
+  renderEditorPipeline();
+}
+function pipeAddEtapa(){
+  const nome=prompt('Nome da nova etapa:');
+  if(!nome||!nome.trim())return;
+  // gera chave única a partir do nome
+  let base=nome.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'etapa';
+  let k=base, n=1;
+  const usadas=new Set(_pipeEdit.map(x=>x.k));
+  while(usadas.has(k)){k=base+'_'+(++n);}
+  // insere antes de Finalizados (pra não ficar depois dos destinos finais)
+  const idxFin=_pipeEdit.findIndex(x=>x.k==='finalizados');
+  const nova={k,l:nome.trim()};
+  if(idxFin>=0)_pipeEdit.splice(idxFin,0,nova); else _pipeEdit.push(nova);
+  renderEditorPipeline();
+}
+function pipeReset(){
+  if(!confirm('Restaurar as etapas originais do sistema? Suas etapas personalizadas serão removidas (os clientes não são afetados).'))return;
+  _pipeEdit=JSON.parse(JSON.stringify(COLS_DEFAULT));
+  renderEditorPipeline();
+}
+async function salvarPipeline(){
+  // valida: todos os labels preenchidos
+  for(const col of _pipeEdit){ if(!col.l||!col.l.trim()){alert('Todas as etapas precisam de um nome.');return;} }
+  // garante que nenhuma etapa de sistema foi perdida
+  const presentes=new Set(_pipeEdit.map(x=>x.k));
+  COLS_DEFAULT.forEach(def=>{ if(!presentes.has(def.k)) _pipeEdit.push({...def}); });
+  COLS=_pipeEdit.map(col=>({...col, sys:SYS_KEYS.has(col.k)}));
+  await savePipelineCols();
+  closeModal('mo-pipe');
+  renderAll();
+  alert('\u2705 Etapas do pipeline atualizadas.');
+}
+
+function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
   // Sincroniza com Supabase (nunca re-envia clientes já excluídos)
   if(supa&&clients){clients.forEach(cl=>{if(!_idsExcluidos.has(cl.id))supaSaveCliente(cl);});}
 }
@@ -968,9 +1114,9 @@ async function supaSaveAgenda(a){ if(!supa)return; try{await supa.from('agenda')
 async function supaDeleteAgenda(id){ if(!supa)return; try{await supa.from('agenda').delete().eq('id',id);}catch(e){console.warn(e);} }
 async function supaLoadAgenda(){ if(!supa)return null; try{const {data,error}=await supa.from('agenda').select('*');if(error)throw error;return data.map(r=>({id:r.id,titulo:r.titulo,data:r.data,hora:r.hora,tipo:r.tipo,clienteId:r.cliente_id,local:r.local}));}catch(e){return null;} }
 // Corretores
-async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corretores').upsert({id:co.id,nome:co.nome,telefone:co.telefone||null,slug:co.slug});}catch(e){console.warn(e);} }
+async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corretores').upsert({id:co.id,nome:co.nome,telefone:co.telefone||null,slug:co.slug,logo_imobiliaria:co.logoImobiliaria||null});}catch(e){console.warn(e);} }
 async function supaDeleteCorretor(id){ if(!supa)return; try{await supa.from('corretores').delete().eq('id',id);}catch(e){console.warn(e);} }
-async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug}));}catch(e){return null;} }
+async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug,logoImobiliaria:r.logo_imobiliaria||null}));}catch(e){return null;} }
 
 
 async function forcarSincronizacao(){
@@ -1446,7 +1592,7 @@ function renderDashUltimos(){
   const el=document.getElementById('dash-ultimos');if(!el)return;
   const recent=[...clients].sort((a,b)=>new Date(b.dataCadastro)-new Date(a.dataCadastro)).slice(0,5);
   if(!recent.length){el.innerHTML='<div style="color:var(--mu);font-size:11px;text-align:center;padding:12px">Nenhum cliente</div>';return;}
-  const SN={novo:'Novo Contato',contato:'Em Contato',simulacao:'Simulação',analise:'Análise',aprovado:'Aprovado',checklist:'Checklist Inicial',engenharia:'Engenharia',juridico:'Análise Jurídica',interveniente:'Interveniente Quitante',fgts:'FGTS',contrato:'Emissão de Contrato',cartorio:'Cartório',pagamento:'Pagamento Vendedor',finalizados:'Finalizados',perdidos:'Perdidos'};
+  let SN={novo:'Novo Contato',contato:'Em Contato',simulacao:'Simulação',analise:'Análise',aprovado:'Aprovado',checklist:'Checklist Inicial',engenharia:'Engenharia',juridico:'Análise Jurídica',interveniente:'Interveniente Quitante',fgts:'FGTS',contrato:'Emissão de Contrato',cartorio:'Cartório',pagamento:'Pagamento Vendedor',finalizados:'Finalizados',perdidos:'Perdidos'};
   const SC={novo:'s0',contato:'s1',simulacao:'s2',analise:'s3',aprovado:'s4',checklist:'s4',engenharia:'s4',juridico:'s4',interveniente:'s4',fgts:'s4',contrato:'s4',cartorio:'s4',pagamento:'s4'};
   el.innerHTML=recent.map(c=>`<div class="ai" onclick="openClientDetail('${c.id}')"><div class="av" style="width:28px;height:28px;font-size:9px">${ini(c.nome)}</div><div style="flex:1"><div class="at" style="font-size:11px">${c.nome}</div><div class="as">${c.valorFinanciamento?fmtV(c.valorFinanciamento):'—'}${c.refCorretor?' · 👤 '+c.refCorretor:''}</div></div><span class="sb2 ${SC[c.status]||''}" style="font-size:8px">${SN[c.status]||c.status}</span></div>`).join('');
 }
@@ -1863,7 +2009,10 @@ function renderStats(){
 }
 
 // ===== PIPELINE =====
-const COLS=[{k:'novo',l:'Novo Contato',nw:true},{k:'contato',l:'Em Contato'},{k:'simulacao',l:'Simulação'},{k:'analise',l:'Análise'},{k:'aprovado',l:'Aprovado'},{k:'checklist',l:'Checklist Inicial'},{k:'engenharia',l:'Engenharia'},{k:'juridico',l:'Análise Jurídica'},{k:'interveniente',l:'Interveniente Quitante'},{k:'fgts',l:'FGTS'},{k:'contrato',l:'Emissão de Contrato'},{k:'cartorio',l:'Cartório'},{k:'pagamento',l:'Pagamento Vendedor'},{k:'finalizados',l:'Finalizados'},{k:'perdidos',l:'Perdidos'}];
+// Etapas do pipeline. As 'sys' têm lógica ligada (volumes, comissões, portal) e não podem ser removidas — só renomeadas/reordenadas.
+const COLS_DEFAULT=[{k:'novo',l:'Novo Contato',nw:true,sys:true},{k:'contato',l:'Em Contato',sys:true},{k:'simulacao',l:'Simulação',sys:true},{k:'analise',l:'Análise',sys:true},{k:'aprovado',l:'Aprovado',sys:true},{k:'checklist',l:'Checklist Inicial',sys:true},{k:'engenharia',l:'Engenharia',sys:true},{k:'juridico',l:'Análise Jurídica',sys:true},{k:'interveniente',l:'Interveniente Quitante',sys:true},{k:'fgts',l:'FGTS',sys:true},{k:'contrato',l:'Emissão de Contrato',sys:true},{k:'cartorio',l:'Cartório',sys:true},{k:'pagamento',l:'Pagamento Vendedor',sys:true},{k:'finalizados',l:'Finalizados',sys:true},{k:'perdidos',l:'Perdidos',sys:true}];
+let COLS=JSON.parse(JSON.stringify(COLS_DEFAULT));
+const SYS_KEYS=new Set(COLS_DEFAULT.map(x=>x.k));
 
 // ===== ANÁLISE DO FUNIL + SUGESTÕES =====
 const SUGESTOES_FASE={
@@ -2709,6 +2858,45 @@ function toggleCDBk(bid,el){
   saveClients();renderAll();
 }
 
+async function delClient(){
+  if(!confirm('Excluir este cliente? Esta ação é definitiva e não pode ser desfeita.'))return;
+  const id=editClientId;
+  _deletando=true;
+  _idsExcluidos.add(id);
+  if(typeof registerDeleted==='function')registerDeleted([id]);
+  if(typeof limparVestigiosCliente==='function')await limparVestigiosCliente(id);
+  clients=clients.filter(c=>c.id!==id);
+  try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
+  closeModal('mo-cd');
+  renderAll();
+  if(supa){
+    try{
+      const {error}=await supa.from('clientes').delete().eq('id',id);
+      if(error){console.error('Erro Supabase delete:',error);alert('⚠️ Não consegui excluir da nuvem: '+error.message);}
+    }catch(e){console.error(e);alert('⚠️ Erro de conexão ao excluir.');}
+  }
+  setTimeout(()=>{_deletando=false;},2000);
+}
+
+function moverParaPerdidos(){
+  const c=clients.find(x=>x.id===editClientId);
+  if(!c)return;
+  if(c.status==='perdidos'){alert('Este cliente já está em Perdidos.');return;}
+  if(!confirm('Mover "'+(c.nome||'este cliente')+'" para Perdidos?\n\nEle NÃO será apagado — fica na aba Perdidos e você pode recuperá-lo depois.'))return;
+  updClient('status','perdidos');
+  closeModal('mo-cd');
+}
+
+
+async function salvarModelos(){
+  if(typeof _modeloEdit==='undefined'||!_modeloEdit){closeModal('mo-chkmod');return;}
+  try{(_modeloEdit.fases||[]).forEach(f=>(f.docs||[]).forEach(d=>{if(!d.id)d.id='d_'+Math.random().toString(36).slice(2,8);}));}catch(e){}
+  if(typeof checklistModelos!=='undefined')checklistModelos['base']=_modeloEdit;
+  if(supa){try{await supa.from('checklist_modelos').upsert({id:'base',nome:(_modeloEdit.nome||'Lista-base'),fases:_modeloEdit.fases,atualizado_em:new Date().toISOString()});}catch(e){alert('Erro ao salvar: '+e.message);return;}}
+  closeModal('mo-chkmod');
+  if(typeof renderChecklist==='function')renderChecklist();
+  alert('✅ Lista-base atualizada.');
+}
 // ===== NEW CLIENT =====
 function openNewClient(){
   ['nc-nm','nc-cpf','nc-tel','nc-iv','nc-fv','nc-obs','nc-cjnm','nc-cjcpf'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -3540,12 +3728,21 @@ function paradosAgora(){
 function calcMetricas(mes,ano){
   const noMes=(d)=>{if(!d)return false;const x=new Date(d);return x.getMonth()===mes&&x.getFullYear()===ano;};
   const novos=clients.filter(c=>noMes(c.dataCadastro));
-  // Fechados = Finalizados no mês + os que foram arquivados dentro do mês (estão no Marketing)
-  const fechadosPipe=clients.filter(c=>c.status==='finalizados'&&(noMes(c.dataPagamento)||noMes(c.dataMovimentacao)));
-  const fechadosArq=(arquivados||[]).filter(a=>noMes(a.data_arquivamento)||noMes(a.data_pagamento)).map(rowToCli);
+  // Fechamentos = da Emissão de Contrato até Finalizados (onde o negócio já é considerado fechado).
+  // Referência de data: quando o cliente entrou na etapa atual (entrouEtapaEm) ou a última movimentação.
+  const FASES_FECHADO=['contrato','cartorio','pagamento','finalizados'];
+  const fechadosPipe=clients.filter(c=>FASES_FECHADO.includes(c.status)&&(noMes(c.entrouEtapaEm)||noMes(c.dataPagamento)||noMes(c.dataMovimentacao)));
+  const fechadosArq=(arquivados||[]).filter(a=>noMes(a.data_arquivamento)||noMes(a.data_pagamento)).map(rowToCli).filter(a=>FASES_FECHADO.includes(a.status));
   const idsPipe=new Set(fechadosPipe.map(c=>c.id));
   const fechadosMes=fechadosPipe.concat(fechadosArq.filter(a=>!idsPipe.has(a.id)));
   const perdidos=clients.filter(c=>c.status==='perdidos'&&(noMes(c.dataMovimentacao)||noMes(c.dataCadastro)));
+  // Perdidos por etapa de origem (de onde foi arrastado direto pra Perdidos)
+  const perdidosPorEtapa={};
+  (historicoEtapas||[]).filter(h=>h.etapa_destino==='perdidos'&&h.mes===mes&&h.ano===ano).forEach(h=>{
+    const org=h.etapa||'novo';
+    perdidosPorEtapa[org]=(perdidosPorEtapa[org]||0)+1;
+  });
+  const perdidosDetalhe=Object.entries(perdidosPorEtapa).map(([etapa,n])=>({etapa,label:(SN[etapa]||etapa),n})).sort((a,b)=>b.n-a.n);
   const vistorias=agenda.filter(a=>a.tipo==='vistoria'&&a.data&&new Date(a.data+'T12:00:00').getMonth()===mes&&new Date(a.data+'T12:00:00').getFullYear()===ano);
   const comMes=comissoes.filter(x=>x.mes===mes&&x.ano===ano);
   const totalCom=comMes.reduce((s,x)=>s+(Number(x.comissao_valor)||0),0);
@@ -3577,7 +3774,7 @@ function calcMetricas(mes,ano){
   fechadosMes.forEach(c=>{const b=banks.find(bk=>bk.id===c.bancoEscolhido)||banks.find(bk=>(c.bancos||[]).includes(bk.id));
     const n=b?b.nome:'Sem banco';porBanco[n]=(porBanco[n]||0)+1;});
 
-  return {mes,ano,novos:novos.length,fechados:fechadosMes.length,perdidos:perdidos.length,
+  return {mes,ano,novos:novos.length,fechados:fechadosMes.length,perdidos:perdidos.length,perdidosDetalhe,
     vistorias:vistorias.length,volume,ativos,comissoes:comMes.length,totalComissoes:totalCom,
     taxaConv:novos.length?(fechadosMes.length/novos.length*100):null,
     cicloMedio,cicloMin,cicloMax,corretorStats,porBanco,
@@ -3707,6 +3904,26 @@ function renderResumo(){
         ${alerta?`<div style="font-size:10px;color:#f87171;margin-top:3px">⚠️ Gargalo · pior caso: ${e.maxCliente} (${e.max.toFixed(0)}d)</div>`:''}
       </div>`;}).join('')
     :'<div style="color:var(--mu);font-size:11px;padding:16px 0">Ainda sem histórico de movimentação. A partir de agora o sistema registra o tempo em cada etapa.</div>'}
+  </div>`;
+
+  // Card: Perdidos por etapa de origem
+  html+=`<div class="card" style="margin-top:16px">
+    <div class="ct">💔 Perdidos — em que etapa saíram</div>
+    <div style="font-size:10.5px;color:var(--mu);margin-bottom:14px;line-height:1.7">
+      Mostra de qual etapa o cliente foi movido direto para Perdidos neste mês. Ajuda a ver onde os negócios mais escapam.
+    </div>
+    ${(d.perdidosDetalhe&&d.perdidosDetalhe.length)?d.perdidosDetalhe.map(e=>{
+      const maxN=d.perdidosDetalhe[0].n||1;
+      return `<div style="margin-bottom:11px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:600">${e.label}</span>
+          <span style="font-size:12px;font-weight:700;color:#f87171">${e.n} ${e.n===1?'cliente':'clientes'}</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.min(100,e.n/maxN*100)}%;background:#f87171;border-radius:3px"></div>
+        </div>
+      </div>`;
+    }).join(''):'<div style="color:var(--mu);font-size:11px;padding:12px 0;text-align:center">Nenhum cliente perdido neste mês. 👏</div>'}
   </div>`;
 
   el.innerHTML=html;
@@ -4351,6 +4568,35 @@ async function loadCorretores(){
   renderCorretores();
 }
 
+
+let _corLogoTemp=null; // base64 do logo em edição
+function _corLogoUpload(input){
+  const f=input.files&&input.files[0];
+  if(!f)return;
+  if(!f.type.startsWith('image/')){alert('Selecione uma imagem.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      // redimensiona pra largura máx 240px mantendo proporção (mantém base64 leve)
+      const maxW=240; const escala=Math.min(1,maxW/img.width);
+      const w=Math.round(img.width*escala), h=Math.round(img.height*escala);
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+      _corLogoTemp=cv.toDataURL('image/png');
+      const pv=document.getElementById('cor-logo-preview'), im=document.getElementById('cor-logo-img');
+      if(im)im.src=_corLogoTemp; if(pv)pv.style.display='flex';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+function _corLogoRemove(){
+  _corLogoTemp=null;
+  const pv=document.getElementById('cor-logo-preview'); if(pv)pv.style.display='none';
+  const inp=document.getElementById('cor-logo-input'); if(inp)inp.value='';
+}
+
 function saveCorretores(){
   localStorage.setItem('nexa_corretores', JSON.stringify(corretores));
   if(supa&&corretores){corretores.forEach(co=>supaSaveCorretor(co));}
@@ -4361,6 +4607,9 @@ function openAddCorretor(){
   document.getElementById('cor-tel-input').value='';
   document.getElementById('cor-slug-input').value='';
   document.getElementById('cor-link-preview').textContent='—';
+  _corLogoTemp=null;
+  const _pv=document.getElementById('cor-logo-preview'); if(_pv)_pv.style.display='none';
+  const _li=document.getElementById('cor-logo-input'); if(_li)_li.value='';
   openModal('mo-corretor');
   setTimeout(()=>document.getElementById('cor-nome-input').focus(),300);
   // Live preview
@@ -4378,7 +4627,8 @@ function saveCorretor(){
   const slug=document.getElementById('cor-slug-input').value.trim();
   if(!nome){alert('Preencha o nome!');return;}
   const finalSlug=normRef(slug||nome);
-  corretores.push({id:'cor_'+Date.now(), nome, telefone:tel, slug:finalSlug});
+  corretores.push({id:'cor_'+Date.now(), nome, telefone:tel, slug:finalSlug, logoImobiliaria:_corLogoTemp||null});
+  _corLogoTemp=null;
   saveCorretores();
   renderCorretores();
   closeModal('mo-corretor');
@@ -4386,6 +4636,33 @@ function saveCorretor(){
 }
 
 function addCorretor(){openAddCorretor();}
+
+
+let _corLogoEditId=null;
+function editarLogoCorretor(id){
+  _corLogoEditId=id;
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange=()=>{
+    const f=inp.files&&inp.files[0]; if(!f)return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxW=240; const escala=Math.min(1,maxW/img.width);
+        const w=Math.round(img.width*escala), h=Math.round(img.height*escala);
+        const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        const b64=cv.toDataURL('image/png');
+        const co=corretores.find(x=>x.id===_corLogoEditId);
+        if(co){co.logoImobiliaria=b64; saveCorretores(); renderCorretores(); showToast('✅ Logo atualizado!','success');}
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(f);
+  };
+  inp.click();
+}
 
 function delCorretor(id){
   supaDeleteCorretor(id);
@@ -4468,7 +4745,11 @@ function renderCorretores(){
       const _s=normRef(cor.slug);
       const total=clients.filter(c=>normRef(c.refCorretor)===_s).length+(arquivados||[]).filter(a=>normRef(a.ref_corretor)===_s).length;
       return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-        <td style="padding:12px"><div style="font-weight:600;font-size:12px">${cor.nome}</div><div style="font-size:9px;color:var(--mu)">${cor.slug}</div></td>
+        <td style="padding:12px"><div style="display:flex;align-items:center;gap:8px">
+          ${cor.logoImobiliaria?`<img src="${cor.logoImobiliaria}" style="height:34px;max-width:60px;border-radius:5px;background:#fff;padding:2px;object-fit:contain">`:`<span style="font-size:9px;color:var(--mu);border:1px dashed var(--bd);border-radius:5px;padding:6px 4px;text-align:center;width:52px">sem logo</span>`}
+          <div><div style="font-weight:600;font-size:12px">${cor.nome}</div><div style="font-size:9px;color:var(--mu)">${cor.slug}</div>
+          <button class="btn bo" style="padding:2px 6px;font-size:9px;margin-top:3px" onclick="editarLogoCorretor('${cor.id}')">${cor.logoImobiliaria?'Trocar logo':'+ Logo'}</button></div>
+        </div></td>
         <td style="padding:12px;font-size:11px;color:var(--mu)">${cor.telefone||'—'}</td>
         <td style="padding:12px;text-align:center"><span style="font-size:14px;font-weight:700;color:var(--gd)">${total}</span></td>
         <td style="padding:12px;font-size:10px;color:var(--mu);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${link}</td>
