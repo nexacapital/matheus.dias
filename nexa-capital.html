@@ -513,10 +513,11 @@ checkAuth();
 
     <!-- RESUMO MENSAL -->
     <div class="pg ain" id="page-resumo">
-      <div class="ph"><div><h1>Resumo Mensal</h1><p>Visão consolidada do mês com comparativo</p></div>
-        <div class="phl">
-          <select id="res-mes" onchange="renderResumo()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx)"></select>
-          <select id="res-ano" onchange="renderResumo()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx)"></select>
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+        <div><h1>Resumo Mensal</h1><p>Visão consolidada do mês com comparativo</p><div class="phl"></div></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <select id="res-mes" onchange="renderResumo()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--nvm);color:var(--tx);font-size:12px"></select>
+          <select id="res-ano" onchange="renderResumo()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--nvm);color:var(--tx);font-size:12px"></select>
         </div>
       </div>
       <div id="resumo-conteudo"></div>
@@ -524,9 +525,10 @@ checkAuth();
 
     <!-- MARKETING / RELACIONAMENTO -->
     <div class="pg ain" id="page-marketing">
-      <div class="ph"><div><h1>Marketing & Relacionamento</h1><p>Oportunidades de contato e reativação de clientes</p></div>
-        <div class="phl">
-          <select id="mkt-filtro" onchange="renderMarketing()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx)"></select>
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+        <div><h1>Marketing & Relacionamento</h1><p>Oportunidades de contato e reativação de clientes</p><div class="phl"></div></div>
+        <div style="margin-top:4px">
+          <select id="mkt-filtro" onchange="renderMarketing()" style="padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--nvm);color:var(--tx);font-size:12px"></select>
         </div>
       </div>
       <div id="mkt-oportunidades" style="margin-bottom:16px"></div>
@@ -538,13 +540,14 @@ checkAuth();
 
     <!-- CORRETORES -->
     <div class="pg ain" id="page-corretores">
-      <div class="ph"><div><h1>Corretores</h1><p>Parceiros que indicam clientes e seus links de cadastro</p></div>
-        <div class="phl"><button class="btn bg" onclick="addCorretor()">+ Corretor</button></div>
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><h1>Corretores</h1><p>Parceiros que indicam clientes e seus links de cadastro</p><div class="phl"></div></div>
+        <div style="margin-top:4px"><button class="btn bg" onclick="addCorretor()">+ Corretor</button></div>
       </div>
-      <div class="fr f" style="margin-bottom:16px">
-        <div class="card" style="flex:1"><div class="ct">Total de Corretores</div><div style="font-size:26px;font-weight:700;color:var(--gd)" id="cor-total">0</div></div>
-        <div class="card" style="flex:1"><div class="ct">Clientes Indicados</div><div style="font-size:26px;font-weight:700;color:var(--gd)" id="cor-clientes">0</div></div>
-        <div class="card" style="flex:1"><div class="ct">Melhor Corretor</div><div style="font-size:16px;font-weight:600;color:var(--tx)" id="cor-melhor">—</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+        <div class="card" style="padding:14px"><div class="ct" style="font-size:11px">Total de Corretores</div><div style="font-size:22px;font-weight:700;color:var(--gd);margin-top:4px" id="cor-total">0</div></div>
+        <div class="card" style="padding:14px"><div class="ct" style="font-size:11px">Clientes Indicados</div><div style="font-size:22px;font-weight:700;color:var(--gd);margin-top:4px" id="cor-clientes">0</div></div>
+        <div class="card" style="padding:14px"><div class="ct" style="font-size:11px">Melhor Corretor</div><div style="font-size:14px;font-weight:600;color:var(--tx);margin-top:6px" id="cor-melhor">—</div></div>
       </div>
       <div class="card">
         <div class="ct">Lista de Corretores</div>
@@ -554,8 +557,9 @@ checkAuth();
 
     <!-- BANCOS -->
     <div class="pg ain" id="page-bancos">
-      <div class="ph"><div><h1>Meus Bancos</h1><p>Instituições e taxas para simulações e comparativos</p></div>
-        <div class="phl"><button class="btn bg" onclick="openBankModal()">+ Banco</button></div>
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div><h1>Meus Bancos</h1><p>Instituições e taxas para simulações e comparativos</p><div class="phl"></div></div>
+        <div style="margin-top:4px"><button class="btn bg" onclick="openBankModal()">+ Banco</button></div>
       </div>
       <div id="bkgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px"></div>
     </div>
@@ -610,6 +614,7 @@ checkAuth();
       <div class="fr"><div class="fg"><label>Nome <span class="rq">*</span></label><input type="text" id="cor-nome-input" placeholder="Ex: João Silva"></div></div>
       <div class="fr"><div class="fg"><label>WhatsApp</label><input type="text" id="cor-tel-input" placeholder="(19) 99999-9999"></div></div>
       <div class="fr"><div class="fg"><label>Slug do link (opcional)</label><input type="text" id="cor-slug-input" placeholder="joao-silva"><div class="fe" style="display:block;color:var(--mu)">Gerado do nome se vazio</div></div></div>
+      <div class="fr"><div class="fg"><label>Nome da imobiliária (opcional)</label><input type="text" id="cor-imob-input" placeholder="Ex: Imobiliária Silva"><div class="fe" style="display:block;color:var(--mu)">Aparece no portal dos clientes indicados por este corretor</div></div></div>
       <div class="fr"><div class="fg"><label>Logo da imobiliária (opcional)</label>
         <input type="file" id="cor-logo-input" accept="image/*" onchange="_corLogoUpload(this)" style="font-size:12px">
         <div class="fe" style="display:block;color:var(--mu)">Aparece no portal dos clientes indicados por este corretor</div>
@@ -1129,9 +1134,9 @@ async function supaSaveAgenda(a){ if(!supa)return; try{await supa.from('agenda')
 async function supaDeleteAgenda(id){ if(!supa)return; try{await supa.from('agenda').delete().eq('id',id);}catch(e){console.warn(e);} }
 async function supaLoadAgenda(){ if(!supa)return null; try{const {data,error}=await supa.from('agenda').select('*');if(error)throw error;return data.map(r=>({id:r.id,titulo:r.titulo,data:r.data,hora:r.hora,tipo:r.tipo,clienteId:r.cliente_id,local:r.local}));}catch(e){return null;} }
 // Corretores
-async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corretores').upsert({id:co.id,nome:co.nome,telefone:co.telefone||null,slug:co.slug,logo_imobiliaria:co.logoImobiliaria||null});}catch(e){console.warn(e);} }
+async function supaSaveCorretor(co){ if(!supa)return; try{await supa.from('corretores').upsert({id:co.id,nome:co.nome,telefone:co.telefone||null,slug:co.slug,logo_imobiliaria:co.logoImobiliaria||null,imobiliaria_nome:co.imobiliariaNome||null});}catch(e){console.warn(e);} }
 async function supaDeleteCorretor(id){ if(!supa)return; try{await supa.from('corretores').delete().eq('id',id);}catch(e){console.warn(e);} }
-async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug,logoImobiliaria:r.logo_imobiliaria||null}));}catch(e){return null;} }
+async function supaLoadCorretores(){ if(!supa)return null; try{const {data,error}=await supa.from('corretores').select('*');if(error)throw error;return data.map(r=>({id:r.id,nome:r.nome,telefone:r.telefone,slug:r.slug,logoImobiliaria:r.logo_imobiliaria||null,imobiliariaNome:r.imobiliaria_nome||null}));}catch(e){return null;} }
 
 
 async function forcarSincronizacao(){
@@ -4623,6 +4628,7 @@ function openAddCorretor(){
   document.getElementById('cor-slug-input').value='';
   document.getElementById('cor-link-preview').textContent='—';
   _corLogoTemp=null;
+  const _im=document.getElementById('cor-imob-input'); if(_im)_im.value='';
   const _pv=document.getElementById('cor-logo-preview'); if(_pv)_pv.style.display='none';
   const _li=document.getElementById('cor-logo-input'); if(_li)_li.value='';
   openModal('mo-corretor');
@@ -4642,7 +4648,7 @@ function saveCorretor(){
   const slug=document.getElementById('cor-slug-input').value.trim();
   if(!nome){alert('Preencha o nome!');return;}
   const finalSlug=normRef(slug||nome);
-  corretores.push({id:'cor_'+Date.now(), nome, telefone:tel, slug:finalSlug, logoImobiliaria:_corLogoTemp||null});
+  corretores.push({id:'cor_'+Date.now(), nome, telefone:tel, slug:finalSlug, logoImobiliaria:_corLogoTemp||null, imobiliariaNome:(document.getElementById('cor-imob-input')?.value||'').trim()||null});
   _corLogoTemp=null;
   saveCorretores();
   renderCorretores();
@@ -4652,6 +4658,18 @@ function saveCorretor(){
 
 function addCorretor(){openAddCorretor();}
 
+
+
+function editarNomeImob(id){
+  const co=corretores.find(x=>x.id===id);
+  if(!co)return;
+  const nome=prompt('Nome da imobiliária deste corretor:', co.imobiliariaNome||'');
+  if(nome===null)return; // cancelou
+  co.imobiliariaNome=nome.trim()||null;
+  saveCorretores();
+  renderCorretores();
+  showToast('✅ Nome da imobiliária atualizado!','success');
+}
 
 let _corLogoEditId=null;
 function editarLogoCorretor(id){
@@ -4763,7 +4781,11 @@ function renderCorretores(){
         <td style="padding:12px"><div style="display:flex;align-items:center;gap:8px">
           ${cor.logoImobiliaria?`<img src="${cor.logoImobiliaria}" style="height:34px;max-width:60px;border-radius:5px;background:#fff;padding:2px;object-fit:contain">`:`<span style="font-size:9px;color:var(--mu);border:1px dashed var(--bd);border-radius:5px;padding:6px 4px;text-align:center;width:52px">sem logo</span>`}
           <div><div style="font-weight:600;font-size:12px">${cor.nome}</div><div style="font-size:9px;color:var(--mu)">${cor.slug}</div>
-          <button class="btn bo" style="padding:2px 6px;font-size:9px;margin-top:3px" onclick="editarLogoCorretor('${cor.id}')">${cor.logoImobiliaria?'Trocar logo':'+ Logo'}</button></div>
+          ${cor.imobiliariaNome?`<div style="font-size:9px;color:var(--gd);margin-top:1px">🏢 ${cor.imobiliariaNome}</div>`:''}
+          <div style="display:flex;gap:4px;margin-top:3px">
+            <button class="btn bo" style="padding:2px 6px;font-size:9px" onclick="editarLogoCorretor('${cor.id}')">${cor.logoImobiliaria?'Trocar logo':'+ Logo'}</button>
+            <button class="btn bo" style="padding:2px 6px;font-size:9px" onclick="editarNomeImob('${cor.id}')">${cor.imobiliariaNome?'Editar nome':'+ Nome imob.'}</button>
+          </div></div>
         </div></td>
         <td style="padding:12px;font-size:11px;color:var(--mu)">${cor.telefone||'—'}</td>
         <td style="padding:12px;text-align:center"><span style="font-size:14px;font-weight:700;color:var(--gd)">${total}</span></td>
