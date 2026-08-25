@@ -162,10 +162,8 @@ async function init(){
           // Subtítulo com o nome da imobiliária (quando informado)
           const sub=document.getElementById('portal-sub');
           if(sub && cor.imobiliaria_nome && cor.imobiliaria_nome.trim()){
-            sub.textContent='Correspondente bancário Matheus Dias em parceria com a '+cor.imobiliaria_nome.trim();
-            sub.style.textTransform='none';
-            sub.style.letterSpacing='0.5px';
-            sub.style.lineHeight='1.5';
+            sub.textContent='Correspondente bancário Matheus Dias em parceria com a Imobiliária '+cor.imobiliaria_nome.trim();
+            sub.style.lineHeight='1.6';
           }
         }
       }
