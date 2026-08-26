@@ -554,15 +554,15 @@ checkAuth();
         <div id="cortab-cor" onclick="corTab('cor')" style="cursor:pointer;padding:8px 2px;font-size:13px;font-weight:600;color:var(--gd);border-bottom:2px solid var(--gd)">Corretores</div>
         <div id="cortab-imob" onclick="corTab('imob')" style="cursor:pointer;padding:8px 2px;font-size:13px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent">Imobiliárias</div>
       </div>
-      <div id="cor-pane-cor" class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-          <div class="ct" style="margin:0">Lista de Corretores</div>
-          <div style="position:relative;flex:1;max-width:260px;min-width:160px">
-            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6">🔍</span>
-            <input type="text" id="cor-busca" oninput="renderCorretores()" placeholder="Buscar corretor..." style="width:100%;font-size:12px;padding:7px 9px 7px 30px">
-          </div>
+      <div id="cor-pane-cor">
+        <div style="position:relative;max-width:260px;margin-bottom:14px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6">🔍</span>
+          <input type="text" id="cor-busca" oninput="renderCorretores()" placeholder="Buscar corretor..." style="width:100%;font-size:12px;padding:7px 9px 7px 30px">
         </div>
-        <div id="corretores-list"></div>
+        <div class="card">
+          <div class="ct">Lista de Corretores</div>
+          <div id="corretores-list"></div>
+        </div>
       </div>
       <div id="cor-pane-imob" style="display:none">
         <div style="position:relative;max-width:260px;margin-bottom:14px">
@@ -4815,9 +4815,11 @@ function renderImobiliarias(){
     if(nome){ if(!grupos[nome])grupos[nome]={nome, logo:co.logoImobiliaria||null, corretores:[]}; grupos[nome].corretores.push(co); if(!grupos[nome].logo&&co.logoImobiliaria)grupos[nome].logo=co.logoImobiliaria; }
     else semImob.push(co);
   });
-  let lista=Object.values(grupos).sort((a,b)=>a.nome.localeCompare(b.nome));
+  Object.values(grupos).forEach(g=>g.corretores.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'})));
+  let lista=Object.values(grupos).sort((a,b)=>a.nome.localeCompare(b.nome,'pt',{sensitivity:'base'}));
   // filtro de busca (por nome da imobiliária ou de qualquer corretor dela)
   const _bq=(document.getElementById('imob-busca')?.value||'').trim().toLowerCase();
+  semImob.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'}));
   let _semImobFiltrado=semImob;
   if(_bq){
     lista=lista.filter(g=> g.nome.toLowerCase().includes(_bq) || g.corretores.some(co=>((co.nome||'')+' '+(co.telefone||'')).toLowerCase().includes(_bq)));
@@ -4890,7 +4892,8 @@ function renderCorretores(){
     </tr></thead>
     <tbody>${(()=>{
       const _bq=(document.getElementById('cor-busca')?.value||'').trim().toLowerCase();
-      const _lista=_bq?corretores.filter(co=>((co.nome||'')+' '+(co.slug||'')+' '+(co.imobiliariaNome||'')+' '+(co.telefone||'')).toLowerCase().includes(_bq)):corretores;
+      const _base=_bq?corretores.filter(co=>((co.nome||'')+' '+(co.slug||'')+' '+(co.imobiliariaNome||'')+' '+(co.telefone||'')).toLowerCase().includes(_bq)):corretores.slice();
+      const _lista=_base.sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt',{sensitivity:'base'}));
       if(!_lista.length)return '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--mu);font-size:12px">Nenhum corretor encontrado.</td></tr>';
       return _lista.map(cor=>{
       const link=BASE+'?ref='+cor.slug;
