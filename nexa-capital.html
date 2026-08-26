@@ -549,9 +549,17 @@ checkAuth();
         <div class="card" style="padding:14px"><div class="ct" style="font-size:11px">Clientes Indicados</div><div style="font-size:22px;font-weight:700;color:var(--gd);margin-top:4px" id="cor-clientes">0</div></div>
         <div class="card" style="padding:14px"><div class="ct" style="font-size:11px">Melhor Corretor</div><div style="font-size:14px;font-weight:600;color:var(--tx);margin-top:6px" id="cor-melhor">—</div></div>
       </div>
-      <div class="card">
+      <!-- Abas Corretores / Imobiliárias -->
+      <div style="display:flex;gap:20px;border-bottom:1px solid var(--bd);margin-bottom:16px">
+        <div id="cortab-cor" onclick="corTab('cor')" style="cursor:pointer;padding:8px 2px;font-size:13px;font-weight:600;color:var(--gd);border-bottom:2px solid var(--gd)">Corretores</div>
+        <div id="cortab-imob" onclick="corTab('imob')" style="cursor:pointer;padding:8px 2px;font-size:13px;font-weight:600;color:var(--mu);border-bottom:2px solid transparent">Imobiliárias</div>
+      </div>
+      <div id="cor-pane-cor" class="card">
         <div class="ct">Lista de Corretores</div>
         <div id="corretores-list"></div>
+      </div>
+      <div id="cor-pane-imob" style="display:none">
+        <div id="imobiliarias-list"></div>
       </div>
     </div>
 
@@ -1058,9 +1066,34 @@ async function salvarPipeline(){
   COLS_DEFAULT.forEach(def=>{ if(!presentes.has(def.k)) _pipeEdit.push({...def}); });
   COLS=_pipeEdit.map(col=>({...col, sys:SYS_KEYS.has(col.k)}));
   await savePipelineCols();
+  await sincronizarPortalComPipeline();
   closeModal('mo-pipe');
   renderAll();
-  alert('\u2705 Etapas do pipeline atualizadas.');
+  alert('\u2705 Etapas do pipeline atualizadas (portal também).');
+}
+
+// Sincroniza as etapas do portal com o pipeline: novas entram, renomeadas atualizam o nome,
+// removidas saem. Mantém o que o Matheus personalizou no portal (mensagem e visível/oculto).
+async function sincronizarPortalComPipeline(){
+  // "perdidos" nunca vai pro portal
+  const doPipe=COLS.filter(c=>c.k!=='perdidos');
+  // carrega o que já está salvo no portal (pra preservar msg/hidden)
+  let salvo=null;
+  if(supa){try{const {data}=await supa.from('checklist_modelos').select('*').eq('id','portal_etapas').maybeSingle();if(data&&Array.isArray(data.fases))salvo=data.fases;}catch(e){}}
+  if(!salvo){try{const r=localStorage.getItem('nexa_portal_etapas');if(r)salvo=JSON.parse(r);}catch(e){}}
+  const antigos={}; (salvo||[]).forEach(e=>{antigos[e.k]=e;});
+  // remonta na ordem do pipeline
+  const novo=doPipe.map(col=>{
+    const ant=antigos[col.k];
+    return {
+      k:col.k,
+      label:col.l, // nome sempre segue o pipeline
+      msg:ant?ant.msg||'':(typeof MSG_PORTAL_PADRAO!=='undefined'?(MSG_PORTAL_PADRAO[col.k]||''):''),
+      hidden:ant?!!ant.hidden:false // mantém visível/oculto que o Matheus definiu
+    };
+  });
+  try{localStorage.setItem('nexa_portal_etapas',JSON.stringify(novo));}catch(e){}
+  if(supa){try{await supa.from('checklist_modelos').upsert({id:'portal_etapas',nome:'Etapas do portal',fases:novo,atualizado_em:new Date().toISOString()});}catch(e){}}
 }
 
 function saveClients(){try{localStorage.setItem('nexa_clients_int',JSON.stringify(clients));}catch(e){}
@@ -2843,7 +2876,16 @@ function openClientDetail(id){
     const selSN=(lab,campo,val)=>`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">${lab}</label><select onchange="updClient('${campo}',this.value)" style="font-size:12px;padding:7px 9px"><option value="" ${!val?'selected':''}>\u2014</option><option value="sim" ${val==='sim'?'selected':''}>Sim</option><option value="nao" ${val==='nao'?'selected':''}>N\u00e3o</option></select></div>`;
     h+=selSN('Haver\u00e1 quita\u00e7\u00e3o?','temQuitacao',c.temQuitacao||'');
     h+=selSN('Vai usar FGTS?','temFgts',c.temFgts||'');
-    h+=fld('Refer\u00eancia (corretor)','refCorretor',c.refCorretor||'');
+    // Corretor: dropdown com todos os cadastrados (permite trocar/incluir a qualquer momento)
+    const _refAtual=normRef(c.refCorretor||'');
+    const _temNaLista=corretores.some(co=>normRef(co.slug)===_refAtual);
+    let _optsCor='<option value="">— Sem corretor —</option>';
+    corretores.slice().sort((a,b)=>(a.nome||'').localeCompare(b.nome||'')).forEach(co=>{
+      const sel=normRef(co.slug)===_refAtual?'selected':'';
+      _optsCor+=`<option value="${co.slug}" ${sel}>${co.nome}${co.imobiliariaNome?' — '+co.imobiliariaNome:''}</option>`;
+    });
+    if(c.refCorretor && !_temNaLista){ _optsCor+=`<option value="${c.refCorretor}" selected>${c.refCorretor} (não cadastrado)</option>`; }
+    h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Corretor</label><select onchange="updClient('refCorretor',this.value)" style="font-size:12px;padding:7px 9px">${_optsCor}</select></div>`;
     h+=`<div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:9px;letter-spacing:1px;color:var(--mu);text-transform:uppercase">Origem</label><div style="font-size:11px;padding:7px 0;color:var(--mu)">${c.origem==='formulario_publico'?'Formul\u00e1rio':'Interno'}${c.dataCadastro?' \u00b7 '+new Date(c.dataCadastro).toLocaleDateString('pt-BR'):''}</div></div>`;
     dp.innerHTML=h;
   }
@@ -4742,6 +4784,61 @@ async function corrigirVinculosCorretores(){
   saveClients();
   if(typeof renderCorretores==='function')renderCorretores();
   console.log('Vínculos de corretores corrigidos automaticamente:',correcoes.length);
+}
+
+
+function corTab(qual){
+  document.getElementById('cor-pane-cor').style.display=qual==='cor'?'block':'none';
+  document.getElementById('cor-pane-imob').style.display=qual==='imob'?'block':'none';
+  const tc=document.getElementById('cortab-cor'), ti=document.getElementById('cortab-imob');
+  if(qual==='cor'){tc.style.color='var(--gd)';tc.style.borderBottomColor='var(--gd)';ti.style.color='var(--mu)';ti.style.borderBottomColor='transparent';}
+  else{ti.style.color='var(--gd)';ti.style.borderBottomColor='var(--gd)';tc.style.color='var(--mu)';tc.style.borderBottomColor='transparent';renderImobiliarias();}
+}
+function renderImobiliarias(){
+  const el=document.getElementById('imobiliarias-list');
+  if(!el)return;
+  // agrupa corretores por imobiliária
+  const grupos={};
+  const semImob=[];
+  corretores.forEach(co=>{
+    const nome=(co.imobiliariaNome||'').trim();
+    if(nome){ if(!grupos[nome])grupos[nome]={nome, logo:co.logoImobiliaria||null, corretores:[]}; grupos[nome].corretores.push(co); if(!grupos[nome].logo&&co.logoImobiliaria)grupos[nome].logo=co.logoImobiliaria; }
+    else semImob.push(co);
+  });
+  const lista=Object.values(grupos).sort((a,b)=>a.nome.localeCompare(b.nome));
+  if(!lista.length && !semImob.length){ el.innerHTML='<div class="card"><div style="color:var(--mu);font-size:12px;text-align:center;padding:20px">Nenhuma imobiliária cadastrada ainda. Adicione o nome da imobiliária no cadastro de um corretor.</div></div>'; return; }
+  // conta clientes por corretor
+  const totalCli=co=>{const s=normRef(co.slug);return clients.filter(c=>normRef(c.refCorretor)===s).length+(arquivados||[]).filter(a=>normRef(a.ref_corretor)===s).length;};
+  let html=lista.map(g=>{
+    const totClientes=g.corretores.reduce((s,co)=>s+totalCli(co),0);
+    return `<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+        ${g.logo?`<img src="${g.logo}" style="height:44px;max-width:110px;object-fit:contain;border-radius:6px">`:`<div style="width:44px;height:44px;border-radius:8px;background:var(--nvl);display:flex;align-items:center;justify-content:center;font-size:20px">🏢</div>`}
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--tx)">${g.nome}</div>
+          <div style="font-size:11px;color:var(--mu)">${g.corretores.length} corretor${g.corretores.length===1?'':'es'} · ${totClientes} cliente${totClientes===1?'':'s'} indicado${totClientes===1?'':'s'}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${g.corretores.map(co=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--nvm);border-radius:8px">
+          <div><div style="font-size:12px;font-weight:600">${co.nome}</div><div style="font-size:10px;color:var(--mu)">${co.telefone||'sem telefone'}</div></div>
+          <span style="font-size:13px;font-weight:700;color:var(--gd)">${totalCli(co)} <span style="font-size:9px;color:var(--mu);font-weight:400">clientes</span></span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  if(semImob.length){
+    html+=`<div class="card" style="opacity:.75">
+      <div style="font-size:12px;font-weight:600;color:var(--mu);margin-bottom:10px">Corretores sem imobiliária vinculada</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${semImob.map(co=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--nvm);border-radius:8px">
+          <div><div style="font-size:12px;font-weight:600">${co.nome}</div><div style="font-size:10px;color:var(--mu)">${co.telefone||'sem telefone'}</div></div>
+          <span style="font-size:13px;font-weight:700;color:var(--gd)">${totalCli(co)} <span style="font-size:9px;color:var(--mu);font-weight:400">clientes</span></span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML=html;
 }
 
 function renderCorretores(){
