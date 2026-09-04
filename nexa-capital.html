@@ -4712,6 +4712,17 @@ function addCorretor(){openAddCorretor();}
 
 
 
+
+function excluirLogoCorretor(id){
+  const co=corretores.find(x=>x.id===id);
+  if(!co)return;
+  if(!confirm('Remover o logo da imobiliária deste corretor?'))return;
+  co.logoImobiliaria=null;
+  saveCorretores();
+  renderCorretores();
+  showToast('✅ Logo removido!','success');
+}
+
 function editarNomeImob(id){
   const co=corretores.find(x=>x.id===id);
   if(!co)return;
@@ -4906,6 +4917,7 @@ function renderCorretores(){
           ${cor.imobiliariaNome?`<div style="font-size:9px;color:var(--gd);margin-top:1px">🏢 ${cor.imobiliariaNome}</div>`:''}
           <div style="display:flex;gap:4px;margin-top:3px">
             <button class="btn bo" style="padding:2px 6px;font-size:9px" onclick="editarLogoCorretor('${cor.id}')">${cor.logoImobiliaria?'Trocar logo':'+ Logo'}</button>
+            ${cor.logoImobiliaria?`<button class="btn brd" style="padding:2px 6px;font-size:9px" onclick="excluirLogoCorretor('${cor.id}')" title="Remover o logo da imobiliária">✕ Logo</button>`:''}
             <button class="btn bo" style="padding:2px 6px;font-size:9px" onclick="editarNomeImob('${cor.id}')">${cor.imobiliariaNome?'Editar nome':'+ Nome imob.'}</button>
           </div></div>
         </div></td>
